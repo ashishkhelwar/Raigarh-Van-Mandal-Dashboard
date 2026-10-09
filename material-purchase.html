@@ -162,17 +162,20 @@ addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});<
   <div class="logo">Material Purchase<span>Raigarh Forest Division</span></div>
   <div class="nav-group">
     <div class="nav-label">Sections</div>
-    <a href="#" onclick="show('s0');return false;" id="nav-s0" class="active">§1  Overview</a>
-    <a href="#" onclick="show('s1');return false;" id="nav-s1">§2  Plantation Material</a>
-    <a href="#" onclick="show('s2');return false;" id="nav-s2">§3  Plantation Fencing</a>
-    <a href="#" onclick="show('s3');return false;" id="nav-s3">§4  Nursery</a>
-    <a href="#" onclick="show('s4');return false;" id="nav-s4">§5  Forestry Regular</a>
-    <a href="#" onclick="show('s5');return false;" id="nav-s5">§6  Forestry CAMPA</a>
-    <a href="#" onclick="show('s6');return false;" id="nav-s6">§7  Major Construction</a>
-    <a href="#" onclick="show('s7');return false;" id="nav-s7">§8  Machine Requirement</a>
-    <a href="#" onclick="show('s8');return false;" id="nav-s8">§9  Minor Construction</a>
-    <a href="#" onclick="show('s9');return false;" id="nav-s9">§10 Small Purchase</a>
-    <a href="#" onclick="show('s10');return false;" id="nav-s10">§11 Awareness Program</a>
+    <a href="#" onclick="show('s0');return false;" id="nav-s0" class="active">Overview</a>
+    <a href="#" onclick="show('s1');return false;" id="nav-s1">1.1 Plantation Material 25-26</a>
+    <a href="#" onclick="show('s11');return false;" id="nav-s11">1.2 Plantation Material 26-27</a>
+    <a href="#" onclick="show('s2');return false;" id="nav-s2">2.1 Plantation Fencing 25-26</a>
+    <a href="#" onclick="show('s12');return false;" id="nav-s12">2.2 Plantation Fencing 26-27</a>
+    <a href="#" onclick="show('s3');return false;" id="nav-s3">3.1 Nursery 25-26</a>
+    <a href="#" onclick="show('s13');return false;" id="nav-s13">3.2 Nursery 26-27</a>
+    <a href="#" onclick="show('s4');return false;" id="nav-s4">4 Forestry Regular</a>
+    <a href="#" onclick="show('s5');return false;" id="nav-s5">5 Forestry CAMPA</a>
+    <a href="#" onclick="show('s6');return false;" id="nav-s6">6 Major Construction</a>
+    <a href="#" onclick="show('s7');return false;" id="nav-s7">7 Machine Requirement</a>
+    <a href="#" onclick="show('s8');return false;" id="nav-s8">8 Minor Construction</a>
+    <a href="#" onclick="show('s9');return false;" id="nav-s9">9 Small Purchase</a>
+    <a href="#" onclick="show('s10');return false;" id="nav-s10">10 Awareness Program</a>
   </div>
   <a class="open-sheet" href="https://docs.google.com/spreadsheets/d/1UMBZVxUoVgGa5bHUj55OoIG_0RbBVNvIaSL60ttsF8w/edit" target="_blank">Open Google Sheet ↗</a>
 </nav>
@@ -180,7 +183,7 @@ addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});<
 <!-- MAIN -->
 <div id="main">
   <div class="topbar">
-    <h1>📦 Material Purchase Dashboard — 2025-26 <small style="font-size:12px;font-weight:400;opacity:.8">· Data updated: 17 Sep 2026</small></h1>
+    <h1>📦 Material Purchase Dashboard — 2025-26 &amp; 2026-27 <small style="font-size:12px;font-weight:400;opacity:.8">· Data updated: 10 Oct 2026</small></h1>
     <div style="display:flex;gap:8px;align-items:center;">
       <span class="meta" id="lastUpdated">Loading...</span>
       <button id="refreshBtn" onclick="loadAll()">↻ Refresh</button>
@@ -197,7 +200,7 @@ addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});<
       <div class="kpi"><label>Total Budget Allocated (₹)</label><div class="val" id="ov-budget">—</div></div>
       <div class="kpi green"><label>Total Expenditure (₹)</label><div class="val" id="ov-expend">—</div></div>
       <div class="kpi orange"><label>Balance (₹)</label><div class="val" id="ov-balance">—</div></div>
-      <div class="kpi"><label>Categories Active</label><div class="val">10</div></div>
+      <div class="kpi"><label>Categories Active</label><div class="val">13</div></div>
     </div>
     <div class="summary-tbl">
       <table>
@@ -218,7 +221,7 @@ addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});<
   <!-- §2 PLANTATION MATERIAL -->
   <div class="section" id="s1">
     <div class="section-hdr">
-      <h2>§2  Plantation Material (Category 1)</h2>
+      <h2>1.1  Plantation Material 2025-26</h2>
       <div style="display:flex;gap:6px;flex-wrap:wrap;">
         <button class="btn-summary" id="sumBtn-s1" onclick="toggleSummary('s1')">📊 Material Summary</button>
         <a class="btn-sheet" href="https://docs.google.com/spreadsheets/d/1UMBZVxUoVgGa5bHUj55OoIG_0RbBVNvIaSL60ttsF8w/edit#gid=0" target="_blank">Open Sheet ↗</a>
@@ -244,15 +247,49 @@ addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});<
       </select>
     </div>
     <div class="card">
-      <div class="card-title">Site-wise Plantation Material Requirement · 28 Sites</div>
+      <div class="card-title">Site-wise Plantation Material Requirement</div>
       <div class="table-wrap" id="tbl-s1"><div class="loading"><span class="spinner"></span>Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- §2 PLANTATION MATERIAL (2026-27) -->
+  <div class="section" id="s11">
+    <div class="section-hdr">
+      <h2>1.2  Plantation Material 2026-27</h2>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn-summary" id="sumBtn-s11" onclick="toggleSummary('s11')">📊 Material Summary</button>
+        <a class="btn-sheet" href="https://docs.google.com/spreadsheets/d/1UMBZVxUoVgGa5bHUj55OoIG_0RbBVNvIaSL60ttsF8w/edit#gid=0" target="_blank">Open Sheet ↗</a>
+      </div>
+    </div>
+    <div class="kpi-row" id="kpi-s11"></div>
+    <div class="summary-panel" id="sumpanel-s11">
+      <div class="summary-panel-hdr">
+        📊 Material-wise Summary — Plantation Material
+        <button onclick="toggleSummary('s11')">✕ Close</button>
+      </div>
+      <div class="table-wrap"><table class="sum-tbl" id="sumtbl-s11">
+        <thead><tr><th>Material</th><th>Unit</th><th>Total Qty</th><th>Total Amount (₹)</th><th>Total Expend. (₹)</th><th>Balance (₹)</th></tr></thead>
+        <tbody><tr><td colspan="6" class="no-data">Loading...</td></tr></tbody>
+      </table></div>
+    </div>
+    <div class="filters">
+      <label>Range:</label>
+      <select onchange="filterSection('s11',this.value)">
+        <option value="">All Ranges</option>
+        <option>रायगढ़</option><option>खरसिया</option>
+        <option>घरघोड़ा</option><option>तमनार</option>
+      </select>
+    </div>
+    <div class="card">
+      <div class="card-title">Site-wise Plantation Material Requirement</div>
+      <div class="table-wrap" id="tbl-s11"><div class="loading"><span class="spinner"></span>Loading...</div></div>
     </div>
   </div>
 
   <!-- §3 PLANTATION FENCING -->
   <div class="section" id="s2">
     <div class="section-hdr">
-      <h2>§3  Plantation Fencing Material (Category 2)</h2>
+      <h2>2.1  Plantation Fencing 2025-26</h2>
       <div style="display:flex;gap:6px;flex-wrap:wrap;">
         <button class="btn-summary" id="sumBtn-s2" onclick="toggleSummary('s2')">📊 Material Summary</button>
         <a class="btn-sheet" href="https://docs.google.com/spreadsheets/d/1UMBZVxUoVgGa5bHUj55OoIG_0RbBVNvIaSL60ttsF8w/edit" target="_blank">Open Sheet ↗</a>
@@ -278,15 +315,49 @@ addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});<
       </select>
     </div>
     <div class="card">
-      <div class="card-title">Site-wise Fencing Material Requirement · 28 Sites</div>
+      <div class="card-title">Site-wise Fencing Material Requirement</div>
       <div class="table-wrap" id="tbl-s2"><div class="loading"><span class="spinner"></span>Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- §3 PLANTATION FENCING (2026-27) -->
+  <div class="section" id="s12">
+    <div class="section-hdr">
+      <h2>2.2  Plantation Fencing 2026-27</h2>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn-summary" id="sumBtn-s12" onclick="toggleSummary('s12')">📊 Material Summary</button>
+        <a class="btn-sheet" href="https://docs.google.com/spreadsheets/d/1UMBZVxUoVgGa5bHUj55OoIG_0RbBVNvIaSL60ttsF8w/edit" target="_blank">Open Sheet ↗</a>
+      </div>
+    </div>
+    <div class="kpi-row" id="kpi-s12"></div>
+    <div class="summary-panel" id="sumpanel-s12">
+      <div class="summary-panel-hdr">
+        📊 Material-wise Summary — Plantation Fencing
+        <button onclick="toggleSummary('s12')">✕ Close</button>
+      </div>
+      <div class="table-wrap"><table class="sum-tbl" id="sumtbl-s12">
+        <thead><tr><th>Material</th><th>Unit</th><th>Total Qty</th><th>Total Amount (₹)</th><th>Total Expend. (₹)</th><th>Balance (₹)</th></tr></thead>
+        <tbody><tr><td colspan="6" class="no-data">Loading...</td></tr></tbody>
+      </table></div>
+    </div>
+    <div class="filters">
+      <label>Range:</label>
+      <select onchange="filterSection('s12',this.value)">
+        <option value="">All Ranges</option>
+        <option>रायगढ़</option><option>खरसिया</option>
+        <option>घरघोड़ा</option><option>तमनार</option>
+      </select>
+    </div>
+    <div class="card">
+      <div class="card-title">Site-wise Fencing Material Requirement</div>
+      <div class="table-wrap" id="tbl-s12"><div class="loading"><span class="spinner"></span>Loading...</div></div>
     </div>
   </div>
 
   <!-- §4 NURSERY -->
   <div class="section" id="s3">
     <div class="section-hdr">
-      <h2>§4  Nursery Material (Category 3)</h2>
+      <h2>3.1  Nursery Material 2025-26</h2>
       <div style="display:flex;gap:6px;flex-wrap:wrap;">
         <button class="btn-summary" id="sumBtn-s3" onclick="toggleSummary('s3')">📊 Material Summary</button>
         <a class="btn-sheet" href="https://docs.google.com/spreadsheets/d/1UMBZVxUoVgGa5bHUj55OoIG_0RbBVNvIaSL60ttsF8w/edit" target="_blank">Open Sheet ↗</a>
@@ -304,6 +375,30 @@ addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});<
     <div class="card">
       <div class="card-title">Nursery-wise Material Requirement · 4 Nurseries</div>
       <div class="table-wrap" id="tbl-s3"><div class="loading"><span class="spinner"></span>Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- §4 NURSERY (2026-27) -->
+  <div class="section" id="s13">
+    <div class="section-hdr">
+      <h2>3.2  Nursery Material 2026-27</h2>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn-summary" id="sumBtn-s13" onclick="toggleSummary('s13')">📊 Material Summary</button>
+        <a class="btn-sheet" href="https://docs.google.com/spreadsheets/d/1UMBZVxUoVgGa5bHUj55OoIG_0RbBVNvIaSL60ttsF8w/edit" target="_blank">Open Sheet ↗</a>
+      </div>
+    </div>
+    <div class="kpi-row" id="kpi-s13"></div>
+    <div class="summary-panel" id="sumpanel-s13">
+      <div class="summary-panel-hdr">📊 Material-wise Summary — Nursery
+        <button onclick="toggleSummary('s13')">✕ Close</button></div>
+      <div class="table-wrap"><table class="sum-tbl" id="sumtbl-s13">
+        <thead><tr><th>Material</th><th>Unit</th><th>Total Qty</th><th>Total Amount (₹)</th><th>Total Expend. (₹)</th><th>Balance (₹)</th></tr></thead>
+        <tbody><tr><td colspan="6" class="no-data">Loading...</td></tr></tbody>
+      </table></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Nursery-wise Material Requirement · 4 Nurseries</div>
+      <div class="table-wrap" id="tbl-s13"><div class="loading"><span class="spinner"></span>Loading...</div></div>
     </div>
   </div>
 
@@ -482,87 +577,41 @@ const SHEET_ID='1UMBZVxUoVgGa5bHUj55OoIG_0RbBVNvIaSL60ttsF8w';
 const BASE=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq`;
 
 // Tab configurations
+// Tab configurations — column layout is read from each tab's header rows (row 2, plus row 3 Qty/Amount/Expend for material tabs)
 const TABS={
-  s1:{sheet:'1-Plantation Material', range:'A4:Y32', metaN:4,
-    meta:['S.No.','Compartment No.','Range','Area (Ha.)'],
-    mats:[
-      {n:'उपजाऊ मृदा',u:'cmt.'},
-      {n:'वर्मिकम्पोस्ट खाद',u:'Kg'},
-      {n:'DAP',u:'Kg'},
-      {n:'Biofertilizer/Hormones',u:'Kg'},
-      {n:'नीम खली',u:'Kg'},
-      {n:'क्लोरोपायरीफ़ॉस',u:'Ltr'},
-      {n:'एन.पी.के.',u:'Kg'}
-    ], rangeCol:2, totalKeyword:'TOTAL'},
-  s2:{sheet:'2-Plantation Fencing', range:'A4:S32', metaN:4,
-    meta:['S.No.','Compartment No.','Range','Area (Ha.)'],
-    mats:[
-      {n:'RCC Pole',u:'Nos'},
-      {n:'Chainlink GI Wire',u:'Kg'},
-      {n:'Cement',u:'Bags'},
-      {n:'Sand',u:'cmt.'},
-      {n:'Aggregate 20mm',u:'cmt.'}
-    ], rangeCol:2, totalKeyword:'TOTAL'},
-  s3:{sheet:'3-Nursery', range:'A4:AD8', metaN:3,
-    meta:['S.No.','Nursery','Range'],
-    mats:[
-      {n:'पॉलीपॉट 15×25',u:'No.'},
-      {n:'रेत',u:'cmt.'},
-      {n:'उपजाऊ मिट्टी',u:'cmt.'},
-      {n:'वर्मीकम्पोस्ट/FYM',u:'cmt.'},
-      {n:'बोन मिल खाद',u:'Bags'},
-      {n:'बीज',u:'Kg'},
-      {n:'कीटनाशक',u:'Ltr'},
-      {n:'नीमखली',u:'Kg'},
-      {n:'पोषक तत्व',u:'Ltr'}
-    ], rangeCol:2, totalKeyword:''},
-  s4:{sheet:'4-Forestry Regular', range:'A3:L53', metaN:7,
-    meta:['S.N.','Work Name','Work Type','Site Details','Range','Budget Head','APO Year'],
-    mats:[
-      {n:'RCC Pole',u:'No.'},
-      {n:'Barbed Wire',u:'Kg'},
-      {n:'Cement',u:'Bags'},
-      {n:'Aggregate 20mm',u:'cmt.'},
-      {n:'Sand',u:'cmt.'}
-    ], rangeCol:4, totalKeyword:'', simple:true},
-  s5:{sheet:'5-Forestry CAMPA', range:'A3:O53', metaN:7,
-    meta:['S.N.','Work Name','Work Type','Site Details','Range','Budget Head','APO Year'],
-    mats:[
-      {n:'कम्पोस्ट/गोबर खाद',u:'Kg'},
-      {n:'वर्मिकम्पोस्ट',u:'Kg'},
-      {n:'DAP',u:'Kg'},
-      {n:'नीम खली/बोन मिल',u:'Kg'},
-      {n:'क्लोरोपायरीफ़ॉस',u:'Ltr'},
-      {n:'Biofertilizer/Hormones',u:'Kg/Ltr'},
-      {n:'उपजाऊ मिट्टी',u:'cmt.'},
-      {n:'एन.पी.के.',u:'Kg'}
-    ], rangeCol:4, totalKeyword:'', simple:true},
-  s6:{sheet:'6-Major Construction', range:'A3:P23', metaN:7,
-    meta:['S.N.','Work Name','Work Type','Site Details','Range','Budget Head','APO Year'],
-    mats:[
-      {n:'Cement',u:'Bags'},{n:'TMT 8mm',u:'Kg'},{n:'TMT 10mm',u:'Kg'},
-      {n:'TMT 12mm',u:'Kg'},{n:'TMT 16mm',u:'Kg'},{n:'Brick',u:'No.'},
-      {n:'Sand',u:'cmt.'},{n:'Aggregate 20mm',u:'cmt.'},{n:'Aggregate 40mm',u:'cmt.'}
-    ], rangeCol:4, totalKeyword:'', simple:true},
-  s7:{sheet:'7-Machine Requirement', range:'A3:M33', metaN:7,
-    meta:['S.N.','Work Name','Work Type','Site Details','Range','Budget Head','APO Year'],
-    mats:[
-      {n:'JCB',u:'Hour'},{n:'Tractor',u:'Hour'},{n:'Roller',u:'Hour'},
-      {n:'Concrete Mixer',u:'Hour'},{n:'Water Tanker',u:'Trip'},{n:'Hyva',u:'Trip'}
-    ], rangeCol:4, totalKeyword:'', simple:true},
-  s8:{sheet:'8-Minor Construction', range:'A3:I23', metaN:6,
-    meta:['S.N.','Work Name','Site Details','Range','Budget Head','APO Year'],
-    mats:[{n:'Cement',u:'Bags'},{n:'Sand',u:'cmt.'},{n:'Aggregate 20mm',u:'cmt.'}],
-    rangeCol:3, totalKeyword:'', simple:true},
-  s9:{sheet:'9-Small Purchase', range:'A3:K53', metaN:6,
-    meta:['S.N.','Work Name','Site Details','Range','Budget Head','APO Year'],
-    mats:[{n:'Product / Material Name',u:''},{n:'Quantity',u:''},{n:'Unit',u:''},{n:'Budget Amount (₹)',u:''},{n:'Remarks',u:''}],
-    rangeCol:3, totalKeyword:'', simple:true, noQAE:true},
-  s10:{sheet:'10-Awareness Program', range:'A3:J53', metaN:6,
-    meta:['S.N.','Work Name','Site Details','Range','Budget Head','APO Year'],
-    mats:[{n:'Awareness Program',u:''},{n:'Quantity',u:''},{n:'Amount (₹)',u:''},{n:'Remarks',u:''}],
-    rangeCol:3, totalKeyword:'', simple:true, noQAE:true}
+  s1:{sheet:'1.1-Plantation Material 2025-26'}, s11:{sheet:'1.2-Plantation Material 2026-27'},
+  s2:{sheet:'2.1-Plantation Fencing 2025-26'},  s12:{sheet:'2.2-Plantation Fencing 2026-27'},
+  s3:{sheet:'3.1-Nursery 2025-26'},             s13:{sheet:'3.2-Nursery 2026-27'},
+  s4:{sheet:'4-Forestry Regular',simple:true},  s5:{sheet:'5-Forestry CAMPA',simple:true},
+  s6:{sheet:'6-Major Construction',simple:true},s7:{sheet:'7-Machine Requirement',simple:true},
+  s8:{sheet:'8-Minor Construction',simple:true},s9:{sheet:'9-Small Purchase',simple:true,noQAE:true},
+  s10:{sheet:'10-Awareness Program',simple:true,noQAE:true}
 };
+Object.values(TABS).forEach(c=>{c.meta=[];c.mats=[];c.metaN=0;c.rangeCol=-1;c.totalKeyword='TOTAL';});
+
+/* derive meta/material columns from the header rows of the tab */
+function applyHeader(cfg,hrows){
+  const H=(hrows[0]||[]).map(c=>String(c==null?'':c).replace(/\s+/g,' ').trim());
+  const split=t=>{const m=t.match(/^(.*?)\s*\(([^)]*)\)\s*(.*)$/);return m?{n:(m[1]+(m[3]?' '+m[3]:'')).trim(),u:m[2].trim()}:{n:t,u:''}};
+  cfg.rangeCol=H.findIndex(x=>/^range$/i.test(x));
+  if(!cfg.simple){
+    const sub=(hrows[1]||[]).map(c=>String(c==null?'':c).trim());
+    const q=sub.indexOf('Qty'); cfg.metaN=q<0?H.length:q; cfg.meta=H.slice(0,cfg.metaN);
+    cfg.mats=[]; for(let i=cfg.metaN;i<H.length;i+=3){ if(!H[i]) break; cfg.mats.push(split(H[i])); }
+  } else {
+    const a=H.findIndex(x=>/apo year/i.test(x)); cfg.metaN=a+1; cfg.meta=H.slice(0,a+1);
+    cfg.mats=H.slice(a+1).filter(Boolean).map(x=>cfg.noQAE?{n:x,u:''}:split(x));
+  }
+}
+/* keep TOTAL and rows with something beyond the serial number */
+const keepRow=r=>r&&r[0]!==null&&r[0]!==''&&(String(r[0]).trim()==='TOTAL'||r.slice(1).some(c=>c!==null&&c!==''));
+/* fill the Range dropdown of a section from its data */
+function fillRanges(sid){
+  const cfg=TABS[sid],rows=CACHE[sid]||[],sel=document.querySelector('#'+sid+' .filters select'); if(!sel)return;
+  if(cfg.rangeCol<0){sel.parentElement.style.display='none';return;}
+  const v=[...new Set(rows.filter(r=>String(r[0]).trim()!=='TOTAL').map(r=>String(r[cfg.rangeCol]||'').trim()).filter(Boolean))].sort();
+  sel.innerHTML='<option value="">All Ranges</option>'+v.map(x=>`<option>${x}</option>`).join('');
+}
 
 // Loaded data cache
 const CACHE={};
@@ -797,16 +846,12 @@ function renderRowwiseSummary(sid,rows,cfg){
 
 // ── OVERVIEW SUMMARY ─────────────────────────────────────────
 const OV_CATS=[
-  {id:'s1',label:'Plantation Material',mats:7,sheetNum:1},
-  {id:'s2',label:'Plantation Fencing',mats:5,sheetNum:2},
-  {id:'s3',label:'Nursery Material',mats:9,sheetNum:3},
-  {id:'s4',label:'Forestry Activity (Regular)',mats:5,sheetNum:4},
-  {id:'s5',label:'Forestry Activity (CAMPA)',mats:8,sheetNum:5},
-  {id:'s6',label:'Major Construction',mats:9,sheetNum:6},
-  {id:'s7',label:'Machine Requirement',mats:6,sheetNum:7},
-  {id:'s8',label:'Minor Construction',mats:3,sheetNum:8},
-  {id:'s9',label:'Small Purchase',mats:5,sheetNum:9},
-  {id:'s10',label:'Awareness Program',mats:4,sheetNum:10},
+  {id:'s1',label:'Plantation Material 2025-26',sheetNum:'1.1'},{id:'s11',label:'Plantation Material 2026-27',sheetNum:'1.2'},
+  {id:'s2',label:'Plantation Fencing 2025-26',sheetNum:'2.1'},{id:'s12',label:'Plantation Fencing 2026-27',sheetNum:'2.2'},
+  {id:'s3',label:'Nursery Material 2025-26',sheetNum:'3.1'},{id:'s13',label:'Nursery Material 2026-27',sheetNum:'3.2'},
+  {id:'s4',label:'Forestry Activity (Regular)',sheetNum:4},{id:'s5',label:'Forestry Activity (CAMPA)',sheetNum:5},
+  {id:'s6',label:'Major Construction',sheetNum:6},{id:'s7',label:'Machine Requirement',sheetNum:7},
+  {id:'s8',label:'Minor Construction',sheetNum:8},{id:'s9',label:'Small Purchase',sheetNum:9},{id:'s10',label:'Awareness Program',sheetNum:10},
 ];
 
 function buildOverview(){
@@ -830,7 +875,7 @@ function buildOverview(){
     rows+=`<tr>
       <td>${c.sheetNum}</td>
       <td class="cat"><a href="#" onclick="show('${c.id}');return false;">${c.label}</a></td>
-      <td>${c.mats} items</td>
+      <td>${TABS[c.id].mats.length||'…'} items</td>
       <td class="num">${fmtCurr(amt)}</td>
       <td class="num">${fmtCurr(exp)}</td>
       <td class="num">${fmtCurr(bal)}</td>
@@ -851,16 +896,34 @@ function filterSection(sid,rangeVal){
   if(!cfg.simple) renderMaterialTable(sid,rows,cfg,rangeVal);
 }
 
+/* CSV keeps every cell as text (JSON drops text in numeric columns); numbers like "4,821,750" become 4821750 */
+function loadCSV(sheet,range,cb){
+  fetch(`${BASE}?tqx=out:csv&sheet=${encodeURIComponent(sheet)}&range=${range}&headers=0&_=${Date.now()}`)
+    .then(r=>r.text()).then(t=>{
+      const R=[];let row=[],f='',q=false;
+      for(let i=0;i<t.length;i++){const c=t[i],n=t[i+1];
+        if(q){if(c=='"'&&n=='"'){f+='"';i++}else if(c=='"')q=false;else f+=c}
+        else if(c=='"')q=true;else if(c==','){row.push(f);f=''}else if(c=='\n'){row.push(f);R.push(row);row=[];f=''}else if(c!='\r')f+=c}
+      if(f!==''||row.length){row.push(f);R.push(row)}
+      cb(R.map(r=>r.map(v=>{v=v.trim();if(v==='')return null;return /^-?[\d,]+(\.\d+)?$/.test(v)?Number(v.replace(/,/g,'')):v;})));
+    }).catch(()=>cb([]));
+}
+
 // ── LOAD ALL ─────────────────────────────────────────────────
 function loadSection(sid){
   const cfg=TABS[sid];
   if(!cfg)return;
-  loadGviz(cfg.sheet,cfg.range,0,function(data){
-    const rows=getRows(data);
-    CACHE[sid]=rows;
+  loadCSV(cfg.sheet,cfg.simple?'A2:AF2':'A2:AF3',function(hd){
+   applyHeader(cfg,hd);
+   loadCSV(cfg.sheet,cfg.simple?'A3:AF200':'A4:AF200',function(data){
+    /* the TOTAL label is blanked by the sheet's column typing: a row with no serial no. and no text but numbers is the total */
+    data.forEach(r=>{if(!cfg.simple&&r&&(r[0]===null)&&r.slice(1,cfg.metaN).every(c=>c===null)&&r.slice(cfg.metaN).some(c=>typeof c==='number'))r[0]='TOTAL';});
+    const rows=data.filter(keepRow);
+    CACHE[sid]=rows; fillRanges(sid);
     if(cfg.simple) renderSimpleTable(sid,rows,cfg);
     else renderMaterialTable(sid,rows,cfg,'');
     buildOverview();
+   });
   });
 }
 
