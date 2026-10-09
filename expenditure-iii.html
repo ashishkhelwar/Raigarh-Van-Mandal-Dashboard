@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>व्यय-III | समेकित निधि डैशबोर्ड | रायगढ़ वनमंडल</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Sans:wght@400;500;600;700&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Noto Sans Devanagari','Noto Sans','Nirmala UI','Kohinoor Devanagari',Mangal,sans-serif; background:#f2f4f7; color:#1f2937; padding-bottom:40px; }
+
+  header { background:linear-gradient(135deg,#0f5132,#146c43); color:#fff; padding:20px 16px 14px; text-align:center; }
+  header h1 { font-size:1.3rem; font-weight:700; }
+  header .sub { font-size:0.82rem; opacity:0.9; margin-top:4px; }
+  header .asof { font-size:0.75rem; opacity:0.85; margin-top:8px; background:rgba(255,255,255,0.15); display:inline-block; padding:4px 12px; border-radius:20px; }
+
+  nav.tabs {
+    display:flex; overflow-x:auto; gap:6px; background:#fff;
+    padding:10px 12px; position:sticky; top:0; z-index:20;
+    box-shadow:0 2px 4px rgba(0,0,0,0.06);
+  }
+  nav.tabs button {
+    flex:0 0 auto; padding:9px 14px; border:none; border-radius:20px;
+    background:#eef2f0; color:#0f5132; font-weight:600; font-size:0.82rem;
+    cursor:pointer; white-space:nowrap; font-family:inherit;
+  }
+  nav.tabs button.active { background:#146c43; color:#fff; }
+
+  .panel { display:none; max-width:1200px; margin:0 auto; padding:14px 16px; }
+  .panel.active { display:block; }
+
+  .kpi-wrap { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:14px; }
+  @media(min-width:700px){ .kpi-wrap{grid-template-columns:repeat(4,1fr);} }
+  .kpi { background:#fff; border-radius:12px; padding:14px; box-shadow:0 1px 3px rgba(0,0,0,0.08); border-left:4px solid #146c43; }
+  .kpi .label { font-size:0.7rem; color:#6b7280; font-weight:600; }
+  .kpi .value { font-size:1.05rem; font-weight:700; margin-top:4px; color:#0f5132; }
+  .kpi.spent { border-left-color:#b45309; } .kpi.spent .value{color:#b45309;}
+  .kpi.balance { border-left-color:#1d4ed8; } .kpi.balance .value{color:#1d4ed8;}
+  .kpi.pct { border-left-color:#7c3aed; } .kpi.pct .value{color:#7c3aed;}
+
+  .section-title { font-size:0.95rem; font-weight:700; color:#0f5132; margin:16px 0 8px; padding-left:8px; border-left:4px solid #146c43; }
+
+  .table-wrap { overflow-x:auto; background:#fff; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,0.08); margin-bottom:14px; }
+  table { width:100%; border-collapse:collapse; font-size:0.78rem; min-width:760px; }
+  thead th { background:#0f5132; color:#fff; padding:9px 7px; text-align:left; white-space:nowrap; font-weight:600; }
+  thead th.col-active { background:#7c3aed; }
+  .pbar { display:inline-block; width:48px; height:6px; background:#e5e7eb; border-radius:3px; margin-right:6px; vertical-align:middle; overflow:hidden; }
+  .pfill { height:100%; border-radius:3px; }
+  select#materialFilter {
+    padding:8px 10px; border:1px solid #d1d5db; border-radius:8px;
+    font-size:0.82rem; font-family:inherit; background:#fff; color:#1f2937;
+  }
+  thead th.num { text-align:right; }
+  tbody td { padding:8px 7px; border-bottom:1px solid #eef0f2; vertical-align:top; text-align:left; }
+  tbody td.desc { text-align:left; max-width:240px; }
+  tbody tr:hover { background:#f8faf9; }
+  tbody tr.total-row { background:#fde68a; font-weight:700; }
+  tbody tr.grand-row { background:#f97316; color:#fff; font-weight:700; }
+  tbody tr.no-material td { color:#dc2626; }
+  tbody tr.no-material td.desc::after { content:" ⚠ सामग्री मांगपत्र उपलब्ध नहीं"; font-size:0.68rem; font-weight:700; }
+  tbody tr.project-remaining td { color:#7c3aed; font-weight:600; }
+  tbody tr.project-remaining td.desc::before { content:"⏳ "; }
+  td.num { font-variant-numeric:tabular-nums; direction:ltr; text-align:right; }
+
+  .fund-card {
+    background:#fff; border-radius:12px; padding:16px; margin-bottom:12px;
+    box-shadow:0 1px 3px rgba(0,0,0,0.08); border-left:5px solid #146c43;
+    cursor:pointer;
+  }
+  .fund-card:active { background:#f4f8f6; }
+  .fund-card .fname { font-weight:700; color:#0f5132; font-size:0.95rem; margin-bottom:8px; }
+  .fund-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .fund-grid div .l { font-size:0.68rem; color:#6b7280; }
+  .fund-grid div .v { font-size:0.85rem; font-weight:700; color:#1f2937; }
+
+  .grand-summary {
+    background:linear-gradient(135deg,#0f5132,#146c43); color:#fff; border-radius:14px;
+    padding:18px; margin-bottom:16px; text-align:center;
+  }
+  .grand-summary .label { font-size:0.78rem; opacity:0.9; }
+  .grand-summary .val { font-size:1.6rem; font-weight:700; margin-top:4px; }
+  .grand-row3 { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:12px; }
+  .grand-row3 .g .l { font-size:0.68rem; opacity:0.85; }
+  .grand-row3 .g .v { font-size:1rem; font-weight:700; }
+
+  .note { font-size:0.72rem; color:#6b7280; margin:6px 0 12px; }
+  .remark { display:inline-block; background:#e0f2e9; color:#146c43; font-size:0.68rem; font-weight:600; padding:2px 8px; border-radius:10px; }
+  .signoff { text-align:right; font-size:0.8rem; color:#374151; font-weight:600; margin-top:16px; }
+</style>
+<!-- KPI toggle: KPI cards hidden by default; button shows them (remembered per browser) -->
+<style>html:not(.show-kpi) .kpi-wrap,html:not(.show-kpi) .grand-summary{display:none!important}
+#kpiToggle{position:fixed;left:12px;bottom:12px;z-index:9999;font:600 12px system-ui,sans-serif;padding:6px 11px;border-radius:16px;border:1px solid #9aa;background:#fff;color:#234;opacity:.85;cursor:pointer}
+#kpiToggle:hover{opacity:1}@media print{#kpiToggle{display:none}}</style>
+<script>(function(){var k="showKpi",d=document.documentElement;try{if(localStorage.getItem(k)==="1")d.classList.add("show-kpi")}catch(e){}
+document.addEventListener("DOMContentLoaded",function(){var b=document.createElement("button");b.id="kpiToggle";
+var s=function(){b.textContent=d.classList.contains("show-kpi")?"KPI छिपाएँ":"KPI दिखाएँ"};s();
+b.onclick=function(){d.classList.toggle("show-kpi");try{localStorage.setItem(k,d.classList.contains("show-kpi")?"1":"0")}catch(e){}s()};document.body.appendChild(b)})})();</script>
+<!-- Scrolling: full-page tables, back-to-top, progress bar, section snap -->
+<style>
+html{scroll-behavior:smooth;scroll-snap-type:y proximity}
+header,.section-title,.table-wrap{scroll-snap-align:start;scroll-margin-top:0px}
+#sProg{position:fixed;left:0;top:0;height:3px;width:0;background:#e0a526;z-index:10001;pointer-events:none}
+#sTop{position:fixed;right:16px;bottom:16px;width:44px;height:44px;border-radius:50%;border:0;background:#1f4e5f;color:#fff;font-size:20px;
+ box-shadow:0 4px 12px rgba(0,0,0,.3);cursor:pointer;z-index:10000;opacity:0;pointer-events:none;transition:opacity .2s}
+#sTop.on{opacity:.9;pointer-events:auto}
+@media print{#sTop,#sProg{display:none}}
+</style>
+<script>document.addEventListener("DOMContentLoaded",function(){var d=document.documentElement,p=document.createElement("div"),b=document.createElement("button");
+p.id="sProg";b.id="sTop";b.textContent="\u2191";b.title="ऊपर जाएँ";b.setAttribute("aria-label","Back to top");document.body.append(p,b);
+b.onclick=function(){scrollTo({top:0,behavior:"smooth"})};
+function u(){var y=scrollY,m=d.scrollHeight-innerHeight;b.classList.toggle("on",y>400);p.style.width=(m>0?y/m*100:0)+"%"}
+addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});</script>
+<!-- Home button: back to the hub -->
+<style>#homeBtn{position:fixed;left:12px;bottom:12px;z-index:10000;display:flex;align-items:center;gap:6px;height:38px;padding:0 14px;border-radius:19px;
+ background:#1c4335;color:#fff;font:600 13px system-ui,'Nirmala UI',sans-serif;text-decoration:none;box-shadow:0 4px 12px rgba(0,0,0,.28);opacity:.92}
+#homeBtn:hover{opacity:1}#kpiToggle{left:118px!important;bottom:17px!important}@media print{#homeBtn{display:none}}</style>
+<script>document.addEventListener("DOMContentLoaded",function(){var a=document.createElement("a");a.id="homeBtn";a.href="./index.html";a.title="होम — रायगढ़ वनमंडल हब";a.innerHTML="\uD83C\uDFE0 होम";document.body.appendChild(a)});</script>
+</head>
+<body>
+
+<header>
+  <h1>व्यय-III — समेकित निधि व्यय डैशबोर्ड</h1>
+  <div class="sub">रायगढ़ वनमंडल, छत्तीसगढ़</div>
+  <div class="asof">दिनांक 15.08.2026 / 31.07.2026 की स्थिति में &middot; <b>Data updated: 10 Oct 2026</b></div>
+</header>
+
+<nav class="tabs" id="tabNav">
+  <button data-tab="summary" class="active">सारांश</button>
+  <button data-tab="bmc">जैव विविधता बोर्ड</button>
+  <button data-tab="jfm">JFM</button>
+  <button data-tab="fda">FDA</button>
+  <button data-tab="csr">CSR</button>
+  <button data-tab="gate">गेटमनी</button>
+</nav>
+
+<!-- ===================== SUMMARY TAB ===================== -->
+<div class="panel active" id="panel-summary">
+  <div class="grand-summary">
+    <div class="label">सभी निधियों का कुल आबंटन (₹)</div>
+    <div class="val" id="gsAllot">-</div>
+    <div class="grand-row3">
+      <div class="g"><div class="l">कुल व्यय (₹)</div><div class="v" id="gsSpent">-</div></div>
+      <div class="g"><div class="l">कुल शेष (₹)</div><div class="v" id="gsBal">-</div></div>
+      <div class="g"><div class="l">व्यय %</div><div class="v" id="gsPct">-</div></div>
+    </div>
+  </div>
+
+  <div class="fund-card" data-goto="bmc" style="border-left-color:#146c43">
+    <div class="fname">1. जैव विविधता बोर्ड (Biodiversity Board)</div>
+    <div class="fund-grid">
+      <div><div class="l">आबंटित</div><div class="v">₹4,55,45,000</div></div>
+      <div><div class="l">व्यय</div><div class="v">₹3,90,63,910</div></div>
+      <div><div class="l">शेष</div><div class="v">₹64,81,090</div></div>
+    </div>
+  </div>
+
+  <div class="fund-card" data-goto="jfm" style="border-left-color:#0369a1">
+    <div class="fname">2. वन प्रबंधन समिति (JFM) — स्वीकृति 2025-26 व 2026-27</div>
+    <div class="fund-grid">
+      <div><div class="l">2025-26 स्वीकृत</div><div class="v">₹8,95,280</div></div>
+      <div><div class="l">2026-27 स्वीकृत</div><div class="v">₹1,21,20,000</div></div>
+      <div><div class="l">कुल स्वीकृत</div><div class="v">₹1,30,15,280</div></div>
+    </div>
+    <div class="note">नोट: व्यय/शेष ट्रैकिंग स्रोत पंजी में उपलब्ध नहीं (केवल स्वीकृति राशि दर्ज)।</div>
+  </div>
+
+  <div class="fund-card" data-goto="fda" style="border-left-color:#b45309">
+    <div class="fname">3. वन विकास अभिकरण (FDA)</div>
+    <div class="fund-grid">
+      <div><div class="l">स्वीकृत</div><div class="v">₹53,62,522</div></div>
+      <div><div class="l">व्यय</div><div class="v">₹4,10,002</div></div>
+      <div><div class="l">शेष</div><div class="v">₹49,52,520</div></div>
+    </div>
+  </div>
+
+  <div class="fund-card" data-goto="csr" style="border-left-color:#7c3aed">
+    <div class="fname">4. CSR खाता (IDBI Bank) + Civil Deposit 8443-109</div>
+    <div class="fund-grid">
+      <div><div class="l">IDBI स्वीकृत</div><div class="v">₹19,32,90,075</div></div>
+      <div><div class="l">IDBI व्यय</div><div class="v">₹19,09,10,234</div></div>
+      <div><div class="l">Civil Dep. स्वीकृत</div><div class="v">₹93,24,672</div></div>
+    </div>
+  </div>
+
+  <div class="fund-card" data-goto="gate" style="border-left-color:#be123c">
+    <div class="fname">5. गेटमनी (Eco Tourism)</div>
+    <div class="fund-grid">
+      <div><div class="l">स्वीकृत</div><div class="v">₹21,06,919</div></div>
+      <div><div class="l">व्यय</div><div class="v">₹2,99,563</div></div>
+      <div><div class="l">शेष</div><div class="v">₹18,07,356</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== BMC TAB ===================== -->
+<div class="panel" id="panel-bmc">
+  <div class="section-title">जैव विविधता बोर्ड — प्राप्त राशि एवं व्यय पंजी (15.08.2026 की स्थिति में)</div>
+  <div class="kpi-wrap">
+    <div class="kpi"><div class="label">कुल आबंटित राशि (₹)</div><div class="value">4,55,45,000</div></div>
+    <div class="kpi spent"><div class="label">कुल व्यय राशि (₹)</div><div class="value">3,90,63,910</div></div>
+    <div class="kpi balance"><div class="label">कुल शेष राशि (₹)</div><div class="value">64,81,090</div></div>
+    <div class="kpi pct"><div class="label">व्यय प्रतिशत</div><div class="value">85.8%</div></div>
+  </div>
+  <div class="table-wrap">
+    <table id="bmcTable">
+      <thead><tr>
+        <th class="num">क्र.</th><th>पत्र क्र./दिनांक</th><th>प्राप्ति दिनांक</th><th class="desc">कार्य विवरण</th>
+        <th class="num">लक्ष्य</th><th class="num">उपलब्धि</th><th class="num">आबंटित</th><th class="num">व्यय</th><th class="num">शेष</th><th class="desc">फर्म</th><th>रिमार्क</th>
+      </tr></thead>
+      <tbody id="bmcBody"></tbody>
+    </table>
+  </div>
+  <div class="note">नोट: क्रमांक 21 व 22 मूल पंजी में रद्द/रिक्त प्रविष्टियाँ हैं (योग में शामिल नहीं)।</div>
+</div>
+
+<!-- ===================== JFM TAB ===================== -->
+<div class="panel" id="panel-jfm">
+  <div class="section-title">वन प्रबंधन समिति अंतर्गत वित्तीय वर्ष 2025-26 में स्वीकृत कार्यों की जानकारी</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th class="num">क्र.</th><th>स्वीकृति क्र./दिनांक</th><th>परिक्षेत्र</th><th>व.प्र.स.</th><th class="desc">स्वीकृत कार्य</th><th class="num">स्वीकृत राशि</th></tr></thead>
+      <tbody>
+        <tr class="no-material project-remaining"><td class="num">1</td><td>अ.प्र.मु.व.सं./बजट-1/156, 24.03.2026</td><td>रायगढ़</td><td>जुनवानी</td><td class="desc">ग्राम जुनवानी में पूर्व निर्मित पानी टंकी का जीर्णोद्धार (सिनटेक्स एवं पाईप कनेक्शन)</td><td class="num">45,280.00</td></tr>
+        <tr class="no-material project-remaining"><td class="num">2</td><td>-"-</td><td>रायगढ़</td><td>खैरपुर</td><td class="desc">वनसीमा को मजबूत किये जाने एवं अवैध अतिक्रमण की रोकथाम हेतु सी.पी.टी. गड्ढा निर्माण — 1000 र.मी.</td><td class="num">3,50,000.00</td></tr>
+        <tr class="total-row"><td colspan="5">योग (रायगढ़)</td><td class="num">3,95,280.00</td></tr>
+        <tr class="no-material"><td class="num">3</td><td>अ.प्र.मु.व.सं./बजट-1/156, 24.03.2026</td><td>घरघोड़ा</td><td>बिलासखार</td><td class="desc">बोर खनन 01 नग</td><td class="num">1,25,000.00</td></tr>
+        <tr class="no-material"><td class="num"></td><td>-"-</td><td>घरघोड़ा</td><td>बिलासखार</td><td class="desc">नहर सफाई</td><td class="num">2,50,000.00</td></tr>
+        <tr><td class="num"></td><td>-"-</td><td>घरघोड़ा</td><td>बिलासखार</td><td class="desc">पचरी निर्माण</td><td class="num">1,25,000.00</td></tr>
+        <tr class="total-row"><td colspan="5">योग (घरघोड़ा)</td><td class="num">5,00,000.00</td></tr>
+        <tr class="grand-row"><td colspan="5">कुल योग (2025-26)</td><td class="num">8,95,280.00</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">वन प्रबंधन समिति अंतर्गत वित्तीय वर्ष 2026-27 में स्वीकृत कार्यों की जानकारी</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th class="num">क्र.</th><th>परिक्षेत्र</th><th>व.प्र.स.</th><th class="desc">स्वीकृत कार्य</th><th class="num">स्वीकृत राशि</th></tr></thead>
+      <tbody id="jfm2627"></tbody>
+    </table>
+  </div>
+  <div class="note">स्वीकृति पत्र: अ.प्र.मु.व.सं./बजट-1/266 दि.08.05.2026 (सेमीजोर) एवं अ.प्र.मु.व.ल. पत्र क्र./440964 दि.29.05.2026 (शेष सभी)। व्यय/शेष ट्रैकिंग स्रोत पंजी में उपलब्ध नहीं।</div>
+  <div class="note" style="color:#dc2626;font-weight:600;">🔴 लाल रंग में चिह्नित कार्य = इन कार्यों हेतु सामग्री मांगपत्र अप्राप्त/लागू नहीं (2025-26 के सभी कार्य तमनार पत्र क्र.807/1382 के दायरे में नहीं आते; 2026-27 में तालाब खनन, मशीन/फर्नीचर/बर्तन क्रय जैसे गैर-निर्माण कार्य भी सम्मिलित)।</div>
+
+  <div class="section-title">सामग्री मांगपत्र — वन प्रबंधन समिति एवं वेटलैंड प्राधिकरण (तमनार)</div>
+  <div class="note">संदर्भ: व.प.अ. तमनार का पत्र क्र./तमनार/807 दि.26.05.2026 एवं 1382 दि.07.08.2026 (संशोधित सूची अनुसार घरघोड़ा परिक्षेत्र — बिलासखार समिति की पचरी निर्माण कार्य भी सम्मिलित) — 2026-27 स्वीकृत JFM कार्यों में से निर्माण-प्रकृति के कार्यों हेतु तथा वेटलैंड प्राधिकरण अंतर्गत डिमार्केशन/बाउंड्री पिलर्स कार्यों हेतु सामग्री मांग (GeM से क्रय हेतु)। पोखर/तालाब खनन, मशीन/फर्नीचर क्रय, मत्स्य पालन आदि गैर-निर्माण कार्यों हेतु सामग्री सूची लागू नहीं।</div>
+  <div class="controls" style="margin-bottom:8px;">
+    <select id="materialFilter" style="max-width:260px;">
+      <option value="all">सभी सामग्री दिखाएँ</option>
+      <option value="s20">Stone 20MM (cum)</option>
+      <option value="s40">Stone 40MM (cum)</option>
+      <option value="sand">Sand (cum)</option>
+      <option value="cement">Cement (bag)</option>
+      <option value="bricks">Bricks (Nos)</option>
+      <option value="b12">12mm Bar (Kg)</option>
+      <option value="b10">10mm Bar (Kg)</option>
+      <option value="b8">8mm Bar (Kg)</option>
+      <option value="sheet">125μ Sheet (SQM)</option>
+    </select>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th class="num">क्र.</th><th>मद</th><th>परिक्षेत्र/समिति</th><th class="desc">प्रस्तावित कार्य</th>
+        <th class="num" data-key="s20">Stone 20MM (cum)</th><th class="num" data-key="s40">Stone 40MM (cum)</th><th class="num" data-key="sand">Sand (cum)</th>
+        <th class="num" data-key="cement">Cement (bag)</th><th class="num" data-key="bricks">Bricks (Nos)</th><th class="num" data-key="b12">12mm Bar (Kg)</th>
+        <th class="num" data-key="b10">10mm Bar (Kg)</th><th class="num" data-key="b8">8mm Bar (Kg)</th><th class="num" data-key="sheet">125μ Sheet (SQM)</th>
+      </tr></thead>
+      <tbody id="jfmMaterial"></tbody>
+    </table>
+  </div>
+  <div class="note" id="materialFilterNote" style="display:none;"></div>
+  <div class="note">नोट: वेटलैंड प्राधिकरण की 4 प्रविष्टियाँ, BMC टैब की क्र.20 (वेटलैंड डिमार्केशन एवं बाउंड्री पिलर्स निर्माण, ₹5,00,000, लक्ष्य 4) से संबंधित हैं।</div>
+
+  <div class="section-title">सामग्री मांग — अन्य मद (कैम्पा एवं CSR)</div>
+  <div class="note">स्रोत: (1) कैम्पा कूप निर्माण — कार्यालयीन टीप, व्यय-II (कैम्पा), अगस्त 2026; (2) कैम्पा शेड निर्माण — व.प.अ. तमनार का मांग पत्र (संदर्भ: पत्र क्र0/व्यय 2/कैम्पा/102 दि.12.01.2026); (3) CSR पगोडा निर्माण — Rocky Area Plantation, खरसिया। ऊपर का "सामग्री फ़िल्टर" इस तालिका पर भी लागू होता है।</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th class="num">क्र.</th><th>मद</th><th>परिक्षेत्र/साइट</th><th class="desc">कार्य</th>
+        <th class="num" data-key="s20">Stone 20MM (cum)</th><th class="num" data-key="s40">Stone 40MM (cum)</th><th class="num" data-key="sand">Sand (cum)</th>
+        <th class="num" data-key="cement">Cement (bag)</th><th class="num" data-key="bricks">Bricks (Nos)</th><th class="num" data-key="b12">12mm Bar (Kg)</th>
+        <th class="num" data-key="b10">10mm Bar (Kg)</th><th class="num" data-key="b8">8mm Bar (Kg)</th>
+      </tr></thead>
+      <tbody id="otherMaterial"></tbody>
+    </table>
+  </div>
+  <div class="note">कैम्पा शेड निर्माण हेतु अतिरिक्त सामग्री: Wall Paint 30 Ltr, Metal Enamel Paint 30 Ltr, MS Steel (Truss &amp; Purlin) 2160 Kg, Profile Sheet 240 Sqm, Roof Top Sheet 30 Rmt। CSR पगोडा निर्माण हेतु अभी केवल TMT सरिया की मात्रा उपलब्ध है।</div>
+
+  <div class="section-title">समेकित सामग्री गोसवारा — सभी मद</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th class="num">क्र.</th><th>सामग्री</th><th>इकाई</th>
+        <th class="num">व्यय III (JFM)</th><th class="num">वेटलैंड प्राधिकरण</th><th class="num">व्यय II (कैम्पा)</th><th class="num">CSR</th><th class="num">कुल योग</th>
+      </tr></thead>
+      <tbody id="materialGoswara"></tbody>
+    </table>
+  </div>
+  <div class="note">यह गोसवारा केवल वास्तविक स्रोत दस्तावेज़ों पर आधारित है; गोल आंकड़ों तक पहुँचाने हेतु पूर्व में जोड़ी गई समायोजन पंक्तियाँ सम्मिलित नहीं हैं।</div>
+</div>
+
+<!-- ===================== FDA TAB ===================== -->
+<div class="panel" id="panel-fda">
+  <div class="section-title">वन विकास अभिकरण मद अंतर्गत स्वीकृत कार्य (वनमंडल स्तर पर उपलब्ध राशि से) — 15.08.2026 की स्थिति में</div>
+  <div class="kpi-wrap">
+    <div class="kpi"><div class="label">कुल स्वीकृत (₹)</div><div class="value">53,62,522</div></div>
+    <div class="kpi spent"><div class="label">कुल व्यय (₹)</div><div class="value">4,10,002</div></div>
+    <div class="kpi balance"><div class="label">कुल शेष (₹)</div><div class="value">49,52,520</div></div>
+    <div class="kpi pct"><div class="label">व्यय प्रतिशत</div><div class="value">7.6%</div></div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th class="num">क्र.</th><th>स्वीकृति वर्ष</th><th>स्वीकृति क्र./दिनांक</th><th class="desc">बजट मद</th><th class="desc">कार्य का नाम</th><th>परिक्षेत्र</th><th class="num">स्वीकृत राशि</th><th class="num">व्यय राशि</th><th class="num">शेष राशि</th><th class="num">व्यय %</th></tr></thead>
+      <tbody>
+        <tr><td class="num">1</td><td>2025-26</td><td>629 / 21.01.2026</td><td class="desc">फ्लेक्सी फंड</td><td class="desc">वनमंडल अंतर्गत कार्यालयीन व्यवस्था एवं कार्यालयीन कार्यों की संचालन हेतु सामग्री क्रय</td><td>व.म.अ. स्तर</td><td class="num">6,61,000</td><td class="num">2,84,602</td><td class="num">3,76,398</td><td class="num"><div class="pbar"><div class="pfill" style="width:43.1%;background:#b45309"></div></div>43.1%</td></tr>
+        <tr><td class="num">2</td><td>2026-27</td><td>3657 / 16.04.2026</td><td class="desc">ब्याज की राशि (31.12.2025 की स्थिति में)</td><td class="desc">वनमंडल कार्यालय रायगढ़ का विकास कार्य</td><td>रायगढ़</td><td class="num">47,01,522</td><td class="num">1,25,400</td><td class="num">45,76,122</td><td class="num"><div class="pbar"><div class="pfill" style="width:2.7%;background:#dc2626"></div></div>2.7%</td></tr>
+        <tr class="grand-row"><td colspan="6">योग</td><td class="num">53,62,522</td><td class="num">4,10,002</td><td class="num">49,52,520</td><td class="num">7.6%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="section-title">प्रमुख अवलोकन</div>
+  <div class="note" style="font-size:0.8rem;line-height:1.7;color:#374151;">
+    1. FDA मद में कुल 2 स्वीकृत कार्य हैं — दोनों वनमंडल-स्तरीय (कार्यालय व्यवस्था/विकास); कोई क्षेत्रीय/वृक्षारोपण कार्य नहीं।<br>
+    2. <b style="color:#dc2626">ब्याज राशि आधारित विकास कार्य (₹47.02 लाख) में केवल 2.7% व्यय</b> — कुल FDA शेष का 92.4% इसी कार्य में है।<br>
+    3. फ्लेक्सी फंड (2025-26) में 43.1% व्यय — वित्तीय वर्ष समाप्त होने के बाद शेष ₹3.76 लाख के उपयोग/समर्पण की स्थिति स्पष्ट की जानी है।<br>
+    4. FDA मद अंतर्गत कोई सामग्री मांगपत्र नहीं है (पूर्व में "FDA_Material" नाम से प्राप्त फ़ाइल वास्तव में JFM शाखा का मांगपत्र थी, जो JFM टैब में दर्ज है)।
+  </div>
+</div>
+
+<!-- ===================== CSR TAB ===================== -->
+<div class="panel" id="panel-csr">
+  <div class="section-title">CSR Account — IDBI Bank 0429104000209830 (31-07-2026 की स्थिति में)</div>
+  <div class="kpi-wrap">
+    <div class="kpi"><div class="label">कुल जमा राशि (₹)</div><div class="value">19,44,33,747</div></div>
+    <div class="kpi"><div class="label">कुल स्वीकृत (₹)</div><div class="value">19,32,90,075</div></div>
+    <div class="kpi spent"><div class="label">कुल व्यय (₹)</div><div class="value">19,09,10,234</div></div>
+    <div class="kpi balance"><div class="label">स्वीकृति उपरांत शेष (₹)</div><div class="value">11,43,672</div></div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th class="num">स.क्र.</th><th class="desc">कार्य/स्रोत का नाम</th><th class="num">जमा राशि</th><th class="desc">स्वीकृत कार्य</th><th class="desc">स्थल</th><th class="num">स्वीकृत राशि</th><th class="num">व्यय राशि</th><th class="num">कार्य शेष</th><th class="num">स्वीकृति उपरांत शेष</th></tr></thead>
+      <tbody id="csrBody"></tbody>
+    </table>
+  </div>
+  <div class="note">"स्वीकृति उपरांत शेष" = जमा राशि में से स्वीकृति हेतु अभी उपलब्ध शेष (कार्य शेष से भिन्न — कार्य शेष = स्वीकृत − व्यय)।</div>
+
+  <div class="section-title">CSR — Civil Deposit Head 8443-109 अंतर्गत स्वीकृत कार्य (जमा राशि ₹14,44,19,002 में से)</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th class="num">स.क्र.</th><th>स्वीकृति वर्ष</th><th>स्वीकृति क्र./दिनांक</th><th>बजट मद</th><th class="desc">कार्य का नाम</th><th class="desc">परिक्षेत्र/स्थल</th><th>लक्ष्य</th><th class="num">स्वीकृत राशि</th><th class="num">व्यय राशि</th><th class="num">कार्य शेष</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="num">1</td><td>2026-27</td><td>1851 / 23.07.2026</td><td>सिविल डिपाजिट</td>
+          <td class="desc">मिश्रित वृक्षारोपण (Demonstration Plat For Rocky Area Plantation)</td>
+          <td class="desc">खरसिया (उल्दा क.क्र. 1147 आर.एफ.)</td>
+          <td>5.00 हेक्ट / 5000 पौधा</td>
+          <td class="num">93,24,672.00</td><td class="num">0.00</td><td class="num">93,24,672</td>
+        </tr>
+        <tr class="grand-row"><td colspan="7">योग</td><td class="num">93,24,672.00</td><td class="num">0.00</td><td class="num">93,24,672.00</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note">यह राशि IDBI खाते की अंतिम प्रविष्टि (सिविल डिपाजिटमद 8443-109 में हस्तांतरण ₹14,44,19,002) से जारी है — दोहरी गणना से बचने हेतु मुख्य योग में पृथक रखा गया है।</div>
+</div>
+
+<!-- ===================== GATE MONEY TAB ===================== -->
+<div class="panel" id="panel-gate">
+  <div class="section-title">गेटमनी की राशि से स्वीकृत कार्यों का विवरण</div>
+  <div class="kpi-wrap">
+    <div class="kpi"><div class="label">कुल स्वीकृत (₹)</div><div class="value">21,06,919</div></div>
+    <div class="kpi spent"><div class="label">कुल व्यय (₹)</div><div class="value">2,99,563</div></div>
+    <div class="kpi balance"><div class="label">कुल शेष (₹)</div><div class="value">18,07,356</div></div>
+    <div class="kpi pct"><div class="label">व्यय प्रतिशत</div><div class="value">14.2%</div></div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th class="num">क्र.</th><th>परिक्षेत्र</th><th>स्वीकृति वर्ष</th><th class="desc">पर्यटन केंद्र</th><th class="desc">स्वीकृत कार्य</th><th class="num">स्वीकृत राशि</th><th class="num">व्यय राशि</th><th class="num">शेष राशि</th></tr></thead>
+      <tbody>
+        <tr><td class="num">1</td><td>रायगढ़</td><td>2025-26</td><td class="desc">पर्यावरण पार्क रायगढ़</td><td class="desc">बाउण्ड्रीवाल मरम्मत कार्य</td><td class="num">40,339.00</td><td class="num">31,983.00</td><td class="num">8,356.00</td></tr>
+        <tr><td class="num">2</td><td>रायगढ़</td><td>2025-26</td><td class="desc">पर्यावरण पार्क रायगढ़</td><td class="desc">रिपेयर एवं मेंटेनेंस कार्य</td><td class="num">6,20,000.00</td><td class="num">0.00</td><td class="num">6,20,000.00</td></tr>
+        <tr><td class="num">3</td><td>रायगढ़</td><td>2025-26</td><td class="desc">इंदिरा विहार रायगढ़</td><td class="desc">साफ-सफाई कार्य</td><td class="num">1,99,080.00</td><td class="num">1,99,080.00</td><td class="num">0.00</td></tr>
+        <tr><td class="num">4</td><td>खरसिया</td><td>2025-26</td><td class="desc">अटल रॉक गार्डन बोतल्दा</td><td class="desc">डब्ल्यू.बी.एम. मार्ग मरम्मर कार्य (01 कि.मी.)</td><td class="num">68,500.00</td><td class="num">68,500.00</td><td class="num">0.00</td></tr>
+        <tr class="total-row"><td colspan="5">योग (2025-26)</td><td class="num">9,27,919.00</td><td class="num">2,99,563.00</td><td class="num">6,28,356.00</td></tr>
+        <tr><td class="num">1</td><td>रायगढ़</td><td>2026-27</td><td class="desc">पर्यावरण पार्क रायगढ़</td><td class="desc">सौन्दर्यीकरण कार्य</td><td class="num">4,99,500.00</td><td class="num">0.00</td><td class="num">4,99,500.00</td></tr>
+        <tr><td class="num">2</td><td>रायगढ़</td><td>2026-27</td><td class="desc">रामझरना भूपदेवपुर</td><td class="desc">सौन्दर्यीकरण कार्य</td><td class="num">4,99,500.00</td><td class="num">0.00</td><td class="num">4,99,500.00</td></tr>
+        <tr><td class="num">3</td><td>रायगढ़</td><td>2026-27</td><td class="desc">इंदिरा विहार रायगढ़</td><td class="desc">सौन्दर्यीकरण कार्य</td><td class="num">1,80,000.00</td><td class="num">0.00</td><td class="num">1,80,000.00</td></tr>
+        <tr class="total-row"><td colspan="5">योग (2026-27)</td><td class="num">11,79,000.00</td><td class="num">0.00</td><td class="num">11,79,000.00</td></tr>
+        <tr class="grand-row"><td colspan="5">कुल योग</td><td class="num">21,06,919.00</td><td class="num">2,99,563.00</td><td class="num">18,07,356.00</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="panel-signoff-wrap" style="max-width:1200px;margin:0 auto;padding:0 16px;">
+  <div class="signoff">वनमंडलाधिकारी<br>रायगढ़ वनमंडल रायगढ़</div>
+</div>
+
+<script>
+// ---------- BMC DATA ----------
+const bmcRows = [
+{sr:1, letter:"224 / 23.02.2019", credit:"16.03.2019", desc:"बी.एम.सी. गठन हेतु — जिला स्तर 01@100000, जनपद स्तर 09@60000=720000", target:"01/09", achv:"", allot:820000, spent:125122, balance:694878, firm:"परिक्षेत्र रायगढ़", remark:"BMC"},
+{sr:2, letter:"257 / 06.02.2020", credit:"15.02.2020", desc:"बी.एम.सी. गठन 10@60000=600000; पी.बी.आर. निर्माण 10@115000=1150000", target:"10/10", achv:"10/10", allot:1750000, spent:1525000, balance:225000, firm:"नव आस्था जन विकास सेवा समिति अम्भिकापुर", remark:"BMC/PBR"},
+{sr:3, letter:"804 / 19.03.2021", credit:"30.03.2021", desc:"पी.बी.आर. निर्माण कार्य", target:75, achv:75, allot:7500000, spent:7500000, balance:0, firm:"परिमल प्रयास संस्था बिलासपुर", remark:"PBR"},
+{sr:4, letter:"1476 / 11.08.2021", credit:"20.09.2021", desc:"पी.बी.आर. निर्माण कार्य", target:50, achv:50, allot:5000000, spent:5000000, balance:0, firm:"परिमल प्रयास संस्था बिलासपुर", remark:"PBR"},
+{sr:5, letter:"1844 / 20.10.2021", credit:"10.12.2021", desc:"पी.बी.आर. निर्माण कार्य", target:25, achv:25, allot:2500000, spent:2500000, balance:0, firm:"परिमल प्रयास संस्था बिलासपुर", remark:"PBR"},
+{sr:6, letter:"1920 / 08.04.2022", credit:"27.04.2022", desc:"पी.बी.आर. निर्माण कार्य", target:41, achv:41, allot:4100000, spent:4100000, balance:0, firm:"परिमल प्रयास संस्था बिलासपुर", remark:"PBR"},
+{sr:7, letter:"2195 / 20.12.2022", credit:"03.01.2023", desc:"बी.आर.सी. 46@25000.00", target:46, achv:46, allot:1150000, spent:1150000, balance:0, firm:"नव आस्था जन विकास सेवा समिति अम्भिकापुर", remark:"BMC"},
+{sr:8, letter:"89 / 13.01.2023", credit:"26.01.2023", desc:"जैव विविधता के संबंध में जागरूकता हेतु बैनर एवं फ्लैक्सी", target:"-", achv:"-", allot:200000, spent:200000, balance:0, firm:"शिवा इंटरप्राईजेस, रायगढ़", remark:"BMC Awarness"},
+{sr:9, letter:"291 / 12.02.2024", credit:"27.02.2024", desc:"30 समितियों में प्रशिक्षण कार्य", target:30, achv:30, allot:300000, spent:300000, balance:0, firm:"परिमल प्रयास संस्था बिलासपुर", remark:"BMC Training"},
+{sr:10, letter:"591 / 15.03.2024", credit:"28.03.2024", desc:"06 बी.एम.सी. समितियों में संरक्षण एवं संवर्धन हेतु", target:6, achv:"", allot:300000, spent:300000, balance:0, firm:"06 बी.एम.सी. समितियों हेतु आबंटित", remark:"ए.बी.एस. राशि"},
+{sr:11, letter:"255 / 15.03.2024", credit:"20.03.2024", desc:"खरसिया परिक्षेत्र ग्राम पंडरमुड़ा कक्ष क्र. 1130 में एस.सी.आई. वेटलैंड 2.25 हेक्ट. साफ-सफाई, पिचिंग एवं प्रबंधन कार्य", target:"2.25", achv:"", allot:1500000, spent:1067597, balance:432403, firm:"प.अ. खरसिया", remark:"Wetland"},
+{sr:12, letter:"188 / 12.03.2024", credit:"28.03.2024", desc:"वेटलैंड संरक्षण एवं संवर्धन कार्य — हेल्थ कार्ड, साईन बोर्ड, अन्य कार्य", target:"-", achv:"-", allot:300000, spent:298000, balance:2000, firm:"प्ल्युशा आशा की नई किरण", remark:"Wetland"},
+{sr:13, letter:"530 / 15.12.2024", credit:"02.04.2024", desc:"बी.एम.सी. गठन 47@25000", target:47, achv:"", allot:1175000, spent:0, balance:1175000, firm:"नव आस्था जन विकास सेवा समिति अम्भिकापुर", remark:"BMC"},
+{sr:14, letter:"621 / 15.03.2024", credit:"03.04.2024", desc:"पी.बी.आर. निर्माण — पूर्ण प्रगति 50, केशरवानी 25 एवं रिच्युवल एजुकेशन 50", target:125, achv:75, allot:12500000, spent:12500000, balance:0, firm:"पूर्ण प्रगति 50, केशरवानी 25", remark:"PBR"},
+{sr:15, letter:"628 / 15.03.2024", credit:"13.08.2024", desc:"अर्शिल शिक्षण संस्थान, रायपुर", target:15, achv:"-", allot:1500000, spent:1500000, balance:0, firm:"अर्शिल संस्थान", remark:"PBR"},
+{sr:16, letter:"801 / 17.12.2024", credit:"04.01.2025", desc:"05 वेटलैंड का ब्रीफ डाक्यूमेंट तैयार किये जाने हेतु (रायगढ़ व धरमजयगढ़ वनमंडल)", target:5, achv:"-", allot:300000, spent:300000, balance:0, firm:"परिमल प्रयास संस्था बिलासपुर", remark:"Wetland Brief"},
+{sr:17, letter:"50 / 20.01.2025", credit:"05.02.2025", desc:"वेटलैंड का डिमार्केशन कार्य हेतु", target:"-", achv:"-", allot:150000, spent:0, balance:150000, firm:"व.म.अ. स्तर", remark:"Wetland Demarcation"},
+{sr:18, letter:"1544 / 04.11.2025", credit:"11.11.2025", desc:"जैव विविधता के संबंध में प्रचार-प्रसार एवं जागरूकता", target:"-", achv:"-", allot:300000, spent:299000, balance:1000, firm:"शिवा इंटरप्राईजेस, रायगढ़", remark:"BMC Awarness"},
+{sr:19, letter:"2079 / 02.02.2026", credit:"04.11.2025", desc:"जिला स्तर पर वन विभाग अधिकारियों/कर्मचारियों व वेटलैंड संरक्षण समिति सदस्यों हेतु एक दिवसीय प्रशिक्षण एवं जागरूकता कार्यशाला", target:"-", achv:"-", allot:200000, spent:0, balance:200000, firm:"परिक्षेत्र रायगढ़", remark:"Wetland Training & Awairness"},
+{sr:20, letter:"195 / 17.02.2026", credit:"09.02.2026", desc:"04 महत्वपूर्ण वेटलैण्ड का डिमार्केशन के साथ बाउण्ड्री पिलर्स निर्माण कार्य", target:4, achv:"-", allot:500000, spent:100000, balance:400000, firm:"(धरमजयगढ़-100000 हस्तांतण) रायगढ़/तमनार परिक्षेत्र हेतु", remark:"Wetland Demarcation with boundary pillars"},
+{sr:23, letter:"318 / 11.03.2026", credit:"12.03.2026", desc:"Biodiversity - Documentation and Conservation to be carried by BMC at Panchayat Level", target:7, achv:"-", allot:1950000, spent:0, balance:1950000, firm:"तमनार परिक्षेत्र अंतर्गत 07 बी.एम.सी. समितियों को प्रदायित किया जाना है।", remark:"BMC"},
+{sr:24, letter:"480 / 25.03.2026", credit:"11.03.2026", desc:"Groundtruthing of Wetlands", target:"-", achv:"-", allot:300000, spent:150000, balance:150000, firm:"धरमजयगढ़व.म.—150000 हस्तांतरण, रायगढ़ व.अ.—1.00 लाख शेष", remark:"Groundtruthing Wetland"},
+{sr:25, letter:"518 / 25.03.2026", credit:"11.03.2026", desc:"वेटलैंड संरक्षण एवं संवर्धन अंतर्गत Water Sampling Kit क्रय", target:1, achv:1, allot:150000, spent:149191, balance:809, firm:"व.म.अ. स्तर", remark:"Wetland Sampling Kit"},
+{sr:26, letter:"422 / 02.04.2026", credit:"23.03.2026", desc:"पी.बी.आर. निर्माण कार्य — जिला पंचायत स्तर 01@2.00=2.00 लाख, जनपद पंचायत स्तर 05@1.30=6.50", target:6, achv:"-", allot:850000, spent:0, balance:850000, firm:"व.म.अ. स्तर", remark:"PBR"},
+{sr:27, letter:"977 / 09.07.2026", credit:"25.06.2026", desc:"25 बी.एम.सी. समितियों में दो दिवसीय प्रशिक्षण (Strengthening and capacity Buliding) प्रति बी.एम.सी. 10000.00", target:25, achv:"-", allot:250000, spent:0, balance:250000, firm:"व.म.अ. स्तर", remark:"BMC Training"}
+];
+
+function inr(n){ return Number(n).toLocaleString('en-IN'); }
+
+function renderBMC(){
+  const tbody = document.getElementById('bmcBody');
+  tbody.innerHTML = '';
+  bmcRows.forEach(r=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td class="num">${r.sr}</td><td>${r.letter}</td><td>${r.credit}</td><td class="desc">${r.desc}</td>
+      <td class="num">${r.target}</td><td class="num">${r.achv}</td><td class="num">${inr(r.allot)}</td>
+      <td class="num">${inr(r.spent)}</td><td class="num">${inr(r.balance)}</td><td class="desc">${r.firm}</td>
+      <td><span class="remark">${r.remark}</span></td>`;
+    tbody.appendChild(tr);
+  });
+  const totA = bmcRows.reduce((s,r)=>s+r.allot,0), totS = bmcRows.reduce((s,r)=>s+r.spent,0), totB = bmcRows.reduce((s,r)=>s+r.balance,0);
+  const tr = document.createElement('tr'); tr.className='grand-row';
+  tr.innerHTML = `<td colspan="6">कुल योग</td><td class="num">${inr(totA)}</td><td class="num">${inr(totS)}</td><td class="num">${inr(totB)}</td><td colspan="2"></td>`;
+  tbody.appendChild(tr);
+}
+
+// ---------- JFM 2026-27 DATA ----------
+const jfm2627 = [
+{sr:1, sanc:"अ.प्र.मु.व.सं./बजट-1/266, 08.05.2026", parisr:"सेमीजोर", work:"सामुदायिक भवन निर्माण कार्य", amt:1781000, mat:true},
+{sr:2, sanc:"अ.प्र.मु.व.ल. पत्र क्र./440964, 29.05.2026", parisr:"औराजोर", work:"तालाब गहरीकरण", amt:500000, mat:false},
+{sr:"3a", sanc:"-\"-", parisr:"सामारूमा", work:"शिव मंदिर सामारूमा मरम्मत एवं सौंदर्यीकरण", amt:200000, mat:true},
+{sr:"3b", sanc:"-\"-", parisr:"सामारूमा", work:"सामाजिक उपयोग हेतु बर्तन सेट, दरी, पर्दा, चांदनी क्रय", amt:200000, mat:false},
+{sr:"3c", sanc:"-\"-", parisr:"सामारूमा", work:"दोना पत्तल व्यवसाय हेतु मशीन क्रय — 02 नग", amt:93000, mat:false},
+{sr:"3d", sanc:"-\"-", parisr:"सामारूमा", work:"सिलाई मशीन क्रय — 10 नग", amt:100000, mat:false},
+{sr:"3e", sanc:"-\"-", parisr:"सामारूमा", work:"तालाब गहरीकरण एवं सौंदर्यीकरण", amt:200000, mat:false},
+{sr:"3f", sanc:"-\"-", parisr:"सामारूमा", work:"पेयजल एवं सिंचाई हेतु बोर खनन, टंकी निर्माण — 01 नग", amt:250000, mat:false, sub:"योग — 10,43,000"},
+{sr:"4a", sanc:"-\"-", parisr:"तुमीडीह", work:"सामुदायिक भवन निर्माण — मांझापारा", amt:500000, mat:true},
+{sr:"4b", sanc:"-\"-", parisr:"तुमीडीह", work:"सामुदायिक भवन निर्माण — राउतपारा", amt:500000, mat:true},
+{sr:"4c", sanc:"-\"-", parisr:"तुमीडीह", work:"दशाघाट में मंच निर्माण", amt:150000, mat:true},
+{sr:"4d", sanc:"-\"-", parisr:"तुमीडीह", work:"दोना पत्तल व्यवसाय हेतु मशीन क्रय — 02 नग", amt:93000, mat:false},
+{sr:"4e", sanc:"-\"-", parisr:"तुमीडीह", work:"सामाजिक उपयोग हेतु बर्तन सेट क्रय", amt:100000, mat:false},
+{sr:"4f", sanc:"-\"-", parisr:"तुमीडीह", work:"सामाजिक उपयोग हेतु दरी क्रय — 10 नग", amt:10000, mat:false, sub:"योग — 13,53,000"},
+{sr:"5a", sanc:"-\"-", parisr:"झिंगोल", work:"तालाब गहरीकरण — मुड़ापार", amt:200000, mat:false},
+{sr:"5b", sanc:"-\"-", parisr:"झिंगोल", work:"सामुदायिक भवन मरम्मत — झिंगोल", amt:99000, mat:true, sub:"योग — 2,99,000"},
+{sr:"6a", sanc:"-\"-", parisr:"ढोलनारा", work:"बोर खनन व फिटिंग", amt:150000, mat:false},
+{sr:"6b", sanc:"-\"-", parisr:"ढोलनारा", work:"पानी टंकी निर्माण", amt:100000, mat:true},
+{sr:"6c", sanc:"-\"-", parisr:"ढोलनारा", work:"पचरी निर्माण", amt:100000, mat:true, sub:"योग — 3,50,000"},
+{sr:"7a", sanc:"-\"-", parisr:"मिलूपारा", work:"सी.सी. रोड निर्माण — मिलूपारा (सिदारपारा) 200 र.मी.", amt:700000, mat:true},
+{sr:"7b", sanc:"-\"-", parisr:"मिलूपारा", work:"सामुदायिक भवन मरम्मत — मिलूपारा (सिदारपारा)", amt:100000, mat:true},
+{sr:"7c", sanc:"-\"-", parisr:"मिलूपारा", work:"मछली पालन", amt:100000, mat:false, sub:"योग — 9,00,000"},
+{sr:"8a", sanc:"-\"-", parisr:"बांजीखोल", work:"मछली पालन", amt:100000, mat:false},
+{sr:"8b", sanc:"-\"-", parisr:"बांजीखोल", work:"स्नान गृह निर्माण — 02 नग", amt:200000, mat:true, sub:"योग — 3,00,000"},
+{sr:"9a", sanc:"-\"-", parisr:"छिरवानी", work:"पचरी निर्माण", amt:200000, mat:true},
+{sr:"9b", sanc:"-\"-", parisr:"छिरवानी", work:"तालाब गहरीकरण", amt:100000, mat:false, sub:"योग — 3,00,000"},
+{sr:"10a", sanc:"-\"-", parisr:"पेलमा", work:"पचरी निर्माण — 02 नग", amt:160000, mat:true},
+{sr:"10b", sanc:"-\"-", parisr:"पेलमा", work:"तालाब गहरीकरण", amt:80000, mat:false, sub:"योग — 2,40,000"},
+{sr:"11a", sanc:"-\"-", parisr:"उरबा", work:"सी.सी. रोड निर्माण — दर्रीपारा 100 र.मी.", amt:400000, mat:true},
+{sr:"11b", sanc:"-\"-", parisr:"उरबा", work:"पचरी निर्माण — चीनीनाला (गोजादरहा)", amt:100000, mat:true},
+{sr:"11c", sanc:"-\"-", parisr:"उरबा", work:"सामाजिक उपयोग हेतु टेंट सामग्री एवं बर्तन सेट क्रय", amt:225000, mat:false, sub:"योग — 7,25,000"},
+{sr:12, sanc:"-\"-", parisr:"सेमीजोर", work:"तालाब गहरीकरण — ढोढ़ीमुड़ा एवं बारीमुड़ा — 02 नग", amt:500000, mat:false, remaining:true, sub:"योग — 5,00,000"},
+{sr:"13a", sanc:"-\"-", parisr:"हिन्झर", work:"सी.सी. रोड निर्माण — हिन्झर से सेमीजोर 300 र.मी.", amt:279000, mat:true},
+{sr:"13b", sanc:"-\"-", parisr:"हिन्झर", work:"बोर उत्खनन — 01 नग", amt:150000, mat:false},
+{sr:"13c", sanc:"-\"-", parisr:"हिन्झर", work:"तालाब गहरीकरण — बिरहोर तालाब", amt:200000, mat:false, sub:"योग — 6,29,000"},
+{sr:"14a", sanc:"-\"-", parisr:"बरपाली", work:"तालाब निर्माण — ग्राम गदगांव", amt:2000000, mat:false},
+{sr:"14b", sanc:"-\"-", parisr:"बरपाली", work:"सी.सी. रोड निर्माण", amt:1000000, mat:true},
+{sr:"14c", sanc:"-\"-", parisr:"बरपाली", work:"नाटक कला सामग्री", amt:200000, mat:false, sub:"योग — 32,00,000"}
+];
+
+function renderJFM2627(){
+  const tbody = document.getElementById('jfm2627');
+  tbody.innerHTML='';
+  jfm2627.forEach(r=>{
+    const tr = document.createElement('tr');
+    let cls = [];
+    if(!r.mat) cls.push('no-material');
+    if(r.remaining) cls.push('project-remaining');
+    if(cls.length) tr.className = cls.join(' ');
+    tr.innerHTML = `<td class="num">${r.sr}</td><td>${r.sanc}</td><td>${r.parisr}</td><td class="desc">${r.work}</td><td class="num">${inr(r.amt)}</td>`;
+    tbody.appendChild(tr);
+    if(r.sub){
+      const trs = document.createElement('tr'); trs.className='total-row';
+      trs.innerHTML = `<td colspan="4">${r.sub.split(' — ')[0]}</td><td class="num">${r.sub.split(' — ')[1]}</td>`;
+      tbody.appendChild(trs);
+    }
+  });
+  const grand = document.createElement('tr'); grand.className='grand-row';
+  grand.innerHTML = `<td colspan="4">कुल योग (2026-27)</td><td class="num">1,21,20,000.00</td>`;
+  tbody.appendChild(grand);
+}
+
+// ---------- CSR IDBI DATA ----------
+const csrRows = [
+{sr:1, name:"पूर्व में जमा राशि (05.05.2022 की स्थिति में)", jama:"81,57,701.00", work:"अर्दन डेम", site:"रामझरना भूपदेवपुर", allot:"40,07,000.00", spent:"39,55,854.00", wbal:"51,146.00", pbal:""},
+{sr:"", name:"05.05.2022 से 31.12.2023 तक ब्याज की राशि", jama:"8,80,486.00", work:"पानी टंकी—01", site:"रामझरना भूपदेवपुर", allot:"18,08,000.00", spent:"17,58,013.00", wbal:"49,987.00", pbal:""},
+{sr:"", name:"", jama:"", work:"पानी टंकी—02,03,04,05", site:"रामझरना भूपदेवपुर", allot:"15,70,000.00", spent:"15,42,983.00", wbal:"27,017.00", pbal:""},
+{sr:"", name:"", jama:"", work:"सी.सी. रोड़ निर्माण कार्य—235 र.मी.", site:"रामझरना भूपदेवपुर", allot:"16,50,000.00", spent:"16,19,279.00", wbal:"30,721.00", pbal:""},
+{sr:"", name:"योग", jama:"90,38,187.00", work:"", site:"", allot:"90,35,000.00", spent:"88,76,129.00", wbal:"1,58,871.00", pbal:"3,187.00", tot:true},
+{sr:2, name:"ब्याज की राशि (जनवरी 2024 से जून 2026 तक)", jama:"17,20,214", work:"पौधा क्रय एवं परिवहन कार्य (अनुसंधान बिलासपुर वनमंडल से)", site:"हाईटेक नर्सरी भेलवाटिकरा", allot:"3,60,000", spent:"64,457", wbal:"2,95,543", pbal:""},
+{sr:"", name:"", jama:"", work:"बोरवेल कार्य — 01 नग", site:"मदनपुर डिपो परिसर खरसिया", allot:"1,98,000", spent:"1,22,590", wbal:"75,410", pbal:""},
+{sr:"", name:"", jama:"", work:"कुलर्स एवं थ्री शीटर चेयर क्रय (07 नग कुलर व 02 नग चेयर)", site:"वनमंडल स्तर एवं प.अ. रायगढ़/काष्ठागार", allot:"1,33,854", spent:"1,33,854", wbal:"0", pbal:""},
+{sr:"", name:"योग", jama:"17,20,214.00", work:"", site:"", allot:"6,91,854.00", spent:"3,20,901.00", wbal:"3,70,953.00", pbal:"10,28,360.00", tot:true},
+{sr:3, name:"अन्य जमा (पौधा विक्रय)", jama:"32,125", work:"", site:"", allot:"", spent:"", wbal:"", pbal:"32,125.00"},
+{sr:4, name:"कृष्ण कुंज हेतु", jama:"86,00,000", work:"कृष्ण कुंज — 06 स्थल", site:"बांजीपाली, रायगढ़", allot:"16,75,875", spent:"15,16,232.00", wbal:"1,59,643", pbal:""},
+{sr:"", name:"", jama:"", work:"", site:"छिंद रोड़ पुसौर", allot:"16,75,875", spent:"14,51,173.00", wbal:"2,24,702", pbal:""},
+{sr:"", name:"", jama:"", work:"", site:"देवरास, घरघोड़ा", allot:"16,75,874", spent:"14,53,456.00", wbal:"2,22,418", pbal:""},
+{sr:"", name:"", jama:"", work:"", site:"मदनपुर, खरसिया", allot:"16,75,874", spent:"13,99,672.00", wbal:"2,76,202", pbal:""},
+{sr:"", name:"", jama:"", work:"", site:"सरिया", allot:"9,83,377", spent:"9,83,377.00", wbal:"0", pbal:""},
+{sr:"", name:"", jama:"", work:"", site:"सारंगढ़", allot:"9,13,125", spent:"9,13,125.00", wbal:"0", pbal:""},
+{sr:"", name:"योग", jama:"86,00,000.00", work:"", site:"", allot:"86,00,000.00", spent:"77,17,035.00", wbal:"8,82,965", pbal:"0", tot:true},
+{sr:5, name:"मशरूम उत्पादन हेतु", jama:"10,00,000", work:"मशरूम उत्पादन एवं प्रशिक्षण कार्य", site:"परिक्षेत्रों के 04 एवं 05 (कुल 09 व.प्र.स. में)", allot:"9,20,000", spent:"9,20,000", wbal:"0", pbal:"80,000"},
+{sr:6, name:"जिंदल एंड स्टील पावर लिमिटेड द्वारा कोल प्रोड्यूस चार्ज IV/6 (FY23-24 Sep23-Mar24 & FY24-25) & FY25-26", jama:"9,00,61,424.00", work:"तालाब मरम्मत कार्य — 12 नग", site:"घरघोड़ा-02 नग, तमनार-12 नग", allot:"69,97,000.00", spent:"69,96,444.00", wbal:"556.00", pbal:""},
+{sr:"", name:"जिंदल एंड स्टील पावर लिमिटेड कोल प्रोड्यूस चार्ज IV/1 (FY24-25 Oct24-Mar25) & FY25-26", jama:"8,39,81,797.00", work:"पानीखेत में जलीय पौधों की सफाई कार्य भाग-01 व 02 (10620 घ.मी.)", site:"पानीखेत — राजस्व भूमि (घरघोड़ा परिक्षेत्र)", allot:"30,00,000.00", spent:"30,00,000.00", wbal:"0.00", pbal:""},
+{sr:"", name:"", jama:"", work:"पानीखेत मुड़ाबंधा तालाब में हाथी मृत्यु कारण व बचाव हेतु ब्रीफ डाक्यूमेंट तैयारी", site:"पानीखेत — राजस्व भूमि (घरघोड़ा परिक्षेत्र)", allot:"3,00,000.00", spent:"2,97,000.00", wbal:"3,000.00", pbal:""},
+{sr:"", name:"", jama:"", work:"स्टोन पिचिंग कार्य, अटल रॉक गार्डन (510 घ.मी.)", site:"अटल रॉक गार्डन, बोतल्दा खरसिया", allot:"10,00,000.00", spent:"9,99,941.00", wbal:"59.00", pbal:""},
+{sr:"", name:"", jama:"", work:"अग्नि नियंत्रण सामग्री क्रय (जेम पोर्टल)", site:"वनमंडल स्तर", allot:"49,88,560.00", spent:"49,88,560.00", wbal:"0.00", pbal:""},
+{sr:"", name:"", jama:"", work:"वन्यप्राणी मॉनिटरिंग, रेस्क्यू ऑपरेशन, जनहानि सुरक्षा एवं GPS मशीन", site:"वनमंडल स्तर", allot:"50,24,579.00", spent:"50,24,579.00", wbal:"0.00", pbal:""},
+{sr:"", name:"", jama:"", work:"अतिक्रमण रोकने हेतु सी.पी.टी. निर्माण कार्य", site:"रायगढ़ परिक्षेत्र, गोपालपुर", allot:"10,25,000.00", spent:"10,23,120.00", wbal:"1,880.00", pbal:""},
+{sr:"", name:"", jama:"", work:"पहाड़ मंदिर (गजमार पहाडी) मिश्रित वृक्षारोपण पार्ट-02 (05 हेक्ट.) 2000 पौधा", site:"रायगढ़ परिक्षेत्र", allot:"24,65,000.00", spent:"17,24,025.00", wbal:"7,40,975.00", pbal:""},
+{sr:"", name:"", jama:"", work:"पर्यावरण पार्क रायगढ़ में विद्युत व्यवस्था हेतु सामग्री क्रय", site:"रायगढ़ परिक्षेत्र", allot:"9,97,487.00", spent:"9,97,487.00", wbal:"0.00", pbal:""},
+{sr:"", name:"", jama:"", work:"नाला चेम्बर निर्माण कार्य — रामझरना भूपदेवपुर", site:"रायगढ़ परिक्षेत्र", allot:"10,86,000.00", spent:"8,78,685.00", wbal:"2,07,315.00", pbal:""},
+{sr:"", name:"", jama:"", work:"बोरवेल उत्खनन कार्य नगर वन उर्दना — 02 नग", site:"नगर वन उर्दना", allot:"5,50,000", spent:"5,39,203.00", wbal:"10,797", pbal:""},
+{sr:"", name:"", jama:"", work:"सी.सी. रोड़ निर्माण कार्य — 460 र.मी. (मदनपुर डिपो खरसिया)", site:"खरसिया परिक्षेत्र", allot:"21,90,593.00", spent:"21,88,123.00", wbal:"2,470.00", pbal:""},
+{sr:"", name:"", jama:"", work:"सिविल डिपोजिटमद 8443-109 में हस्तांतरण, धनादेश क्र.323647 दि.09.07.2026", site:"", allot:"14,44,19,002.00", spent:"14,44,19,002.00", wbal:"0.00", pbal:""},
+{sr:"", name:"योग", jama:"17,40,43,221.00", work:"", site:"", allot:"17,40,43,221.00", spent:"17,30,76,169.00", wbal:"9,67,052.00", pbal:"0.00", tot:true},
+{sr:"", name:"कुल योग", jama:"19,44,33,747.00", work:"", site:"", allot:"19,32,90,075.00", spent:"19,09,10,234.00", wbal:"23,79,841.00", pbal:"11,43,672.00", grand:true}
+];
+
+function renderCSR(){
+  const tbody = document.getElementById('csrBody');
+  tbody.innerHTML='';
+  csrRows.forEach(r=>{
+    const tr = document.createElement('tr');
+    if(r.grand) tr.className='grand-row'; else if(r.tot) tr.className='total-row';
+    tr.innerHTML = `<td class="num">${r.sr}</td><td class="desc">${r.name}</td><td class="num">${r.jama}</td>
+      <td class="desc">${r.work}</td><td class="desc">${r.site}</td><td class="num">${r.allot}</td>
+      <td class="num">${r.spent}</td><td class="num">${r.wbal}</td><td class="num">${r.pbal}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// ---------- GRAND SUMMARY ----------
+function renderGrandSummary(){
+  // Sum of tracked allocation/spent/balance sources (excludes JFM which has no spent/balance tracking, and CSR Civil Deposit sub-ledger to avoid double count)
+  const bmcA=45545000, bmcS=39063910, bmcB=6481090;
+  const fdaA=5362522, fdaS=410002, fdaB=4952520;
+  const csrA=193290075, csrS=190910234, csrB=2379841; // work-remaining basis
+  const gateA=2106919, gateS=299563, gateB=1807356;
+  const totalA = bmcA+fdaA+csrA+gateA;
+  const totalS = bmcS+fdaS+csrS+gateS;
+  const totalB = bmcB+fdaB+csrB+gateB;
+  document.getElementById('gsAllot').textContent = '₹ ' + inr(totalA);
+  document.getElementById('gsSpent').textContent = '₹ ' + inr(totalS);
+  document.getElementById('gsBal').textContent = '₹ ' + inr(totalB);
+  document.getElementById('gsPct').textContent = ((totalS/totalA)*100).toFixed(1)+'%';
+}
+
+// ---------- TABS ----------
+document.querySelectorAll('nav.tabs button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+});
+document.querySelectorAll('.fund-card').forEach(card=>{
+  card.addEventListener('click', ()=>{
+    document.querySelector(`nav.tabs button[data-tab="${card.dataset.goto}"]`).click();
+  });
+});
+
+// ---------- JFM + WETLAND MATERIAL DEMAND DATA (Tamnar + Gharghoda, ref 807/1382 amended) ----------
+const jfmMaterial = [
+{sr:1, mad:"वन प्रबंधन समिति", samiti:"घरघोड़ा — बिलासखार", work:"पचरी निर्माण कार्य", s20:2.50, s40:9.65, sand:11.50, cement:88, bricks:5880, b12:"", b10:"", b8:"", sheet:""},
+{sr:2, mad:"वन प्रबंधन समिति", samiti:"सेमीजोर", work:"सामुदायिक भवन निर्माण कार्य", s20:44.00, s40:5.98, sand:52.00, cement:454, bricks:24130, b12:1851.00, b10:1388.00, b8:1390.93, sheet:""},
+{sr:3, mad:"वन प्रबंधन समिति", samiti:"सामारूमा", work:"शिव मंदिर सामारूमा मरम्मत एवं सौंदर्यीकरण", s20:4.10, s40:"", sand:3.80, cement:37, bricks:"", b12:"", b10:"", b8:"", sheet:""},
+{sr:4, mad:"वन प्रबंधन समिति", samiti:"तुमीडीह", work:"सामुदायिक भवन निर्माण — मांझापारा", s20:12.00, s40:"", sand:15.30, cement:116, bricks:10800, b12:220, b10:170, b8:174.72, sheet:""},
+{sr:"", mad:"वन प्रबंधन समिति", samiti:"तुमीडीह", work:"सामुदायिक भवन निर्माण — राउतपारा", s20:12.00, s40:"", sand:15.30, cement:116, bricks:10800, b12:220, b10:170, b8:174.72, sheet:""},
+{sr:"", mad:"वन प्रबंधन समिति", samiti:"तुमीडीह", work:"दशाघाट में मंच निर्माण", s20:5.16, s40:"", sand:6.10, cement:57, bricks:3600, b12:250, b10:180, b8:178.00, sheet:""},
+{sr:5, mad:"वन प्रबंधन समिति", samiti:"झिंगोल", work:"सामुदायिक भवन मरम्मत — झिंगोल", s20:0.80, s40:"", sand:1.50, cement:15, bricks:"", b12:"", b10:"", b8:"", sheet:""},
+{sr:6, mad:"वन प्रबंधन समिति", samiti:"ढोलनारा", work:"पानी टंकी निर्माण", s20:5.20, s40:"", sand:3.70, cement:45, bricks:450, b12:"", b10:300, b8:223.60, sheet:""},
+{sr:"", mad:"वन प्रबंधन समिति", samiti:"ढोलनारा", work:"पचरी निर्माण", s20:10.00, s40:"", sand:9.20, cement:77, bricks:1920, b12:"", b10:"", b8:"", sheet:""},
+{sr:7, mad:"वन प्रबंधन समिति", samiti:"मिलूपारा", work:"सी.सी.रोड निर्माण — मिलूपारा (सिदारपारा) 200 र.मी.", s20:102.00, s40:"", sand:54.00, cement:750, bricks:"", b12:"", b10:"", b8:"", sheet:600.00},
+{sr:"", mad:"वन प्रबंधन समिति", samiti:"मिलूपारा", work:"सामुदायिक भवन मरम्मत — मिलूपारा (सिदारपारा)", s20:0.80, s40:"", sand:1.50, cement:15, bricks:"", b12:"", b10:"", b8:"", sheet:""},
+{sr:8, mad:"वन प्रबंधन समिति", samiti:"बांजीखोल", work:"स्नान गृह निर्माण — 02 नग", s20:7.14, s40:"", sand:10.72, cement:92, bricks:7200, b12:"", b10:360, b8:270.00, sheet:""},
+{sr:9, mad:"वन प्रबंधन समिति", samiti:"छिरवानी", work:"पचरी निर्माण", s20:18.00, s40:"", sand:17.50, cement:140, bricks:3800, b12:"", b10:"", b8:"", sheet:""},
+{sr:10, mad:"वन प्रबंधन समिति", samiti:"पेलमा", work:"पचरी निर्माण — 02 नग", s20:16.00, s40:"", sand:14.40, cement:120, bricks:3400, b12:"", b10:"", b8:"", sheet:""},
+{sr:11, mad:"वन प्रबंधन समिति", samiti:"उरबा", work:"सी.सी.रोड निर्माण — दर्रीपारा 100 र.मी.", s20:51.00, s40:"", sand:27.00, cement:350, bricks:"", b12:"", b10:"", b8:"", sheet:300.00},
+{sr:"", mad:"वन प्रबंधन समिति", samiti:"उरबा", work:"पचरी निर्माण — चीनीनाला (गोजादरहा)", s20:10.00, s40:"", sand:9.20, cement:77, bricks:1920, b12:"", b10:"", b8:"", sheet:""},
+{sr:12, mad:"वन प्रबंधन समिति", samiti:"हिन्झर", work:"सी.सी.रोड निर्माण — हिन्झर से सेमीजोर 300 र.मी.", s20:40.80, s40:"", sand:21.60, cement:300, bricks:"", b12:"", b10:"", b8:"", sheet:240.00},
+{sr:13, mad:"वन प्रबंधन समिति", samiti:"बरपाली", work:"सी.सी.रोड निर्माण", s20:153.00, s40:"", sand:81.00, cement:1100, bricks:"", b12:"", b10:"", b8:"", sheet:900.00}
+];
+
+const wetlandMaterial = [
+{sr:1, mad:"वेटलैंड प्राधिकरण (तमनार)", samiti:"रायगढ़ — Kelo Reservoir (Kelo Dam)", work:"Demarcation with boundary pillars", s20:1.00, s40:8.50, sand:15.00, cement:68, bricks:"", b12:"", b10:"", b8:"", sheet:""},
+{sr:2, mad:"वेटलैंड प्राधिकरण (तमनार)", samiti:"रायगढ़ — Gudgahan Tank (Bandha)", work:"Demarcation with boundary pillars", s20:1.00, s40:8.50, sand:15.00, cement:68, bricks:"", b12:"", b10:"", b8:"", sheet:""},
+{sr:3, mad:"वेटलैंड प्राधिकरण (तमनार)", samiti:"रायगढ़ — Tipakhol Tank (Tipakhol Dam)", work:"Demarcation with boundary pillars", s20:1.00, s40:8.50, sand:15.00, cement:68, bricks:"", b12:"", b10:"", b8:"", sheet:""},
+{sr:4, mad:"वेटलैंड प्राधिकरण (तमनार)", samiti:"तमनार — Rabo Reservoir (Rabo Dam)", work:"Demarcation with boundary pillars", s20:1.00, s40:8.50, sand:15.00, cement:68, bricks:"", b12:"", b10:"", b8:"", sheet:""}
+];
+
+const materialLabels = {
+  s20:"Stone 20MM (cum)", s40:"Stone 40MM (cum)", sand:"Sand (cum)", cement:"Cement (bag)",
+  bricks:"Bricks (Nos)", b12:"12mm Bar (Kg)", b10:"10mm Bar (Kg)", b8:"8mm Bar (Kg)", sheet:"125μ Sheet (SQM)"
+};
+const matKeys = ["s20","s40","sand","cement","bricks","b12","b10","b8","sheet"];
+
+function sumField(rows, key){
+  return rows.reduce((s,r)=> s + (r[key]===""||r[key]===undefined ? 0 : Number(r[key])), 0);
+}
+function fmtNum(n){
+  if(n===0) return "0";
+  return Number.isInteger(n) ? n.toString() : n.toFixed(2);
+}
+
+const otherMaterial = [
+{sr:1, mad:"व्यय II (कैम्पा)", samiti:"रायगढ़ एवं खरसिया", work:"कूप निर्माण कार्य (कुल 32 कूप)", s20:"", s40:"", sand:"", cement:"", bricks:"", b12:1566, b10:"", b8:1044},
+{sr:2, mad:"व्यय II (कैम्पा)", samiti:"तमनार — क्षतिपूर्ति वृक्षारोपण (ख.नं. 468/26, रकबा 12.116 हे.)", work:"आस्था मूलक कार्य — शेड निर्माण", s20:21.00, s40:18.50, sand:26.20, cement:281, bricks:7350, b12:750, b10:"", b8:491},
+{sr:3, mad:"CSR", samiti:"खरसिया — Rocky Area Plantation (उल्दा क.क्र. 1147 आर.एफ.)", work:"पगोडा निर्माण (आर.सी.सी.)", s20:"", s40:"", sand:"", cement:"", bricks:"", b12:480, b10:360, b8:360}
+];
+
+const goswaraRows = [
+ ["Stone 20MM","cum","s20"],["Stone 40MM","cum","s40"],["Sand","cum","sand"],["Cement","bag","cement"],
+ ["Bricks","Nos","bricks"],["12 mm TMT Bar","Kg","b12"],["10 mm TMT Bar","Kg","b10"],["8 mm TMT Bar","Kg","b8"],
+ ["125 Micron Plastic Sheet","SQM","sheet"]
+];
+const extraGoswara = [
+ ["Wall Paint","Ltr",30],["Metal Enamel Paint","Ltr",30],["MS Steel (Truss & Purlin)","Kg",2160],
+ ["Profile Sheet","Sqm",240],["Roof Top Sheet","Rmt",30]
+];
+
+function renderOtherMaterial(filterKey){
+  filterKey = filterKey || 'all';
+  const tbody = document.getElementById('otherMaterial');
+  tbody.innerHTML='';
+  const keys = ["s20","s40","sand","cement","bricks","b12","b10","b8"];
+  const rows = filterKey==='all' ? otherMaterial : otherMaterial.filter(r => r[filterKey]!=="" && r[filterKey]!==undefined);
+  rows.forEach(r=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML = `<td class="num">${r.sr}</td><td>${r.mad}</td><td>${r.samiti}</td><td class="desc">${r.work}</td>` +
+      keys.map(k=>`<td class="num">${r[k]===""?"":r[k]}</td>`).join('');
+    tbody.appendChild(tr);
+  });
+  if(!rows.length){
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td colspan="12" style="text-align:center;color:#6b7280;">चयनित सामग्री इस तालिका के किसी कार्य में आवश्यक नहीं</td>`;
+    tbody.appendChild(tr);
+  }
+  const g=document.createElement('tr'); g.className='grand-row';
+  g.innerHTML = `<td colspan="4">योग (कैम्पा + CSR)</td>` + keys.map(k=>`<td class="num">${fmtNum(sumField(otherMaterial,k))}</td>`).join('');
+  tbody.appendChild(g);
+}
+
+function renderGoswara(){
+  const tbody=document.getElementById('materialGoswara');
+  tbody.innerHTML='';
+  const csr = otherMaterial.filter(r=>r.mad==="CSR");
+  const campa = otherMaterial.filter(r=>r.mad!=="CSR");
+  let i=1;
+  goswaraRows.forEach(([name,unit,k])=>{
+    const a=sumField(jfmMaterial,k), b=sumField(wetlandMaterial,k), c=sumField(campa,k), d=sumField(csr,k);
+    const f=v=> v===0 ? "-" : fmtNum(v);
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td class="num">${i++}</td><td>${name}</td><td>${unit}</td><td class="num">${f(a)}</td><td class="num">${f(b)}</td><td class="num">${f(c)}</td><td class="num">${f(d)}</td><td class="num"><b>${fmtNum(a+b+c+d)}</b></td>`;
+    tbody.appendChild(tr);
+  });
+  extraGoswara.forEach(([name,unit,v])=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td class="num">${i++}</td><td>${name}</td><td>${unit}</td><td class="num">-</td><td class="num">-</td><td class="num">${v}</td><td class="num">-</td><td class="num"><b>${v}</b></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderJFMMaterial(filterKey){
+  filterKey = filterKey || 'all';
+  const tbody = document.getElementById('jfmMaterial');
+  tbody.innerHTML='';
+
+  const jfmRows = filterKey==='all' ? jfmMaterial : jfmMaterial.filter(r => r[filterKey]!=="" && r[filterKey]!==undefined);
+  const wlRows = filterKey==='all' ? wetlandMaterial : wetlandMaterial.filter(r => r[filterKey]!=="" && r[filterKey]!==undefined);
+
+  jfmRows.forEach(r=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td class="num">${r.sr}</td><td>${r.mad}</td><td>${r.samiti}</td><td class="desc">${r.work}</td>
+      <td class="num">${r.s20}</td><td class="num">${r.s40}</td><td class="num">${r.sand}</td>
+      <td class="num">${r.cement}</td><td class="num">${r.bricks}</td><td class="num">${r.b12}</td>
+      <td class="num">${r.b10}</td><td class="num">${r.b8}</td><td class="num">${r.sheet}</td>`;
+    tbody.appendChild(tr);
+  });
+  if(jfmRows.length){
+    const jfmSub = document.createElement('tr'); jfmSub.className='total-row';
+    jfmSub.innerHTML = `<td colspan="4">योग (वन प्रबंधन समिति${filterKey!=='all' ? ' — प्रदर्शित: '+jfmRows.length : ''})</td>` +
+      matKeys.map(k=>`<td class="num">${fmtNum(sumField(jfmMaterial,k))}</td>`).join('');
+    tbody.appendChild(jfmSub);
+  }
+
+  wlRows.forEach(r=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td class="num">${r.sr}</td><td>${r.mad}</td><td>${r.samiti}</td><td class="desc">${r.work}</td>
+      <td class="num">${r.s20}</td><td class="num">${r.s40}</td><td class="num">${r.sand}</td>
+      <td class="num">${r.cement}</td><td class="num">${r.bricks}</td><td class="num">${r.b12}</td>
+      <td class="num">${r.b10}</td><td class="num">${r.b8}</td><td class="num">${r.sheet}</td>`;
+    tbody.appendChild(tr);
+  });
+  if(wlRows.length){
+    const wlSub = document.createElement('tr'); wlSub.className='total-row';
+    wlSub.innerHTML = `<td colspan="4">योग (वेटलैंड प्राधिकरण${filterKey!=='all' ? ' — प्रदर्शित: '+wlRows.length : ''})</td>` +
+      matKeys.map(k=>`<td class="num">${fmtNum(sumField(wetlandMaterial,k))}</td>`).join('');
+    tbody.appendChild(wlSub);
+  }
+
+  const grand = document.createElement('tr'); grand.className='grand-row';
+  grand.innerHTML = `<td colspan="4">कुल योग</td>` +
+    matKeys.map(k=>`<td class="num">${fmtNum(sumField(jfmMaterial,k)+sumField(wetlandMaterial,k))}</td>`).join('');
+  tbody.appendChild(grand);
+
+  // highlight active column header
+  document.querySelectorAll('#panel-jfm thead th[data-key]').forEach(th=>{
+    th.classList.toggle('col-active', th.dataset.key===filterKey);
+  });
+
+  // filter note
+  const noteEl = document.getElementById('materialFilterNote');
+  if(filterKey==='all'){
+    noteEl.style.display='none';
+  } else {
+    const totalShown = jfmRows.length + wlRows.length;
+    noteEl.style.display='block';
+    noteEl.innerHTML = `फ़िल्टर सक्रिय: <b>${materialLabels[filterKey]}</b> — केवल वे कार्य दिखाए जा रहे हैं जिनमें यह सामग्री आवश्यक है (कुल ${totalShown} कार्य)।`;
+  }
+}
+
+document.getElementById('materialFilter').addEventListener('change', (e)=>{
+  renderJFMMaterial(e.target.value);
+  renderOtherMaterial(e.target.value);
+});
+
+
+renderJFMMaterial('all');
+renderOtherMaterial('all');
+renderGoswara();
+renderBMC();
+renderJFM2627();
+renderCSR();
+renderGrandSummary();
+</script>
+
+</body>
+</html>

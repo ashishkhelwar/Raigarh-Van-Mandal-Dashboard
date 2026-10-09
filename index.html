@@ -481,12 +481,23 @@ addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});<
       <div class="card-foot"><a class="open" data-open="shikayat" target="_blank" rel="noopener"><span class="deva">शिकायत पंजी</span> <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
     </article>
 
-    <!-- 10 · Project Preparation -->
+    <!-- 10 · Expenditure III -->
+    <article class="card" data-kind="static" data-reg="vyay3"
+      data-search="expenditure iii व्यय-III समेकित निधि consolidated fund biodiversity board जैव विविधता बोर्ड bmc pbr wetland वेटलैंड jfm वन प्रबंधन समिति fda वन विकास अभिकरण csr idbi civil deposit 8443 गेटमनी gate money eco tourism सामग्री मांगपत्र">
+      <div class="spine"></div>
+      <div class="card-body">
+        <div class="folio"><span class="no">Folio X</span><span class="badge static">Static register</span></div>
+        <h3 class="deva">व्यय-III समेकित निधि<span class="hi">Biodiversity Board · JFM · FDA · CSR · Gate Money</span></h3>
+      </div>
+      <div class="card-foot"><a class="open" data-open="vyay3" target="_blank" rel="noopener"><span class="deva">व्यय-III समेकित निधि</span> <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+    </article>
+
+    <!-- 11 · Project Preparation -->
     <article class="card dim" data-kind="wait" data-reg="project"
       data-search="project preparation परियोजना तैयारी dpr proposal scoped coming soon planning">
       <div class="spine"></div>
       <div class="card-body">
-        <div class="folio"><span class="no">Folio X</span><span class="badge wait">In preparation</span></div>
+        <div class="folio"><span class="no">Folio XI</span><span class="badge wait">In preparation</span></div>
         <h3 class="deva">परियोजना तैयारी<span class="hi">Project Preparation</span></h3>
       </div>
       <div class="card-foot"><a class="open disabled" data-open="project" aria-disabled="true"><span class="deva">परियोजना तैयारी</span> · soon</a></div>
@@ -536,9 +547,13 @@ addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});<
           <td class="q">A <b>complaint (शिकायत)</b> — PGN, Janchopal, CPGRAMS, EOW, E-Samadhan, Lok Ayog, GeM, from Government or received directly</td>
           <td class="go"><a data-open="shikayat"><span class="fno">IX ·</span> शिकायत पंजी</a></td>
         </tr>
+        <tr data-search="expenditure iii व्यय-III biodiversity जैव विविधता jfm fda csr gate money गेटमनी wetland material सामग्री">
+          <td class="q"><b>Expenditure III (व्यय-III)</b> — Biodiversity Board, JFM, FDA, CSR (IDBI / Civil Deposit) or Gate Money works and material demand</td>
+          <td class="go"><a data-open="vyay3"><span class="fno">X ·</span> व्यय-III समेकित निधि</a></td>
+        </tr>
         <tr data-search="project preparation dpr proposal status परियोजना तैयारी">
           <td class="q"><b>Project preparation</b> status or proposal</td>
-          <td class="go"><a data-open="project" class="na"><span class="fno">X ·</span> Project Preparation (soon)</a></td>
+          <td class="go"><a data-open="project" class="na"><span class="fno">XI ·</span> Project Preparation (soon)</a></td>
         </tr>
       </tbody>
     </table>
@@ -605,6 +620,7 @@ const REGISTER_LINKS = {
   court:      "./court-cases.html",
   production: "./production.html",
   shikayat:   "./shikayat.html",
+  vyay3:      "./expenditure-iii.html",
   project:    ""   /* Project Preparation — not built yet */
 };
 
@@ -612,7 +628,7 @@ const REGISTER_LINKS = {
 const REG_NAMES = {
   fca:"FCA Diversion Cases", campa25:"CAMPA APO 2025-26", campa26:"CAMPA APO 2026-27",
   regular:"Regular Head व्यय", plantation:"Plantation & Nursery",
-  material:"Material Purchase", court:"Court Cases", production:"Production", shikayat:"शिकायत पंजी", project:"Project Preparation"
+  material:"Material Purchase", court:"Court Cases", production:"Production", shikayat:"शिकायत पंजी", vyay3:"व्यय-III समेकित निधि", project:"Project Preparation"
 };
 
 (function(){
