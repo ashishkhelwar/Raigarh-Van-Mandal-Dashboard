@@ -1,0 +1,2093 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Raigarh FCA 1980 — Case Registry (Mapped)</title>
+<style>
+  :root {
+    --bg: #f2ede4;
+    --surface: #ffffff;
+    --surface2: #f8f5ef;
+    --forest: #1b4332;
+    --forest-light: #2d6a4f;
+    --amber: #b45309;
+    --amber-bg: #fef3c7;
+    --amber-border: #f59e0b;
+    --text: #1a1a1a;
+    --text-muted: #6b7280;
+    --border: #d4c9b8;
+    --radius: 6px;
+    --mono: 'Courier New', Courier, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); font-family: 'Segoe UI', system-ui, sans-serif; color: var(--text); font-size: 14px; }
+
+  /* HEADER */
+  .header { background: var(--forest); color: #fff; padding: 20px 24px 16px; }
+  .header h1 { font-size: 20px; font-weight: 700; letter-spacing: 0.3px; }
+  .header-sub { font-size: 14px; color: #a7c4b0; margin-top: 4px; }
+  .stats-row { display: flex; gap: 24px; margin-top: 14px; flex-wrap: wrap; }
+  .stat { text-align: center; }
+  .stat-val { font-size: 24px; font-weight: 800; color: #e9f5e9; }
+  .stat-lbl { font-size: 12px; color: #a7c4b0; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 1px; }
+
+  /* LEGEND */
+  .legend { background: #fff; border-bottom: 1px solid var(--border); padding: 10px 24px; display: flex; gap: 20px; flex-wrap: wrap; align-items: center; }
+  .legend-group { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--text-muted); }
+  .legend-group span { font-weight: 600; color: #374151; }
+
+  /* FILTERS */
+  .filters { background: var(--surface2); border-bottom: 1px solid var(--border); padding: 10px 24px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .filters input[type=text] { border: 1px solid var(--border); border-radius: var(--radius); padding: 5px 10px; font-size: 14px; width: 200px; background: #fff; }
+  .filter-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip { padding: 4px 10px; border-radius: 20px; font-size: 14px; font-weight: 600; cursor: pointer; border: 1.5px solid transparent; transition: all 0.15s; user-select: none; }
+  .chip.active { border-color: var(--forest); background: var(--forest); color: #fff; }
+  .chip:not(.active) { border-color: #cbd5c8; background: #fff; color: #374151; }
+  .chip:not(.active):hover { border-color: var(--forest-light); }
+  .filter-divider { width: 1px; background: var(--border); height: 24px; }
+  .filter-label { font-size: 14px; color: var(--text-muted); font-weight: 600; }
+  .count-badge { background: var(--forest); color: #fff; border-radius: 10px; padding: 2px 8px; font-size: 14px; font-weight: 700; margin-left: 6px; }
+
+  /* TABLE */
+  .table-wrap { overflow-x: auto; padding: 0 0 40px 0; }
+  table { width: 100%; border-collapse: collapse; min-width: 900px; }
+  thead th { background: var(--forest); color: #e8f5e9; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 9px 10px; text-align: left; position: sticky; top: 0; z-index: 5; border-right: 1px solid #2d6a4f; }
+  thead th:last-child { border-right: none; }
+  tbody tr { border-bottom: 1px solid #e8e0d5; cursor: pointer; transition: background 0.1s; }
+  tbody tr:hover { background: #eef5ec !important; }
+  tbody tr.has-conditions { border-left: 3px solid var(--amber-border); }
+  tbody tr.has-conditions td:first-child { padding-left: 7px; }
+  tbody tr:nth-child(even) { background: #faf8f4; }
+  td { padding: 8px 10px; vertical-align: top; font-size: 14px; }
+  td.id-col { font-weight: 800; color: var(--forest); width: 38px; min-width: 38px; }
+  td.name-col { max-width: 240px; }
+  td.name-hi { font-size: 14px; color: var(--text); line-height: 1.4; }
+  td.name-en { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  td.khasra-col { font-family: var(--mono); font-size: 11px; color: #4b5563; max-width: 160px; line-height: 1.5; word-break: break-word; }
+  td.area-col { font-weight: 700; text-align: right; width: 60px; white-space: nowrap; }
+  td.date-col { font-size: 14px; white-space: nowrap; color: #374151; }
+  td.date-col .date-label { font-size: 11px; color: var(--text-muted); display: block; }
+  td.cond-col { width: 100px; }
+
+  /* BADGES */
+  .badge { display: inline-block; padding: 2px 7px; border-radius: 3px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
+  .badge-rf { background: #fee2e2; color: #7f1d1d; }
+  .badge-pf { background: #ffedd5; color: #7c2d12; }
+  .badge-rf-pf { background: #fef3c7; color: #78350f; }
+  .badge-revenue { background: #f0fdf4; color: #14532d; border: 1px solid #bbf7d0; }
+  .badge-orange { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+  .badge-mixed { background: #f5f3ff; color: #4c1d95; border: 1px solid #ddd6fe; }
+  .badge-unknown { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+
+  .type-badge { display: inline-block; padding: 2px 6px; border-radius: 3px; font-size: 12px; font-weight: 600; }
+  .type-coal { background: #1c1917; color: #fef3c7; }
+  .type-power_tx { background: #1e3a5f; color: #bfdbfe; }
+  .type-thermal { background: #450a0a; color: #fecaca; }
+  .type-railway { background: #1a2e05; color: #d9f99d; }
+  .type-pipeline { background: #0c4a6e; color: #bae6fd; }
+  .type-road { background: #431407; color: #fed7aa; }
+  .type-other { background: #374151; color: #f3f4f6; }
+
+  .cond-btn { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 4px; background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); font-size: 12px; font-weight: 700; cursor: pointer; }
+  .cond-btn::after { content: '▾'; font-size: 12px; }
+  .cond-btn.open::after { content: '▴'; }
+  .no-cond { font-size: 12px; color: #d1d5db; }
+
+  /* DETAIL PANEL */
+  .detail-row { display: none; background: #fffbf0; border-bottom: 2px solid var(--amber-border); border-left: 3px solid var(--amber-border); }
+  .detail-row.open { display: table-row; }
+  .detail-cell { padding: 14px 20px 18px; }
+  .detail-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .detail-section { }
+  .detail-section h4 { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: var(--forest); border-bottom: 1px solid #d1fae5; padding-bottom: 4px; margin-bottom: 8px; }
+  .detail-kv { margin-bottom: 5px; }
+  .detail-kv .k { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+  .detail-kv .v { font-size: 14px; color: var(--text); margin-top: 1px; }
+  /* cond-list legacy removed — conditions now use .cond-item / .cond-num / .cond-text */
+  .flag-pill { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: 700; margin: 2px 3px; }
+  .flag-orange { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+  .flag-penal { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+  .flag-rediversion { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+  .flag-multidiv { background: #f5f3ff; color: #5b21b6; border: 1px solid #ddd6fe; }
+  .flag-fragmentation { background: #f0fdf4; color: #065f46; border: 1px solid #a7f3d0; }
+  .batch-ref { font-family: var(--mono); font-size: 12px; font-weight: 700; background: var(--forest); color: #d1fae5; padding: 2px 6px; border-radius: 3px; }
+
+  .no-results { text-align: center; padding: 40px; color: var(--text-muted); font-size: 14px; }
+
+  @media (max-width: 768px) {
+    .detail-grid { grid-template-columns: 1fr; }
+  }
+
+  /* DETAIL PANEL — sections layout */
+  .det-header { margin-bottom:10px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .det-meta { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; background:#f0fdf4; border:1px solid #a7f3d0; border-radius:6px; padding:10px 14px; margin-bottom:14px; }
+  .det-meta-col {}
+  .mono { font-family:var(--mono); font-size:12px; }
+  .cond-sections-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; }
+  .cond-section { background:#fffbf3; border:1px solid #e5e0d5; border-radius:5px; padding:12px 14px; }
+  .cond-section-head { font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; color:var(--forest); border-bottom:1px solid #d1fae5; padding-bottom:6px; margin-bottom:9px; }
+  .cond-items { display:flex; flex-direction:column; gap:9px; }
+  .cond-item { display:flex; gap:12px; align-items:flex-start; }
+  .cond-num { flex-shrink:0; font-size:15px; font-weight:800; color:var(--forest); font-family:var(--mono); background:#d1fae5; border-radius:3px; padding:2px 7px; margin-top:2px; min-width:42px; text-align:center; }
+  .cond-text { font-size:20px; color:#1f2937; line-height:1.6; }
+  @media(max-width:1400px){.cond-sections-grid{grid-template-columns:repeat(3,1fr);}}
+  @media(max-width:1000px){.cond-sections-grid{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:768px){.det-meta{grid-template-columns:1fr;}.cond-sections-grid{grid-template-columns:1fr;}}
+
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>रायगढ़ वनमंडल — FCA 1980 प्रकरण रजिस्टर (Mapped)</h1>
+  <div class="header-sub">Forest (Conservation) Act, 1980 · Raigarh Forest Division, Chhattisgarh · 1988–2025 · <b>Data updated: 17 Sep 2026</b></div>
+  <div class="stats-row">
+    <div class="stat"><div class="stat-val">77</div><div class="stat-lbl">Total Cases</div></div>
+    <div class="stat"><div class="stat-val">4,170.7</div><div class="stat-lbl">Total ha</div></div>
+    <div class="stat"><div class="stat-val" id="cond-count">26</div><div class="stat-lbl">With Full Conditions</div></div>
+    <div class="stat"><div class="stat-val">1988–2025</div><div class="stat-lbl">Period</div></div>
+    <div class="stat"><div class="stat-val">22</div><div class="stat-lbl">Coal Mining Cases</div></div>
+    <div class="stat"><div class="stat-val">25</div><div class="stat-lbl">Power TX / SS Cases</div></div>
+  </div>
+</div>
+
+<div class="legend">
+  <span style="font-size:13px;font-weight:700;color:#374151;">Forest Class:</span>
+  <div class="legend-group"><span class="badge badge-rf">RF</span> Reserved Forest</div>
+  <div class="legend-group"><span class="badge badge-pf">PF</span> Protected Forest</div>
+  <div class="legend-group"><span class="badge badge-rf-pf">RF+PF</span> Both RF &amp; PF</div>
+  <div class="legend-group"><span class="badge badge-revenue">Revenue</span> Revenue Forest</div>
+  <div class="legend-group"><span class="badge badge-orange">Orange</span> Orange Forest</div>
+  <div class="legend-group"><span class="badge badge-mixed">Mixed</span> Multiple classes</div>
+  <div style="width:1px;background:var(--border);height:18px;margin:0 6px;"></div>
+  <span style="font-size:13px;font-weight:700;color:#374151;">Row colour:</span>
+  <div class="legend-group"><span style="display:inline-block;width:10px;height:10px;background:var(--amber-border);border-radius:2px;"></span> Amber border = Full conditions available</div>
+</div>
+
+<div class="filters">
+  <div class="filter-label">Filter:</div>
+  <input type="text" id="search" placeholder="Search name / khasra…" oninput="applyFilters()">
+  <div class="filter-divider"></div>
+  <div class="filter-label">Type:</div>
+  <div class="filter-chips" id="type-chips">
+    <div class="chip active" data-filter="type" data-val="all" onclick="toggleChip(this)">All</div>
+    <div class="chip" data-filter="type" data-val="coal" onclick="toggleChip(this)">Coal Mining</div>
+    <div class="chip" data-filter="type" data-val="power_tx" onclick="toggleChip(this)">Power TX/SS</div>
+    <div class="chip" data-filter="type" data-val="thermal" onclick="toggleChip(this)">Thermal Power</div>
+    <div class="chip" data-filter="type" data-val="railway" onclick="toggleChip(this)">Railway</div>
+    <div class="chip" data-filter="type" data-val="pipeline" onclick="toggleChip(this)">Pipeline/OFC</div>
+    <div class="chip" data-filter="type" data-val="road" onclick="toggleChip(this)">Road</div>
+    <div class="chip" data-filter="type" data-val="other" onclick="toggleChip(this)">Other</div>
+  </div>
+  <div class="filter-divider"></div>
+  <div class="filter-label">Forest Class:</div>
+  <div class="filter-chips" id="fc-chips">
+    <div class="chip active" data-filter="fc" data-val="all" onclick="toggleChip(this)">All</div>
+    <div class="chip" data-filter="fc" data-val="rf" onclick="toggleChip(this)">RF</div>
+    <div class="chip" data-filter="fc" data-val="pf" onclick="toggleChip(this)">PF</div>
+    <div class="chip" data-filter="fc" data-val="rf_pf" onclick="toggleChip(this)">RF+PF</div>
+    <div class="chip" data-filter="fc" data-val="revenue" onclick="toggleChip(this)">Revenue</div>
+    <div class="chip" data-filter="fc" data-val="orange" onclick="toggleChip(this)">Orange</div>
+    <div class="chip" data-filter="fc" data-val="mixed" onclick="toggleChip(this)">Mixed</div>
+  </div>
+  <div class="filter-divider"></div>
+  <div class="chip active" data-filter="cond" data-val="all" onclick="toggleChip(this)">All</div>
+  <div class="chip" data-filter="cond" data-val="yes" onclick="toggleChip(this)">Conditions Available</div>
+  <div class="chip" data-filter="cond" data-val="no" onclick="toggleChip(this)">Conditions Pending</div>
+  <span class="count-badge" id="visible-count">77</span>
+</div>
+
+<div class="table-wrap">
+<table id="main-table">
+<thead>
+  <tr>
+    <th style="width:38px">#</th>
+    <th>Project (Hindi / English)</th>
+    <th>Type</th>
+    <th>Compartment / Khasra</th>
+    <th style="text-align:right">Area (ha)</th>
+    <th>Forest Class</th>
+    <th>Stage I</th>
+    <th>Stage II</th>
+    <th>Conditions</th>
+  </tr>
+</thead>
+<tbody id="table-body"></tbody>
+</table>
+<div id="no-results" class="no-results" style="display:none">No cases match the current filters.</div>
+</div>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────────────────────────
+const cases = [
+  {id:1,hi:"उड़ीसा सीमेंट — चिराईपानी क्वार्टजाइट",en:"Odisha Cement – Chiraipani Quartzite Mining",khasra:"721",area:10.0,s1:null,s2:"27.01.1988",type:"coal",fc:"rf",batch:null},
+  {id:2,hi:"उड़ीसा सीमेंट — राजपुर माइन्स",en:"Odisha Cement – Rajpur Quartzite Mining",khasra:"असीमांकित वन",area:34.6,s1:null,s2:"20.12.1994",type:"coal",fc:"unknown",batch:null},
+  {id:3,hi:"म.प्र. विद्युत मण्डल 132 KV रायगढ़–पत्थलगांव",en:"MPSEB 132 KV Line Raigarh–Patthalgaon",khasra:"721,722,723,725P,521P,360-370",area:16.355,s1:null,s2:"06.09.1993",type:"power_tx",fc:"rf",batch:null},
+  {id:4,hi:"जिन्दल स्टील 220 KV परतापाली–लिबरा",en:"Jindal Steel 220 KV Line Partapali–Libra",khasra:"729,749,748",area:3.0,s1:"30.06.2002",s2:"26.06.2002",type:"power_tx",fc:"rf",batch:null},
+  {id:5,hi:"जिन्दल एजुकेशन — स्कूल भवन",en:"Jindal Education & Welfare Society School",khasra:"184Kh Rev. Land",area:1.0,s1:"08.03.2002",s2:"31.07.2002",type:"other",fc:"revenue",batch:null},
+  {id:6,hi:"मोनेट इस्पात — अंडरग्राउण्ड कोल माइन्स",en:"Monnet Ispat Underground Coal Mines",khasra:"670P,635,665,663,662",area:340.6,s1:null,s2:"11.08.2000",type:"coal",fc:"rf",batch:null},
+  {id:7,hi:"ऑप्टिकल फाइबर केबल (BSNL)",en:"BSNL Optical Fibre Cable",khasra:"Forest Land",area:0.016,s1:null,s2:"14.08.2002",type:"pipeline",fc:"unknown",batch:null},
+  {id:8,hi:"जिन्दल स्टील कैप्टिव पावर + स्लैग प्लांट कोसमपाली",en:"Jindal Steel CPP & Slag Disposal Plant Kosamipali",khasra:"1108P",area:4.269,s1:"26.08.2002",s2:"13.12.2002",type:"thermal",fc:"rf",batch:null},
+  {id:9,hi:"जिन्दल स्टील — स्टील प्लांट विस्तार",en:"Jindal Steel Plant Expansion",khasra:"63,90,50/1,48/1,107,116,117,195,198,58/3 RL",area:3.267,s1:"26.02.2003",s2:"23.09.2003",type:"thermal",fc:"mixed",batch:null},
+  {id:10,hi:"जिन्दल स्टील 220 KV HT लाइन",en:"Jindal Steel 220 KV HT Line",khasra:"734,735",area:1.56,s1:"26.12.2003",s2:"28.06.2004",type:"power_tx",fc:"rf",batch:null},
+  {id:11,hi:"जायसवाल निको — उषा अंडरग्राउण्ड माइन",en:"Jaiswal NICO Usha Underground Coal Mine",khasra:"776,777,778,784,785,789",area:236.553,s1:null,s2:"09.06.2003",type:"coal",fc:"rf",batch:null},
+  {id:12,hi:"SECL बरौद ओपन कास्ट (प्रारंभिक)",en:"SECL Baroud Open Cast (initial)",khasra:"756/1 Rev. Forest Land",area:19.001,s1:"12.03.2004",s2:"02.04.2004",type:"coal",fc:"revenue",batch:null},
+  {id:13,hi:"जिन्दल स्टील — ओपन कास्ट कोल माइन",en:"Jindal Steel Open Cast Coal Mine",khasra:"Revenue Forest Land",area:48.208,s1:null,s2:"06.09.2004",type:"coal",fc:"revenue",batch:null},
+  {id:14,hi:"जिन्दल पावर — कुरकुट डेम (1000 MW TPP)",en:"Jindal Power Kurkut Dam (1000 MW Thermal)",khasra:"Rev. Forest Land, Comp. 852P,853P,448",area:177.542,s1:"06.12.2004",s2:"08.08.2005",type:"thermal",fc:"mixed",batch:null},
+  {id:15,hi:"उड़ीसा सीमेंट — राजगांगपुर खनन",en:"Odisha Cement Rajgangpur Quartzite Mining",khasra:"721",area:9.8,s1:"2/13/2002",s2:"08.01.2003",type:"coal",fc:"rf",batch:null},
+  {id:16,hi:"मिनीमाता बांगो नहर निर्माण",en:"Minimata Bango Canal (Kharsia)",khasra:"Revenue Forest Land",area:3.989,s1:"16.03.2005",s2:"31.03.2005",type:"other",fc:"revenue",batch:null},
+  {id:17,hi:"मोनेट इस्पात 11 KV लाइन मिलूपारा–डोंगामौहा",en:"Monnet Ispat 11 KV Line Milupaara–Dongamoha",khasra:"665,671",area:1.26,s1:"15.09.2005",s2:"29.12.2005",type:"power_tx",fc:"rf",batch:null},
+  {id:18,hi:"जिन्दल स्टील — सोलर लाइट उर्दना पहाड़ी",en:"Jindal Steel Solar Light Urdana Hill",khasra:"721,727,729",area:0.64,s1:"22.11.2005",s2:"25.03.2006",type:"power_tx",fc:"rf",batch:null},
+  {id:19,hi:"MSP जामगांव BG रेलवे साइडिंग",en:"MSP Jamgaon Broad Gauge Railway Siding",khasra:"Revenue Forest Land",area:2.023,s1:"31.08.2005",s2:"19.01.2006",type:"railway",fc:"revenue",batch:null},
+  {id:20,hi:"SECL बरौद ओपन कास्ट (2006 विस्तार)",en:"SECL Baroud OCP Extension 2006",khasra:"Rev. Forest Land, Comp. 472P",area:123.899,s1:"23.08.2006",s2:"13.12.2006",type:"coal",fc:"revenue",batch:null},
+  {id:21,hi:"जिन्दल पावर 400 KV ट्रांसमिशन लाइन",en:"Jindal Power 400 KV Transmission Line",khasra:"698,699",area:5.94,s1:"03.05.2007",s2:"30.08.2007",type:"power_tx",fc:"rf",batch:null},
+  {id:22,hi:"जिन्दल पावर 220 KV ट्रांसमिशन लाइन",en:"Jindal Power 220 KV Transmission Line",khasra:"737,738",area:2.34,s1:"07.02.2008",s2:"14.03.2008",type:"power_tx",fc:"rf",batch:null},
+  {id:23,hi:"जिन्दल पावर — कोल कन्वेयर लाइन",en:"Jindal Power Coal Conveyor Line",khasra:"Rev. Forest Land 25,60,69",area:1.076,s1:"09.03.2007",s2:"13.12.2002",type:"coal",fc:"revenue",batch:null},
+  {id:24,hi:"220 KV लाइन तमनार JPL–रायगढ़ SS",en:"220 KV Line JPL Tamnar–Raigarh Substation",khasra:"732,700, Rev. Forest Land 31,13,82",area:6.308,s1:"23.05.2008",s2:"09.09.2008",type:"power_tx",fc:"mixed",batch:null},
+  {id:25,hi:"केलो सिंचाई परियोजना",en:"Kelo Irrigation Project",khasra:"726,788,749,748,742,784,750,785,789,791,777,752,786,729,720",area:361.901,s1:"27.12.2007",s2:"13.08.2008",type:"other",fc:"rf",batch:null},
+  {id:26,hi:"विमला इन्फ्रा — रेलवे साइडिंग भूपदेवपुर",en:"Vimala Infra Railway Siding Bhupdevpur",khasra:"180/1",area:0.405,s1:"25.06.2008",s2:"31.07.2008",type:"railway",fc:"rf",batch:null},
+  {id:27,hi:"MSP स्टील 132 KV ट्रांसमिशन लाइन",en:"MSP Steel & Power 132 KV Transmission",khasra:"729",area:1.728,s1:"04.06.2008",s2:"11.02.2009",type:"power_tx",fc:"rf",batch:null},
+  {id:28,hi:"महावीर एनर्जी 132 KV बैहामुड़ा–कटांगडीह",en:"Mahaveer Energy 132 KV Line",khasra:"1240 OA",area:3.321,s1:"26.11.2008",s2:"20.01.2009",type:"power_tx",fc:"orange",batch:null},
+  {id:29,hi:"CG वेयरहाउसिंग — गोदाम ग्राम सण्डा",en:"CG State Warehousing Godown, Village Sanda",khasra:"180/1",area:0.405,s1:"30.09.2009",s2:"21.12.2009",type:"other",fc:"rf",batch:null},
+  {id:30,hi:"नलवा स्पंज आयरन — पहुंच मार्ग + पाइपलाइन",en:"Nalwa Sponge Iron Access Road & Pipeline",khasra:"136/1",area:0.098,s1:"24.06.2008",s2:"31.08.2009",type:"road",fc:"rf",batch:null},
+  {id:31,hi:"जिन्दल पावर अंडरग्राउण्ड पाइपलाइन तमनार (1260 MW)",en:"Jindal Power Underground Pipeline Tamnar 1260 MW",khasra:"250,249,149,150/2,149/4,72/1,94/1,31/1,365/1,482/1,71/1,82,74/1,105",area:1.517,s1:"16.12.2008",s2:"18.03.2009",type:"pipeline",fc:"rf",batch:null},
+  {id:32,hi:"इण्ड एनर्जी 132 KV ट्रांसमिशन लाइन",en:"Ind Energy 132 KV Transmission Line",khasra:"1009",area:2.713,s1:"03.12.2009",s2:"16.04.2010",type:"power_tx",fc:"rf",batch:null},
+  {id:33,hi:"सिंघल इंटरप्राइसेज — पाइपलाइन बंजारी नाला",en:"Singhal Enterprises Pipeline Taraimail–Banjari",khasra:"813P, 840 OA, 837",area:0.35,s1:"15.02.2011",s2:"10.02.2012",type:"pipeline",fc:"orange",batch:null},
+  {id:34,hi:"श्याम स्पात — 25 MW विद्युत संयंत्र",en:"Shyam Ispat 25 MW Coal Power Plant",khasra:"834",area:0.86,s1:"14.02.2011",s2:"26.04.2012",type:"thermal",fc:"rf",batch:null},
+  {id:35,hi:"कोरबा वेस्ट — 2×600 MW थर्मल पावर (मुख्य)",en:"Korba West Power 2×600 MW Thermal (main plant)",khasra:"Revenue Forest Land",area:24.352,s1:"22.07.2011",s2:"17.04.2012",type:"thermal",fc:"revenue",batch:null},
+  {id:36,hi:"सालासर स्टील — पाइपलाइन गेरवानी नाला",en:"Salasar Steel & Power Pipeline Gerwani Nala",khasra:"817P",area:0.133,s1:"12.06.2012",s2:"07.08.2012",type:"pipeline",fc:"rf",batch:null},
+  {id:37,hi:"नालवा स्टील — इंटकवेल पाइपलाइन बंजारी",en:"Nalwa Steel Intake Well Pipeline Banjari Nala",khasra:"839",area:0.024,s1:"01.03.2011",s2:"17.08.2012",type:"pipeline",fc:"rf",batch:null},
+  {id:38,hi:"जायसवाल निको — गारे पेलमा IV/8 कोल माइन",en:"Jaiswal NICO Gare Pelma IV/8 Coal Mine",khasra:"730,738,722,743 + Rev. Forest Land",area:224.22,s1:"27.02.2009",s2:"01.01.2013",type:"coal",fc:"mixed",batch:null},
+  {id:39,hi:"PGCIL 765 KV रायगढ़ पुलिंग–तमनार",en:"PGCIL 765 KV Raigarh Pulling Station–Tamnar",khasra:"874P,865,1183,826P,1260 + Rev.",area:25.505,s1:"17.01.2013",s2:"01.05.2013",type:"power_tx",fc:"mixed",batch:null},
+  {id:40,hi:"PGCIL 765 KV रायगढ़-कोरबा-धरमजयगढ़ PS",en:"PGCIL 765 KV Raigarh–Korba–Dharamjaygarh Pulling Station",khasra:"1265 OA,1249 OA,1237 OA,1240 OA,720-723,729P,734 OA,746P,755,767,768 + Rev.",area:85.595,s1:"19.08.2013",s2:"15.01.2014",type:"power_tx",fc:"orange",batch:null},
+  {id:41,hi:"GIDC — गारे पेलमा Sector-3 कोल ब्लॉक",en:"Goa Industries Dev. Corp. Gare Pelma Sector-3 Coal",khasra:"721,722,730P,743P,738P,733 OA–737 OA + Rev.",area:197.727,s1:"11.04.2011",s2:"17.09.2013",type:"coal",fc:"orange",batch:null},
+  {id:42,hi:"बोराई नदी — बरगढ़ एनीकट",en:"Bhorai River Bargadh Anicut",khasra:"1116",area:0.9,s1:"09.08.2012",s2:"08.05.2013",type:"other",fc:"rf",batch:null},
+  {id:43,hi:"PGCIL 765/400 KV सब स्टेशन भेण्ड्रा",en:"PGCIL 765/400 KV Substation Bhendra",khasra:"484,507,437,448/1,448/2,448/5",area:0.599,s1:"11.02.2013",s2:"27.01.2014",type:"power_tx",fc:"rf",batch:null},
+  {id:44,hi:"NTPC लारा — 5×800 MW सुपर थर्मल",en:"NTPC Lara 5×800 MW Super Thermal Power Project",khasra:"Revenue Forest Land",area:151.762,s1:"24.09.2012",s2:"12.05.2014",type:"thermal",fc:"revenue",batch:null},
+  {id:45,hi:"NTPC तलाईपाली — कोल माइनिंग + रेलवे (मुख्य)",en:"NTPC Talaipalli Coal Mining + Railway Line (main)",khasra:"Forest Land",area:766.393,s1:"05.11.2012",s2:"28.01.2014",type:"coal",fc:"unknown",batch:"X-45"},
+  {id:46,hi:"जिन्दल स्टील — परतापाली विस्तार",en:"Jindal Steel Partapali Plant Expansion",khasra:"Revenue Forest Land",area:30.62,s1:"05.12.2012",s2:"18.06.2014",type:"thermal",fc:"revenue",batch:null},
+  // ── CASES WITH CONDITIONS ──
+  {id:47,hi:"CG ईस्ट रेल कॉरिडोर (Raigarh: 19.850 ha)",en:"Chhattisgarh East Rail Corridor — CERL (Total: 76.099 ha)",khasra:"1235P,1236P,1265 OA,1239 OA,1238 OA + Rev.",area:19.85,s1:"26.02.2015",s2:"22.05.2015",type:"railway",fc:"orange",batch:"D-2"},
+  {id:48,hi:"SKS इस्पात — 1200 MW थर्मल पावर प्लांट",en:"SKS Ispat & Power 1200 MW Thermal Power Plant",khasra:"Revenue Forest Land",area:12.938,s1:"24.09.2014",s2:"06.07.2015",type:"thermal",fc:"revenue",batch:"A-5"},
+  {id:49,hi:"TRN एनर्जी — भेंगारी नवापारा–तमनार ट्रांसमिशन",en:"TRN Energy Transmission Line Bhengari–Tamnar SS",khasra:"1248P, Revenue Forest Land",area:3.542,s1:"29.04.2015",s2:"22.07.2015",type:"power_tx",fc:"pf",batch:"C-07"},
+  {id:50,hi:"जामपाली OCP — SECL रायगढ़",en:"Jampali Open Cast Project — SECL Raigarh",khasra:"1280, 1281 + Revenue Forest Land",area:251.347,s1:"18.12.2013",s2:"20.10.2016",type:"coal",fc:"mixed",batch:"B-B"},
+  {id:51,hi:"जिन्दल स्टील — पाइपलाइन केलो डेम (पुनर्व्यपवर्तन)",en:"Jindal Steel Underground Pipeline Kelo Dam (Re-diversion)",khasra:"895, 843 Revenue Forest Land",area:1.41,s1:"11.09.2015",s2:"02.12.2016",type:"pipeline",fc:"rf_pf",batch:"C-08"},
+  {id:52,hi:"कोरबा वेस्ट — 2×600 MW रेल साइडिंग",en:"Korba West Power Railway Siding (2×600 MW plant)",khasra:"Revenue Forest Land",area:4.451,s1:"25.04.2016",s2:"03.01.2017",type:"railway",fc:"revenue",batch:"A-3"},
+  {id:53,hi:"CSPTCL 132/33 KV सब स्टेशन पुटकापुरी",en:"CSPTCL 132/33 KV Substation Putkapuri (Kodatarai)",khasra:"Revenue Forest Land",area:1.8,s1:"03.02.2017",s2:"05.04.2017",type:"power_tx",fc:"revenue",batch:"C-09"},
+  {id:54,hi:"OCL India — एप्रोच रोड चिराईपानी माइन्स",en:"OCL India Approach Road to Chiraipani Quartzite Mines",khasra:"892 (RF)",area:0.82,s1:"07.12.2016",s2:"30.05.2017",type:"road",fc:"rf",batch:"C-10"},
+  {id:55,hi:"CG ईस्ट रेल कॉरिडोर (स्पर लाइन) — CERL",en:"CERL East Rail Corridor Spur Line (Kharsiya–Gharghoda)",khasra:"722,724,725,726,738,739,1282 OA + Rev.",area:26.52,s1:"27.06.2017",s2:"07.09.2017",type:"railway",fc:"orange",batch:"C-11"},
+  {id:56,hi:"कोटरलिया–LARA MGR रेल लाइन — NTPC",en:"NTPC Talaipalli MGR Railway Kotarliya–LARA",khasra:"1006, 1007 RF + Revenue Forest Land",area:35.413,s1:"03.02.2017",s2:"02.02.2018",type:"railway",fc:"rf",batch:"C-12"},
+  {id:57,hi:"765 KV झारसुगड़ा–धरमजयगढ़ (Raigarh: 93.164 ha)",en:"PGCIL 765 KV Jharsuguda–Dharamjaygarh TX Line (Total: 153.448 ha)",khasra:"757P,756P,755P,781,783,729P,722,728P,724,718,864P,1360-1362 OA,1215 + Orange + Rev.",area:93.164,s1:"31.07.2017",s2:"12.01.2018",type:"power_tx",fc:"orange",batch:"D-1"},
+  {id:58,hi:"NH 200/49 — बिलासपुर–उड़ीसा (Raigarh: 10.690 ha)",en:"NH-200 / NH-49 Widening PWD (Total: 15.463 ha; Raigarh: 10.690 ha)",khasra:"1143 RF,1147 RF,1148 RF,1160 RF,1163 RF,1166 RF,1017 RF,1018 RF + Rev.",area:10.69,s1:"07.03.2017",s2:"21.11.2023",type:"road",fc:"rf",batch:"E-06A"},
+  {id:59,hi:"NTPC तलाईपाली — MGR रेल लाइन",en:"NTPC Talaipalli MGR Railway Line",khasra:"897 RF + Revenue Forest Land",area:8.795,s1:"31.03.2021",s2:"21.12.2021",type:"railway",fc:"rf",batch:"A-1"},
+  {id:60,hi:"PMGSY रोड — सल्हेपाली–कोत्रीमाल–कांचनपुर",en:"PMGSY Road Widening Sathepalli–Kotrimal",khasra:"Revenue Forest Land",area:1.732,s1:"23.02.2021",s2:"21.12.2021",type:"road",fc:"revenue",batch:"E-01"},
+  {id:61,hi:"GAIL गैस पाइपलाइन (संपूर्ण परियोजना 15.690 ha)",en:"GAIL Natural Gas Pipeline – Full Project (Raigarh portion: 3.575 ha → see Case 69)",khasra:"1010 RF + Revenue Forest Land",area:15.69,s1:null,s2:"21.11.2023",type:"pipeline",fc:"mixed",batch:"B-A"},
+  {id:62,hi:"भारत नेट Phase-II OFC — CHiPS",en:"BharatNet Phase-II Underground OFC (CHiPS) – RF+PF+Orange+Revenue",khasra:"RF: 1275,1182,1183,870,872,882,885,886,892,896–899,902,919,923,925,927,928,966,1010,1084,1091,1092,1107,1108,1110,1112,1122 | PF: 722,725,738,784,829,834,838,846,847,1260P,1349P–1357P,806P,809P,881P,929P,931P,933P,936P,949P,951P | OA: 957,958,986,1001,1118–1120,845,860 | Rev.",area:8.806,s1:"27.05.2021",s2:"04.09.2021",type:"pipeline",fc:"rf_pf",batch:"E-02"},
+  {id:63,hi:"765 KV झारसुगड़ा–रायपुर (Raigarh: 59.179 ha)",en:"POWERGRID 765 KV Jharsuguda–Raipur TX (Total: 71.761 ha)",khasra:"1177,1179,1181,1182,1260,842,865 + Revenue",area:59.179,s1:"17.10.2017",s2:"21.12.2021",type:"power_tx",fc:"rf",batch:"D-6"},
+  {id:64,hi:"गारे पेलमा Sector-II — MAHAGENCO कोल ब्लॉक",en:"MAHAGENCO Gare Pelma Sector-II Open Cast Coal Mine",khasra:"732P,741P,740P,744P,745P + Revenue Forest Land",area:214.869,s1:"02.06.2022",s2:"27.01.2023",type:"coal",fc:"mixed",batch:"A-4"},
+  {id:65,hi:"ईस्ट रेल फीडर लाइन — खरसिया–धरमजैगढ़ (Raigarh: 2.484 ha)",en:"East Rail Corridor Feeder Lines Kharsia–Dharamjaigarh (Total: 36.943 ha)",khasra:"1280P + Revenue Forest Land",area:2.484,s1:"16.09.2020",s2:"28.07.2021",type:"railway",fc:"mixed",batch:"A-2"},
+  {id:66,hi:"CSPTCL 132 KV गेरवानी–कोरिछापर",en:"CSPTCL 132 KV DCDS Line Girwani–Korichhapar TSS",khasra:"1183 RF, 1260 PF, 829 RF, 881 PF + Revenue",area:7.011,s1:"11.10.2021",s2:"08.06.2022",type:"power_tx",fc:"rf_pf",batch:"E-03"},
+  {id:67,hi:"HIL 11 KV सोलर एवक्युएशन केबल (Hindalco)",en:"Hindalco 11 KV Solar Power Evacuation Underground Line",khasra:"782 RF",area:0.011,s1:"17.02.2021",s2:"26.11.2021",type:"power_tx",fc:"rf",batch:"E-04"},
+  {id:68,hi:"CSPGCL — घरघोड़ा साइडिंग एप्रोच रोड",en:"CSPGCL Gharghoda Siding Approach Road",khasra:"1235P",area:0.956,s1:"21.10.2020",s2:"28.07.2021",type:"road",fc:"rf",batch:"E-05"},
+  {id:69,hi:"GAIL MNJPL पाइपलाइन (Raigarh: 3.575 ha)",en:"GAIL Nagpur–Jharsuguda Pipeline MNJPL (Total: 15.690 ha)",khasra:"1009, 1010, 1187 + Revenue Forest Land",area:3.575,s1:"24.05.2023",s2:"21.11.2023",type:"pipeline",fc:"mixed",batch:"B-A"},
+  {id:70,hi:"Nav Durga Fuel 132 KV ट्रांसमिशन — सरईपाली",en:"Nav Durga Fuel 132 KV DCDS Transmission Line, Saraipali",khasra:"881 PF + Orange Area",area:2.978,s1:"24.05.2023",s2:"28.03.2024",type:"power_tx",fc:"orange",batch:null},
+  {id:71,hi:"CSPTCL 132 KV — कोण्डातराई से NTPC जुर्दा",en:"CSPTCL 132 KV Kondatarai–NTPC Jurda Supply Line",khasra:"1010 RF + Revenue Forest Land",area:9.589,s1:"07.12.2021",s2:"30.01.2023",type:"power_tx",fc:"rf",batch:"A-6"},
+  {id:72,hi:"गारे पेलमा IV/1 — JPL कोल ब्लॉक OCP",en:"Gare Pelma Sector IV/1 JPL Open Cast Coal Mine",khasra:"794 PF, 795 PF + Revenue Forest Land",area:91.179,s1:"02.02.2011",s2:"11.07.2023",type:"coal",fc:"pf",batch:"D-4"},
+  {id:73,hi:"गारे पेलमा IV/6 — JSPL कोल ब्लॉक OCP",en:"Gare Pelma Sector IV/6 JSPL Open Cast Coal Mine",khasra:"742 PF + Revenue Forest Land",area:93.566,s1:"30.12.2010",s2:"27.01.2023",type:"coal",fc:"pf",batch:"D-3"},
+  {id:74,hi:"बरौद OCP — SECL (2023 विस्तार)",en:"SECL Baroud Expansion OCP 238.373 ha",khasra:"1286 PF + Revenue Forest Land",area:238.373,s1:"12.05.2023",s2:"09.11.2023",type:"coal",fc:"pf",batch:"D-5"},
+  {id:75,hi:"BS Sponge Pvt Ltd — पाइपलाइन",en:"BS Sponge Pvt Ltd Pipeline",khasra:"833 RF, 835 RF",area:0.144,s1:"22.12.2022",s2:"27.01.2025",type:"pipeline",fc:"rf",batch:null},
+  {id:76,hi:"132/33 KV SS — मेडिकल कॉलेज बोयरदीह",en:"CSPTCL 132/33 KV Substation Medical College Boyardih",khasra:"Revenue Forest Land 303/1",area:2.023,s1:"30.04.2024",s2:"24.04.2025",type:"power_tx",fc:"revenue",batch:null},
+  {id:77,hi:"Jindal Panther Cement — सीमेंट प्लांट",en:"Jindal Panther Cement Pvt Ltd Plant",khasra:"Revenue Forest Land",area:0.836,s1:"12.03.2024",s2:"10.12.2024",type:"other",fc:"revenue",batch:null}
+];
+
+// ─── CONDITIONS DATA ─────────────────────────────────────────────────────────
+const cond = {
+  "A-1": {
+    "file": "FC-II/IROCH-04/2020-NGP",
+    "agency": "NTPC Limited",
+    "s1by": "Karthik M.L., Technical Officer (Gr. II), IRO Nagpur/Raipur",
+    "s2by": "Chaturbhuja Behera, Inspector General of Forests",
+    "flags": [],
+    "sections": [
+      {
+        "head": "Legal & Land Status",
+        "items": [
+          "Legal status of the forest land remains unchanged throughout the diversion period"
+        ]
+      },
+      {
+        "head": "Compensatory Afforestation (CA)",
+        "items": [
+          "CA: 17.590 ha degraded forest land — Comp. No. 190, Village Pulsada, Division Raigarh, Dist. Raigarh, at User Agency cost",
+          "Mixture of local indigenous species with 10% RET (Rare, Endangered, Threatened) species of Raigarh District; monoculture to be avoided",
+          "Penal CA: 1.4 ha additional degraded forest area — to be raised and maintained by State Forest Department at project cost",
+          "CA to be maintained for 10 years"
+        ]
+      },
+      {
+        "head": "Net Present Value (NPV) & CAMPA",
+        "items": [
+          "NPV chargeable for 8.795 ha as per Supreme Court orders (IA No. 566 in WP(C) 202/1995) and Ministry guidelines",
+          "Additional NPV (if any) payable after Supreme Court / Expert Committee finalisation; User Agency to furnish undertaking",
+          "All funds deposited to CAMPA via e-portal (parivesh.nic.in)"
+        ]
+      },
+      {
+        "head": "Tree Felling",
+        "items": [
+          "Felling restricted to minimum number of trees only, under strict supervision of State Forest Department",
+          "Cost of felling to be deposited by User Agency in advance"
+        ]
+      },
+      {
+        "head": "Wildlife & Ecology",
+        "items": [
+          "Wildlife Conservation Plan to be reviewed before diversion commences",
+          "Speed-regulating signage to be erected along the railway line in Protected Areas and Forest Areas",
+          "Under-passes and over-passes to be provided for safe wildlife passage per WII manual 'Eco-friendly Measures to Mitigate Impacts of Linear Infrastructure on Wildlife (2016)'"
+        ]
+      },
+      {
+        "head": "Compliance & Other Conditions",
+        "items": [
+          "FRA 2006 (Scheduled Tribes and Other Traditional Forest Dwellers Act) compliance certificate from District Collector required before forest land handover",
+          "Diversion period co-terminus with lease period or project life, whichever is less",
+          "No labour camp to be established inside forest area",
+          "No new path to be constructed inside forest area for construction material transport"
+        ]
+      }
+    ]
+  },
+  "A-2": {
+    "file": "FC-II/CH-131/2020-NGP",
+    "agency": "Railway feeder lines (coal transport) — East Rail Corridor, Kharsia to Dharamjaigarh",
+    "s1by": "C.B. Tashildar, AIGF (Central), RO (WCZ) Nagpur",
+    "s2by": "N.K. Dimri, Technical Officer (Gr-I)",
+    "flags": [
+      "orange"
+    ],
+    "sections": [
+      {
+        "head": "Legal & Land Status",
+        "items": [
+          "Legal status of diverted forest land remains unchanged",
+          "Total area: 36.943 ha (Raigarh Division share: 2.484 ha; Dharamjaigarh Division: 34.459 ha)"
+        ]
+      },
+      {
+        "head": "Compensatory Afforestation (CA)",
+        "items": [
+          "CA over 74.00 ha in Dharmanjaigarh Forest Division, comprising four parcels:",
+          "— Comp. No. 591/P: 46.62 ha degraded forest land",
+          "— Comp. No. 501/1A: 6.39 ha degraded forest land",
+          "— Orange Area 70/1 & 69/1: 11.70 ha Orange Area",
+          "— Orange Area 501/1A: 9.29 ha Orange Area",
+          "Mixture of local indigenous species with 10% RET species of Raigarh District; monoculture to be avoided",
+          "Orange Area parcels for CA MUST be transferred, mutated to Forest Department and notified as RF (Sec. 4) or PF (Sec. 29) of Indian Forest Act, 1927 BEFORE Stage-II approval",
+          "Forest land handed over only after the required Orange Area for CA is handed over by the user agency"
+        ]
+      },
+      {
+        "head": "Net Present Value (NPV)",
+        "items": [
+          "NPV chargeable for 36.943 ha as per Supreme Court orders (IA No. 566 in WP(C) 202/1995) and Ministry guidelines",
+          "Additional NPV undertaking to be furnished by User Agency"
+        ]
+      },
+      {
+        "head": "Wildlife & Ecology",
+        "items": [
+          "WII (Wildlife Institute of India, Dehradun) Wildlife Management Plan recommendations are binding",
+          "Speed-regulating signage along road in Protected Areas and Forest Areas",
+          "Under-passes and over-passes per WII 2016 manual on mitigating linear infrastructure impacts"
+        ]
+      },
+      {
+        "head": "Compliance & Other Conditions",
+        "items": [
+          "Roadside plantation along all coal-transport road stretches; scheme to be submitted with Stage-I compliance",
+          "FRA 2006 settlement of rights to be completed before forest land handover",
+          "Diversion period co-terminus with lease period or project life, whichever is less"
+        ]
+      }
+    ]
+  },
+  "A-3": {
+    "file": "FC-I/CH-19/2015-NGP",
+    "agency": "M/s Korba West Power Company Limited",
+    "s1by": "Charan Jeet Singh, Scientist 'C', RO (WCZ) Nagpur",
+    "s2by": "Charan Jeet Singh, Scientist 'C', RO (WCZ) Nagpur",
+    "flags": [],
+    "sections": [
+      {
+        "head": "Legal & Land Status",
+        "items": [
+          "Legal status of diverted forest land (4.451 ha Revenue Forest Land) remains unchanged"
+        ]
+      },
+      {
+        "head": "Compensatory Afforestation (CA)",
+        "items": [
+          "CA over 5.261 ha non-forest land (Stage-II figure), raised and maintained by State Forest Department at User Agency cost",
+          "One identified patch of 3.361 ha within the CA land had good stocking (>40%) — afforestation in that patch is not possible; in lieu, equivalent degraded forest land to be afforested PLUS gap planting and protection in the 3.361 ha at User Agency cost",
+          "Non-forest CA land to be transferred and mutated to Forest Department and notified as RF (Sec. 4) / PF (Sec. 29) of Indian Forest Act, 1927 BEFORE Stage-II",
+          "CA land depicted on Survey of India toposheet (1:50,000 scale) with GPS coordinates"
+        ]
+      },
+      {
+        "head": "Net Present Value (NPV)",
+        "items": [
+          "NPV realised for forest land as per Supreme Court orders (WP(C) 202/1995) and Ministry guidelines",
+          "Additional NPV undertaking to be furnished by User Agency"
+        ]
+      },
+      {
+        "head": "Wildlife & Ecology",
+        "items": [
+          "Controlled train speed within forest portion",
+          "Underpasses / culverts for wildlife movement to be provided if required",
+          "Alternate habitat and nesting sites to be provided for avifauna whose nesting trees are cleared"
+        ]
+      },
+      {
+        "head": "Compliance & Other Conditions",
+        "items": [
+          "Settlement of rights under Scheduled Tribes and Other Traditional Forest Dwellers (Recognition of Forest Rights) Act, 2006 to be completed before forest land handover",
+          "Comprehensive soil conservation measures to be implemented",
+          "Diversion period co-terminus with lease period or project life, whichever is less"
+        ]
+      }
+    ]
+  },
+  "A-4": {
+    "file": "8-06/2022-FC",
+    "agency": "M/s Maharashtra State Power Generation Company Limited (MAHAGENCO) — Gare Pelma Sector-II, Mand Raigarh Coalfield",
+    "s1by": "Sandeep Sharma, Assistant Inspector General of Forests, FC Division, MoEF&CC New Delhi",
+    "s2by": "Dr. Dheeraj Mittal, Assistant Inspector General of Forests (digitally signed 27.01.2023)",
+    "flags": [],
+    "sections": [
+      {
+        "head": "Legal & Land Status",
+        "items": [
+          "Legal status of the forest land remains unchanged",
+          "Proposal examined and approved by Forest Advisory Committee (FAC) constituted under Section 3 of FCA 1980"
+        ]
+      },
+      {
+        "head": "Compensatory Afforestation (CA)",
+        "items": [
+          "CA over equivalent non-forest land — 214.869 ha — raised by State Forest Department at project cost",
+          "At least 1000 saplings per hectare to be planted over admissible CA land; balance seedlings in degraded forest land per Working Plan if non-forest land is insufficient",
+          "25% of CA cost additionally to be spent on Soil & Moisture Conservation (SMC) work in the CA area",
+          "CA land to be transferred, mutated and notified as RF (Sec. 4) / PF (Sec. 29) of Indian Forest Act, 1927 before Stage-II",
+          "CA to be maintained for 10 years"
+        ]
+      },
+      {
+        "head": "Net Present Value (NPV) & CAMPA",
+        "items": [
+          "NPV transferred online per Ministry guidelines (letter 5-3/2011-FC dated 06.01.2022 r/w 22.03.2022) into State CAMPA",
+          "All funds routed through CAMPA e-portal (parivesh.nic.in)"
+        ]
+      },
+      {
+        "head": "Hydrological & River Protection (Kelo River)",
+        "items": [
+          "Mine is located close to Kelo River — a comprehensive study on hydrological regimes and cumulative impact of mining and industrial activity on Kelo river and its rivulets is required, in consultation with Water Resource Department, submitted BEFORE Stage-II",
+          "DGMS-prescribed buffer along Kelo river bank to be kept intact at all times; no mining within this buffer",
+          "Embankment to be constructed to protect the Kelo river from mining impacts",
+          "SMC work plan for local rivulets (nallah); cost to be deposited into CAMPA",
+          "Desilting of village tanks and water bodies within 5 km of lease boundary; GPS-verified list to be submitted and confirmed by DFO"
+        ]
+      },
+      {
+        "head": "Wildlife & Ecology",
+        "items": [
+          "Elephant and Wildlife Management Plan (vetted by IIFM Bhopal) to be prepared and implemented",
+          "Phased felling as per approved Mining Plan with prior DFO permission; explore translocation of trees wherever possible"
+        ]
+      },
+      {
+        "head": "Mining Operations & Reclamation",
+        "items": [
+          "Concurrent reclamation plan to be executed from the first year of mining; annual report to be sent to Nodal Officer — non-compliance can result in suspension of mining",
+          "Overburden dumps to be stabilised; angle of repose to be maintained below 28°",
+          "Top-soil management plan to be strictly followed",
+          "Re-grassing of mining area per Supreme Court order"
+        ]
+      },
+      {
+        "head": "Safety Zone & Boundary",
+        "items": [
+          "Safety zone: 7.5 m strip along the inner lease boundary, fenced with 6 ft RCC pillars",
+          "Afforestation on degraded forest land 1.5× the safety-zone area elsewhere at project cost"
+        ]
+      },
+      {
+        "head": "R&R (Rehabilitation & Resettlement)",
+        "items": [
+          "R&R plan for displacement from non-forest land to be implemented; no rehabilitation to be done on forest land"
+        ]
+      },
+      {
+        "head": "Compliance & Other Conditions",
+        "items": [
+          "FRA 2006 compliance certificate from District Collector required",
+          "Diversion period co-terminus with MMDR Act, 1957 lease validity"
+        ]
+      }
+    ]
+  },
+  "A-5": {
+    "file": "6-CHC-57/2011-BHO",
+    "agency": "M/s S.K.S. Ispat and Power Limited — 1200 MW Thermal Power Plant, Raigarh",
+    "s1by": "S.K. Bhandari, Chief Conservator of Forests (Central)",
+    "s2by": "Kanwarjit Singh, Addl. Principal Chief Conservator of Forests (C)",
+    "flags": [],
+    "sections": [
+      {
+        "head": "Legal & Land Status",
+        "items": [
+          "Legal status of diverted forest land (12.938 ha Revenue Forest Land in two parcels: 4.805 ha + 8.133 ha) remains unchanged"
+        ]
+      },
+      {
+        "head": "Compensatory Afforestation (CA)",
+        "items": [
+          "CA over 12.95 ha non-forest land at User Agency cost, in two parcels:",
+          "— Village Kharet, Tal. Raigarh — Khasra Nos. 57/2, 58/1, 58/2, 59, 60, 61/1 to 61/18, 63/3, 108, 109/1, 110/1-2, 111/2, 112/1-2, 114/2, 115/2, 117/2, 118/2, 119/2, 124/1, 135/4, 135/7, 137/1 to 137/16: 8.90 ha",
+          "— Village Kanwarguda, Tal. Raigarh — Survey/Khasra No. 25/8: 4.050 ha",
+          "Mixture of local indigenous species; monoculture to be avoided",
+          "Non-forest CA land to be transferred, mutated to Forest Department and declared RF (Sec. 4) / PF (Sec. 29) of Indian Forest Act, 1927",
+          "Original RF/PF notification to be sent to MoEF within 6 months of Stage-II",
+          "CA land depicted on Survey of India toposheet (1:50,000) with GPS geo-coordinates"
+        ]
+      },
+      {
+        "head": "Net Present Value (NPV)",
+        "items": [
+          "NPV chargeable for 12.938 ha as per Supreme Court orders (IA No. 566 in WP(C) 202/1995) and Ministry guidelines",
+          "Additional NPV undertaking required"
+        ]
+      },
+      {
+        "head": "Tree Felling",
+        "items": [
+          "592 trees fall within the area proposed for diversion; only required/minimum trees to be felled under State Forest Department supervision"
+        ]
+      },
+      {
+        "head": "Wildlife & Ecology",
+        "items": [
+          "Controlled train speed within forest portion; underpasses / culverts for wildlife to be provided",
+          "Alternate habitat / artificial nesting sites for avifauna whose nesting trees are cleared"
+        ]
+      },
+      {
+        "head": "R&R (Rehabilitation & Resettlement)",
+        "items": [
+          "Rehabilitation of affected families per approved R&R programme"
+        ]
+      },
+      {
+        "head": "Compliance & Other Conditions",
+        "items": [
+          "Forest land handed over only after User Agency obtains possession of the required non-forest CA land",
+          "Fly-ash use to comply with Environment (Protection) Act / Rules notifications",
+          "Muck disposal and soil conservation as per scheme prepared by Forest Department",
+          "Diversion period co-terminus with lease period or project life, whichever is less"
+        ]
+      }
+    ]
+  },
+  "A-6": {
+    "file": "FC-II/IROCH-07/2021",
+    "agency": "CSPTCL (Chhattisgarh State Power Transmission Co. Ltd.) — 132 KV DCDS Line, Kondatarai to NTPC Jurda",
+    "s1by": "Chaturbhuja Behera, Inspector General of Forests",
+    "s2by": "Chaturbhuja Behera, IFS, Inspector General of Forests",
+    "flags": [
+      "orange"
+    ],
+    "sections": [
+      {
+        "head": "Legal & Land Status",
+        "items": [
+          "Legal status of diverted forest land (9.589 ha) remains unchanged",
+          "Route: 132/33 KV Substation Kondatarai to M/s NTPC Ltd, Jurda (132 KV DCDS transmission line)"
+        ]
+      },
+      {
+        "head": "Compensatory Afforestation (CA) — Orange Area",
+        "items": [
+          "CA over 19.178 ha degraded forest land — all Orange Area (OA) compartments in Village Rengapali, Block Pusaur, Raigarh FD:",
+          "— OA Comp. No. 1029: 3.417 ha",
+          "— OA Comp. No. 1023: 8.076 ha",
+          "— OA Comp. No. 1021: 7.685 ha",
+          "Orange Area for CA to be notified as RF (Sec. 4) / PF (Sec. 29) of Indian Forest Act, 1927; compliance to be reported within 6 months of Stage-II final approval",
+          "Mixture of local indigenous species; monoculture to be avoided",
+          "CA to be maintained for 10 years"
+        ]
+      },
+      {
+        "head": "Net Present Value (NPV)",
+        "items": [
+          "NPV chargeable for 9.589 ha per Supreme Court orders (WP(C) 202/1995) and Ministry guidelines",
+          "Additional NPV undertaking to be furnished by User Agency"
+        ]
+      },
+      {
+        "head": "Tree Felling",
+        "items": [
+          "Felling restricted to 287 trees only; 1319 trees to be kept intact by User Agency",
+          "Felling only when unavoidable, under State Forest Department supervision"
+        ]
+      },
+      {
+        "head": "Wildlife & Schedule-I Species",
+        "items": [
+          "Specific comments of Chief Wildlife Warden obtained on Schedule-I species: Leopard, Tiger, Indian Gazelle, Four-horned Antelope, Wolf, Sloth Bear, Striped Hyena, Indian Pangolin, etc.",
+          "Avifauna management plan to be prepared in consultation with the Forest Department",
+          "Bird deflectors to be fixed on upper conductor to prevent bird electrocution",
+          "Circuit breakers to be installed and ground clearance maintained to prevent electrocution of wild animals",
+          "Transmission tower heights to be increased in forest areas to maintain required ground clearance"
+        ]
+      },
+      {
+        "head": "Right of Way (RoW) & Construction",
+        "items": [
+          "RoW felling guideline: 3 m clearance below conductors permitted; minimum 4.0 m conductor-to-tree clearance to be maintained at all times",
+          "Dwarf-species plantation to be done within the RoW; no tree cutting in hilly terrain where adequate clearance already exists",
+          "No approach road to be constructed inside forest area for transport of steel/material; existing road or RoW to be used; otherwise manual transport only"
+        ]
+      },
+      {
+        "head": "Compliance & Other Conditions",
+        "items": [
+          "FRA 2006 compliance certificate from District Collector required",
+          "Legal status of diverted forest land unchanged",
+          "Diversion period co-terminus with lease period or project life, whichever is less"
+        ]
+      }
+    ]
+  },
+  "B-A": {
+    "file": "FC-II/IROCH-20/2023 — Stage-I: /1414 dated 24.05.2023; Stage-II: /1524 dated 21.11.2023 [Cases 61 & 69 are the same project: Case 61 = full 15.690 ha; Case 69 = Raigarh Division share 3.575 ha]",
+    "agency": "GAIL (India) Limited — Mumbai–Nagpur–Jharsuguda Natural Gas Pipeline Project (18-inch diameter + OFC)",
+    "s1by": "Chaturbhuja Behera, IFS, IGF — Regional Empowered Committee (Sec. 4 FCA 1980), IRO Nava Raipur",
+    "s2by": "Chaturbhuja Behera, IFS, Inspector General of Forests, IRO Nava Raipur",
+    "flags": [
+      "orange",
+      "multidiv"
+    ],
+    "sections": [
+      {
+        "head": "Legal & Land Status",
+        "items": [
+          "Legal status of diverted forest land remains unchanged",
+          "Forest categories: Forest land + Orange Forest land + Revenue Forest land (five divisions: Khairagarh, Bilaspur, Korba, Janjgir-Champa, Raigarh)",
+          "Total forest area diverted: 15.690 ha; Raigarh Division share: 3.575 ha"
+        ]
+      },
+      {
+        "head": "Compensatory Afforestation (CA)",
+        "items": [
+          "CA over 18.00 ha non-forest land — Patwari Halka No. 62, Khasra No. 962, Village Bhalera, Teh. Arang, Range Nava Raipur, Raipur District",
+          "CA non-forest land to be transferred, mutated to Forest Department and notified as RF (Sec. 4) / PF (Sec. 29) of Indian Forest Act, 1927 prior to Stage-II; original notification to be submitted",
+          "Plantation of local indigenous species + 10% RET species of Raipur District; monoculture to be avoided",
+          "CA cost + survey / demarcation / permanent pillar cost to be deposited in advance",
+          "CA to be maintained for 10 years",
+          "Forest land handed over only after user agency hands over the required non-forest CA land first (Stage-II condition)"
+        ]
+      },
+      {
+        "head": "Net Present Value (NPV) & CAMPA",
+        "items": [
+          "NPV charged for 15.690 ha per Supreme Court orders dated 30.10.2002, 01.08.2003, 28.03.2008, 24.04.2008 and 09.05.2008 (IA No. 566 in WP(C) No. 202/1995)",
+          "Additional NPV payable if determined after Expert Committee report is finalized by Supreme Court; User Agency to furnish undertaking",
+          "All funds routed to CAMPA via e-portal (parivesh.nic.in)"
+        ]
+      },
+      {
+        "head": "Tree Felling & RoW",
+        "items": [
+          "Tree felling restricted to minimum number only, under Forest Department supervision",
+          "Trees within 10 m RoW to be kept intact wherever possible",
+          "Trees within 10 m RoW to be re-confirmed post-project completion; forest land handed over only after re-confirmation"
+        ]
+      },
+      {
+        "head": "Village-Level Plantation (183 Villages)",
+        "items": [
+          "Forest/tree cover improvement: at least 1000 tall seedlings to be raised per each of 183 villages through JFMC (Joint Forest Management Committee) involvement",
+          "50% of seedlings to be planted near the project site; 50% to be distributed free to villagers",
+          "Scheme for dwarf-species / medicinal plants in pipeline RoW per MoPNG norms, provided it does not hamper pipeline safety"
+        ]
+      },
+      {
+        "head": "Pipeline Construction",
+        "items": [
+          "Pipeline to be laid 1.5 m below ground surface; ground to be levelled and restored after laying",
+          "Environmental Clearance under Environment (Protection) Act, 1986 to be obtained if applicable",
+          "Layout plan not to be changed without prior Central Govt. approval",
+          "No new path to be constructed inside forest area for transport of construction material"
+        ]
+      },
+      {
+        "head": "Compliance & Other Conditions",
+        "items": [
+          "FRA 2006 settlement of rights completed before forest land handover, per Rule 9(6)(b)(ii) of FC Rules 2022 (dated 28.06.2022)",
+          "Boundary of diverted forest land to be demarcated on ground at project cost",
+          "Sufficient firewood / alternate fuel to be provided to labourers to avoid pressure on forests",
+          "No labour camp to be established on forest land",
+          "Forest land not to be used for any purpose other than specified",
+          "Forest land not to be transferred to any other agency without Govt. of India approval",
+          "Violation = violation of FCA 1980; action per MoEF&CC Guideline No. 11-42/2017-FC dated 29.01.2018",
+          "Any further condition that the Ministry may stipulate subsequently to be complied with",
+          "Compliance report to be uploaded on parivesh.nic.in",
+          "Period of diversion co-terminus with lease period or project life, whichever is less"
+        ]
+      }
+    ]
+  },
+  "B-B": {
+    "file": "F. No. 8-08/2013-FC [Area discrepancy: cover note 251.347 ha vs official letters 251.646 ha — official figure is authoritative]",
+    "agency": "S.E.C.L. — South Eastern Coalfields Limited, CGM Raigarh Area — Jampali Open Cast Project (OCP)",
+    "s1by": "Sr. Assistant Inspector General of Forests — Forest Advisory Committee (FAC), MoEF New Delhi (centralised pre-2014 route)",
+    "s2by": "Sandeep Sharma, AIGF (FC), MoEF&CC New Delhi",
+    "flags": [
+      "multidiv"
+    ],
+    "sections": [
+      {
+        "head": "Legal & Land Status",
+        "items": [
+          "Legal status of diverted forest land remains unchanged",
+          "Forest category: 'forest land' (RF/PF vs Revenue breakdown not stated in approval letters — verify from khasra/compartment records)",
+          "Area discrepancy: cover note records 251.347 ha; both Stage-I and Stage-II official letters state 251.646 ha — official figure governs"
+        ]
+      },
+      {
+        "head": "Compensatory Afforestation (CA)",
+        "items": [
+          "CA over degraded forest land, twice in extent (~503 ha) to the forest land diverted (251.646 ha)",
+          "Raised and maintained by State Forest Department at user-agency cost",
+          "CA land depicted on Survey of India toposheet, 1:50,000 scale",
+          "Funds transferred to Ad-hoc CAMPA (Savings Bank account of the State)"
+        ]
+      },
+      {
+        "head": "Net Present Value (NPV)",
+        "items": [
+          "NPV charged for diverted forest land per SC orders dated 28.03.2008, 24.04.2008 and 09.05.2008 (WP(C) No. 202/1995) and MoEF guideline No. 5-3/2007-FC dated 05.02.2009",
+          "User Agency to furnish undertaking to pay additional NPV if later determined by Supreme Court"
+        ]
+      },
+      {
+        "head": "Mining Operations & Reclamation",
+        "items": [
+          "Phased mining with concurrent reclamation plan; annual implementation report to Nodal Officer and Regional Office; activities may be suspended if reclamation not executed",
+          "Gap planting and soil/moisture conservation to rejuvenate degraded open forest (crown density <0.40) within 100 m of the mining lease boundary",
+          "Overburden dumps to be stabilised by grading/benching so the angle of repose stays below 28°",
+          "Mitigative measures for soil erosion and stream choking: check dams, retention walls, toe walls; drought-hardy planting; strict top-soil management",
+          "De-silting of village tanks / water bodies within 5 km of lease boundary"
+        ]
+      },
+      {
+        "head": "Safety Zone & Boundary Demarcation",
+        "items": [
+          "Safety zone: 7.5 m strip along outer mining boundary; fenced, protected and afforested at project cost",
+          "Afforestation on degraded forest land 1.5× in extent to the safety-zone area",
+          "Boundary demarcated with 4-ft RCC pillars (serial no., bearings, pillar-to-pillar distance) + GPS coordinates",
+          "Safety zone to be fenced with 6-ft barbed wire"
+        ]
+      },
+      {
+        "head": "R&R, Wildlife & Fuel",
+        "items": [
+          "R&R Plan implemented per National R&R Policy before work commences; monitored by State and Regional Office",
+          "Alternate habitat / artificial nests created for avifauna whose nesting trees are cleared",
+          "No damage to flora/fauna of the adjoining forest area",
+          "Tree felling only when unavoidable, under strict Forest Department supervision",
+          "Pipe gas supply to staff and labourers to avoid pressure on forests for fuel-wood; alternate fuels provided",
+          "No labour camp on forest land; temporary accommodation to be built outside forest land"
+        ]
+      },
+      {
+        "head": "Protection, Monitoring & Compliance",
+        "items": [
+          "Rs. 1.56 crore provision to protect adjoining forest from encroachment and illicit felling; plan to be prepared by DCF",
+          "Monitoring Committee under CCF Bilaspur Circle (with Collector / DFOs + one Rotary Club representative) per CG Govt. letter Bhu/Prabhand/331-01/2425 dated 26.09.2016; annual compliance submitted to Regional Office",
+          "Annual self-compliance report to State Govt., Regional Office (Nagpur) and Ministry",
+          "Layout plan not to be changed without Central Govt. approval",
+          "Forest land not to be used for any purpose other than specified; not to be transferred without Central Govt. approval",
+          "FRA 2006 settlement of rights to be completed",
+          "Period of diversion co-terminus with mining lease under MMDR Act, 1957, maximum 30 years"
+        ]
+      }
+    ]
+  },
+  "C-07": {
+    "file": "Stage-I: 6-CHB-35/2015-BHO/11 | Stage-II: 6-CHB-35/2015-BHO/186",
+    "agency": "M/s TRN Energy (Thermal Power Project), Bengari Navapara (Tenda), Garhgoda, Raigarh",
+    "s1by": "A.K. Biswal, Conservator of Forests (C), RO Bhopal",
+    "s2by": "Kanwarjit Singh, Addl. Principal Chief Conservator of Forests (C), RO Bhopal",
+    "flags": [],
+    "sections": [
+      {
+        "head": "Legal & Land Status",
+        "items": [
+          "Legal status of forest land to remain unchanged",
+          "Forest category: Protected Forest (PF) 2.438 ha + Revenue Forest Land 1.104 ha (total 3.542 ha)"
+        ]
+      },
+      {
+        "head": "Compensatory Afforestation (CA)",
+        "items": [
+          "CA area: 7.100 ha degraded forest land in Compartment No. 1238 OA, Badegumad West",
+          "Mix of local indigenous species; monoculture to be avoided",
+          "CA to be maintained for 10 years",
+          "Funds routed to Ad-hoc CAMPA (SB A/c No. SB 01025203, Corporation Bank, Lodhi Complex, New Delhi)"
+        ]
+      },
+      {
+        "head": "Net Present Value (NPV)",
+        "items": [
+          "NPV chargeable for 3.542 ha as per Supreme Court orders (IA No. 566 in WP (Civil) No. 202/1995)"
+        ]
+      },
+      {
+        "head": "Tree Felling",
+        "items": [
+          "Trees to be felled: 218 only (minimum required number)",
+          "Felling to be done under State Forest Department supervision"
+        ]
+      },
+      {
+        "head": "Right of Way (RoW) & Tower Configuration",
+        "items": [
+          "Right of Way (RoW): maximum 46 m on forest land",
+          "Only vertical delta configuration of 400 kV S/C and delta configuration of 765 kV S/C transmission towers permitted on forest land"
+        ]
+      },
+      {
+        "head": "Wildlife & Safety",
+        "items": [
+          "Circuit breakers to be installed to prevent electrocution of wild animals",
+          "Boundary of diverted forest land to be demarcated with four-feet-high RCC pillars"
+        ]
+      },
+      {
+        "head": "Compliance & Other Conditions",
+        "items": [
+          "FRA 2006 settlement of rights to be completed",
+          "Diversion period co-terminus with lease period or project life, whichever is less"
+        ]
+      }
+    ]
+  },
+  "C-08": {
+    "file": "Stage-I: FC-I/CH-02/2015-NGP/293 | Stage-II: FC-I/CH-02/2015-NGP/1111",
+    "agency": "M/s Jindal Steel and Power Limited, Raigarh (Secondary user; Primary user: Water Resource Dept., Kelo Irrigation Project)",
+    "s1by": "Kanwarjit Singh, Addl. PCCF, RO (WCZ) Nagpur",
+    "s2by": "Charan Jeet Singh, Scientist 'C', RO (WCZ) Nagpur",
+    "flags": [
+      "rediversion"
+    ],
+    "sections": [
+      {
+        "head": "Legal & Land Status — Re-diversion Background",
+        "items": [
+          "Legal status of forest land to remain unchanged",
+          "RE-DIVERSION: land was originally diverted to Water Resource Department for Kelo Irrigation Project (361.901 ha) vide letter No. 8-110/2006-FC dated 13.08.2008",
+          "Present underground pipeline passes through that already-diverted area; hence treated as re-diversion (primary to secondary user agency)",
+          "Forest category: RF/PF land 0.658 ha + Revenue Forest land 0.752 ha (total 1.410 ha)"
+        ]
+      },
+      {
+        "head": "Compensatory Afforestation (CA)",
+        "items": [
+          "CA area: 1.578 ha non-forest land — Khasra Nos. 625, 626, 611/1 & 611/2, Village Pata, District Raigarh",
+          "Mix of local indigenous species; monoculture to be avoided",
+          "Cost of CA recoverable from secondary user agency (Jindal) if not already recovered from primary user agency (WRD)"
+        ]
+      },
+      {
+        "head": "Net Present Value (NPV)",
+        "items": [
+          "NPV realised for 7.83 ha of forest land (the extent of original Kelo Irrigation Project diversion relevant to this pipeline) as per SC orders (IA No. 566, WP (Civil) No. 202/1995)"
+        ]
+      },
+      {
+        "head": "Pipeline Construction",
+        "items": [
+          "Pipeline to be laid 1 m (one metre) below ground level",
+          "Ground to be levelled and restored to original condition after laying"
+        ]
+      },
+      {
+        "head": "Compliance & Other Conditions",
+        "items": [
+          "Period of diversion co-terminus with lease period or project life, whichever is less",
+          "Settlement of rights under Scheduled Tribes and Other Traditional Forest Dwellers (Recognition of Forest Rights) Act, 2006 required",
+          "No new path to be constructed inside forest area",
+          "No camps to be established inside forest area",
+          "Six-monthly compliance report to be submitted on 1st January each year"
+        ]
+      }
+    ]
+  },
+  "C-09": {
+    "file": "Stage-I: FC-I/CH-57/2016-NGP/1313 | Stage-II: FC-I/CH-57/2016-NGP/1583",
+    "agency": "Executive Engineer (Civil), C.S.P.T.C.L. (Chhattisgarh State Power Transmission Co. Ltd.), Raigarh",
+    "s1by": "Charan Jeet Singh, Scientist 'C', RO (WCZ) Nagpur",
+    "s2by": "Charan Jeet Singh, Scientist 'C', RO (WCZ) Nagpur",
+    "flags": [],
+    "sections": [
+      {
+        "head": "Legal & Land Status",
+        "items": [
+          "Legal status of diverted forest land to remain unchanged",
+          "Entire 1.80 ha is Revenue Forest land — no high-conservation (RF/PF) land involved",
+          "Project: 132/33 KV Substation at Village Putkapuri (Kodatarai), Raigarh"
+        ]
+      },
+      {
+        "head": "Compensatory Afforestation (CA)",
+        "items": [
+          "CA over 3.6 ha of degraded forest land",
+          "Raised and maintained by State Forest Department from funds provided by User Agency",
+          "Mix of local indigenous species; monoculture to be avoided",
+          "Afforestation within diverted area to involve local community wherever feasible"
+        ]
+      },
+      {
+        "head": "Net Present Value (NPV) & CAMPA",
+        "items": [
+          "NPV realised per Supreme Court orders (WP (Civil) No. 202/1995) and MoEF guideline 5-3/2007-FC dated 05.02.2009",
+          "All compensatory levies to be routed through e-challan to Ad-hoc CAMPA"
+        ]
+      },
+      {
+        "head": "Wildlife & Ecology",
+        "items": [
+          "Alternate habitat / artificial bird nests of eco-friendly material to be created for displaced avifauna"
+        ]
+      },
+      {
+        "head": "Compliance & Other Conditions",
+        "items": [
+          "Settlement of rights under Forest Rights Act, 2006 required before forest land handover",
+          "Six-monthly self-compliance report to be submitted on 1st January and 1st July",
+          "Diversion period co-terminus with lease period or project life, whichever is less"
+        ]
+      }
+    ]
+  },
+  "C-10": {
+    "file": "Stage-I: FC-I/CH-13/2015-NGP/1133 | Stage-II: FC-I/CH-13/2015-NGP/1847",
+    "agency": "M/s OCL India Limited, Rajgangpur, District Sundargarh, Odisha — Approach Road to Chiraipani Quartzite Mines",
+    "s1by": "Charan Jeet Singh, Scientist 'C', RO (WCZ) Nagpur",
+    "s2by": "Charan Jeet Singh, Scientist 'C', RO (WCZ) Nagpur",
+    "flags": [
+      "penal"
+    ],
+    "sections": [
+      {
+        "head": "Legal & Land Status",
+        "items": [
+          "Legal status of diverted forest land to remain unchanged",
+          "Entire 0.820 ha is Reserved Forest (RF) land — highest-protection category",
+          "Project: Improvement/utilization of existing approach road from NH 200 to Chiraipani Quartzite mining lease, Village Chiraipani"
+        ]
+      },
+      {
+        "head": "PENAL Compensatory Afforestation — FCA Violation",
+        "items": [
+          "This case carries BOTH ordinary CA AND Penal CA, indicating prior use of forest land in violation of FCA 1980",
+          "PENAL CA: over degraded forest land, double in extent (2×) to the forest land used in violation of FCA 1980",
+          "Penal CA land details required with Stage-I compliance: suitability certificate, afforestation scheme, Differential GPS map, KML/Shape files"
+        ]
+      },
+      {
+        "head": "Ordinary Compensatory Afforestation (CA)",
+        "items": [
+          "Ordinary CA: over degraded forest land, double in extent (2×) to the forest land being diverted (0.820 ha, i.e. ~1.64 ha)",
+          "Both ordinary CA and Penal CA to be raised and maintained by State Forest Department from User Agency funds"
+        ]
+      },
+      {
+        "head": "Net Present Value (NPV)",
+        "items": [
+          "NPV realised per Supreme Court orders (WP (Civil) No. 202/1995) and MoEF guideline 5-3/2007-FC dated 05.02.2009"
+        ]
+      },
+      {
+        "head": "Road & Slope Management",
+        "items": [
+          "Strip plantation on either side of road and on central verge as per IRC specification; maintained for 7–10 years",
+          "Retaining walls, breast walls and drainage structures to stabilize slopes along road",
+          "Quarry reclamation to be done under State Forest Department supervision; overburden not to be dumped outside road width and not to be rolled down slopes"
+        ]
+      },
+      {
+        "head": "Compliance & Other Conditions",
+        "items": [
+          "Use of road by local villagers not to be constrained by the diversion; undertaking to be submitted by User Agency",
+          "Working permission per MoEF&CC guidelines dated 07.05.2015",
+          "FRA 2006 settlement of rights required",
+          "Diversion period co-terminus with lease period or project life, whichever is less"
+        ]
+      }
+    ]
+  },
+  "C-11": {
+    "file": "Stage-I: FC-II/CH-47/2016-NGP/1972 | Stage-II: FC-II/CH-47/2016-NGP/2461",
+    "agency": "Chhattisgarh East Railway Limited (CERL) — East Rail Corridor Spur Line (Kharsiya to Gurda and Gharghoda to Gare-Palema)",
+    "s1by": "Charan Jeet Singh, Scientist 'C', RO (WCZ) Nagpur (REC constituted u/s 4 FCA 1980)",
+    "s2by": "Charan Jeet Singh, Scientist 'C', RO (WCZ) Nagpur",
+    "flags": [
+      "orange"
+    ],
+    "sections": [
+      {
+        "head": "Legal & Land Status",
+        "items": [
+          "Legal status of diverted forest land to remain unchanged",
+          "Project: Construction of 38 km (10+28 km) Railway Line — Kharsiya to Gurda and Gharghoda to Gare-Palema under East Rail Corridor",
+          "Forest category breakdown not specified in approval letters (includes OA Comp. 1282 — Orange Area); verify from full proposal"
+        ]
+      },
+      {
+        "head": "Compensatory Afforestation (CA)",
+        "items": [
+          "CA over degraded forest land, twice in extent (2×) to the forest land diverted (~53 ha for 26.52 ha diverted)",
+          "CA land depicted on Survey of India toposheet (1:50,000 scale)",
+          "Raised and maintained by State Forest Department at User Agency cost"
+        ]
+      },
+      {
+        "head": "Net Present Value (NPV)",
+        "items": [
+          "NPV realised per Supreme Court orders (WP (Civil) No. 202/1995) and MoEF guideline 5-3/2007-FC dated 05.02.2009"
+        ]
+      },
+      {
+        "head": "Soil Conservation",
+        "items": [
+          "Soil Conservation fund: Rs. 61,28,700/- (Sixty-one lakh twenty-eight thousand seven hundred) realised from User Agency and deposited"
+        ]
+      },
+      {
+        "head": "Wildlife & Ecology",
+        "items": [
+          "Wildlife Conservation Plan for habitat improvement to be prepared and implemented; approved by PCCF (Wildlife)",
+          "Controlled train speed limits through forest portions, in consultation with Chief Wildlife Warden",
+          "Underpasses, culverts and bridges designed so as not to hamper natural water course or wildlife movement"
+        ]
+      },
+      {
+        "head": "Construction Restrictions",
+        "items": [
+          "Staff quarters area not to exceed 0.114 ha"
+        ]
+      },
+      {
+        "head": "Compliance & Other Conditions",
+        "items": [
+          "Settlement of rights under Forest Rights Act, 2006 required",
+          "Half-yearly self-compliance report to be submitted on 31st July and 31st December",
+          "Diversion period co-terminus with lease period or project life, whichever is less"
+        ]
+      }
+    ]
+  },
+  "C-12": {
+    "file": "Stage-I: FC-II/CH-39/2016-NGP/1320 | Stage-II: FC-II/CH-39/2016-NGP/3198",
+    "agency": "General Manager, NTPC Talaipalli — MGR Railway Line, Kotarliya to LARA",
+    "s1by": "Charan Jeet Singh, Scientist 'C', RO (WCZ) Nagpur (REC constituted u/s 4 FCA 1980)",
+    "s2by": "Charan Jeet Singh, Scientist 'C', RO (WCZ) Nagpur",
+    "flags": [
+      "fragmentation"
+    ],
+    "sections": [
+      {
+        "head": "Legal & Land Status",
+        "items": [
+          "Legal status of diverted forest land to remain unchanged",
+          "Forest category: Reserved Forest (RF) — Comp. 1006, 1007 — plus Revenue Forest Land (total 35.413 ha)"
+        ]
+      },
+      {
+        "head": "Compensatory Afforestation (CA)",
+        "items": [
+          "Stage-I condition: CA over degraded forest land equal in extent to the forest land diverted",
+          "Stage-II condition: CA over degraded forest land TWICE in extent — Stage-II wording governs; discrepancy with Stage-I must be noted",
+          "Raised and maintained by State Forest Department from User Agency funds"
+        ]
+      },
+      {
+        "head": "Forest Fragmentation Condition",
+        "items": [
+          "A patch of 3.33 ha of forest land will be created as an isolated fragment due to fragmentation of a larger forest block of 265.33 ha in Compartment No. 1007",
+          "This residual 3.33 ha fragmented patch to be fenced AND afforested at User Agency cost"
+        ]
+      },
+      {
+        "head": "Net Present Value (NPV)",
+        "items": [
+          "NPV realised for 35.413 ha per Supreme Court orders (WP (Civil) No. 202/1995) and MoEF guideline 5-3/2007-FC dated 05.02.2009"
+        ]
+      },
+      {
+        "head": "Wildlife & Ecology",
+        "items": [
+          "Wildlife Conservation Plan to be approved by PCCF (Wildlife) and implemented at project cost",
+          "Underpasses to be constructed per Wildlife Management Plan at locations specifically suggested by PCCF (Wildlife)",
+          "Controlled train speed limits through forest portions, in consultation with Chief Wildlife Warden"
+        ]
+      },
+      {
+        "head": "Soil Conservation & Quarrying",
+        "items": [
+          "Comprehensive soil conservation measures to be implemented per approved scheme",
+          "Forest land not to be used for quarrying; all muck to be dumped within permitted RoW only"
+        ]
+      },
+      {
+        "head": "Compliance & Other Conditions",
+        "items": [
+          "Settlement of rights under Forest Rights Act, 2006 required",
+          "Half-yearly self-compliance report to be submitted on 31st July and 31st December",
+          "Diversion period co-terminus with lease period or project life, whichever is less"
+        ]
+      }
+    ]
+  },
+  "D-1": {
+    "file": "F. No. FC-III/CH-09/2016-NGP [Total: 153.448 ha; Raigarh Division share: 93.164 ha]",
+    "agency": "Power Grid Corporation of India Ltd (PGCIL), Raigarh — 765 KV D/C Hexa Line, Jharsuguda to Dharamjaygarh",
+    "s1by": "Charan Jeet Singh, Scientist 'C', Regional Office (WCZ), Nagpur",
+    "s2by": "Charan Jeet Singh, Scientist 'C', Regional Office (WCZ), Nagpur",
+    "flags": [
+      "multidiv"
+    ],
+    "sections": [
+      {
+        "head": "Legal & Land Status",
+        "items": [
+          "Legal status of diverted forest land to remain unchanged",
+          "Multi-division project: Total 153.448 ha; Raigarh Division share: 93.164 ha",
+          "Forest category not specified in approval letters; CA to be raised over degraded forest land"
+        ]
+      },
+      {
+        "head": "Compensatory Afforestation (CA)",
+        "items": [
+          "CA over degraded forest land, double in extent (2×) to the diverted area, at User Agency cost",
+          "Plantation of dwarf species (preferably medicinal plants) in the Right of Way (RoW)",
+          "Alternate habitat / artificial nests to be provided for avifauna whose nesting trees are cleared",
+          "Approved avifauna scheme to be submitted within 3 months of Stage-II approval (Stage-II specific condition)"
+        ]
+      },
+      {
+        "head": "Net Present Value (NPV)",
+        "items": [
+          "NPV payable as per Supreme Court orders (WP Civil 202/1995) and Ministry guidelines dated 05.02.2009"
+        ]
+      },
+      {
+        "head": "Tree Felling & RoW",
+        "items": [
+          "Felling of trees restricted to 11,876 trees falling within the 10 m RoW below each conductor",
+          "Width of Right of Way (RoW) limited to 67 meters"
+        ]
+      },
+      {
+        "head": "Wildlife & Safety",
+        "items": [
+          "Circuit breakers and adequate ground clearance to prevent electrocution of wild animals",
+          "No approach road to be constructed inside forest area; existing roads / proposed RoW to be used for material transport"
+        ]
+      },
+      {
+        "head": "Compliance & Other Conditions",
+        "items": [
+          "Settlement of rights under Scheduled Tribes and Other Traditional Forest Dwellers Act, 2006, if any",
+          "Environment Clearance under EP Act, 1986 to be obtained if applicable",
+          "Diversion period co-terminus with lease period or project life, whichever is less"
+        ]
+      }
+    ]
+  },
+  "D-2": {
+    "file": "F. No. 8-105/2014-FC [Total: 76.099 ha; Raigarh Division share: 19.850 ha per cover note]",
+    "agency": "Chhattisgarh East Railway Limited (CERL), Raipur — East Rail Corridor Construction",
+    "s1by": "M. Rajkumar, AIGF (FC) — Forest Advisory Committee (FAC), MoEF&CC New Delhi (centralised route)",
+    "s2by": "B.K. Singh, Director (Forest Conservation), MoEF&CC New Delhi",
+    "flags": [
+      "multidiv"
+    ],
+    "sections": [
+      {
+        "head": "Legal & Land Status",
+        "items": [
+          "Legal status of diverted forest land to remain unchanged",
+          "Total project area: 76.099 ha; Raigarh Division share: 19.850 ha (per handwritten cover sheet)",
+          "Forest category not specified in approval letters; includes OA compartments (1265, 1239, 1238); verify from full proposal"
+        ]
+      },
+      {
+        "head": "Compensatory Afforestation (CA)",
+        "items": [
+          "CA over degraded forest land, twice in extent (2×) to the diverted area, at User Agency cost"
+        ]
+      },
+      {
+        "head": "Net Present Value (NPV)",
+        "items": [
+          "NPV payable as per Supreme Court orders (WP Civil 202/1995) and Ministry guidelines dated 05.02.2009"
+        ]
+      },
+      {
+        "head": "Wildlife & Ecology",
+        "items": [
+          "Underpasses for safe animal crossing to be constructed if required, in consultation with Chief Wildlife Warden",
+          "Train speed to be regulated in consultation with Chief Wildlife Warden; controlled speed limit through forest portions",
+          "Integrated Wildlife Management Plan to be prepared and implemented at project cost",
+          "Alternate habitat / artificial nests for avifauna whose nesting trees are cleared",
+          "Culverts / bridges over natural streams not to hamper natural water course or wildlife movement",
+          "Ex-situ conservation of endemic flora / fauna species lost or disturbed by the project"
+        ]
+      },
+      {
+        "head": "Soil Conservation & Quarrying",
+        "items": [
+          "Reclamation and complete afforestation of any quarry opened for the project before project closure",
+          "Retaining walls, breast walls and drainage structures for slope stability; comprehensive soil conservation measures"
+        ]
+      },
+      {
+        "head": "Compliance & Other Conditions",
+        "items": [
+          "Approved via FAC (centralised) — Stage-I Feb 2015, Stage-II May 2015",
+          "Diversion period co-terminus with lease period or project life, whichever is less"
+        ]
+      }
+    ]
+  },
+  "D-3": {
+    "file": "F. No. 8-61/2009-FC [Transfer to JSPL: 27.01.2023]",
+    "agency": "M/s Jindal Steel and Power Limited (JSPL) — Gare Pelma Coal Block IV/6, Tamnar Range, Raigarh",
+    "s1by": "C.D. Singh, Sr. AIGF — Forest Advisory Committee, MoEF&CC New Delhi",
+    "s2by": "M. Rajkumar, AIGF (FC), MoEF&CC New Delhi [Transfer signed: Suneet Bhardwaj, AIGF (27.01.2023)]",
+    "flags": [],
+    "sections": [
+      {
+        "head": "Legal & Land Status",
+        "items": [
+          "Legal status of diverted forest land to remain unchanged",
+          "Forest category: contains PF (Comp. 742) + Revenue Forest Land — high-conservation class (PF) confirmed",
+          "Forest clearance transferred from original user (Jindal Steel & Power) to JSPL on 27.01.2023 following coal block re-allotment; transfer charges @ 10% of NPV or Rs. 1,00,000 whichever is less"
+        ]
+      },
+      {
+        "head": "Compensatory Afforestation (CA)",
+        "items": [
+          "CA over non-forest land equal in extent (93.566 ha) to the diverted land",
+          "CA land to be notified as Reserved Forest (Sec. 4) or Protected Forest (Sec. 29) of Indian Forest Act, 1927 within six months of Stage-II"
+        ]
+      },
+      {
+        "head": "Net Present Value (NPV)",
+        "items": [
+          "NPV payable as per Supreme Court orders (IA 566 in WP Civil 202/1995)"
+        ]
+      },
+      {
+        "head": "Wildlife, Elephant & CSR",
+        "items": [
+          "Cost of crop depredation by wild elephants to be borne by User Agency",
+          "Water and food arrangements to be made for migrating elephants",
+          "Project Proponent to earmark 1% of the market price of total coal produced for protection and development of forest and wildlife (CSR obligation)"
+        ]
+      },
+      {
+        "head": "Safety Zone & Boundary",
+        "items": [
+          "Safety zone: 7.5 m strip along mining lease boundary; demarcated with RCC pillars (DGPS coordinates) and maintained as green belt",
+          "Afforestation on degraded forest land 1.5× the safety zone area, at project cost",
+          "Bank guarantee of Rs. 3.77 crores furnished for the Conservator of Forests' management plan"
+        ]
+      },
+      {
+        "head": "Mining & Reclamation",
+        "items": [
+          "Re-grassing and restoration of mining area after cessation of operations",
+          "Period of diversion: 20 years or coterminous with mining lease, subject to a maximum of 30 years"
+        ]
+      },
+      {
+        "head": "Compliance & Other Conditions",
+        "items": [
+          "ST & OTFD (Recognition of Forest Rights) Act, 2006 clearance to be obtained before final approval",
+          "Stage-I: 30.12.2010; Stage-II: 10.09.2014 (gap: ~3.7 years); Transfer: 27.01.2023"
+        ]
+      }
+    ]
+  },
+  "D-4": {
+    "file": "F. No. 8-60/2009-FC [Stage-II: 11.07.2023; kept in abeyance then RESTORED: 03.07.2024]",
+    "agency": "M/s Jindal Power Limited (JPL) — Gare Pelma Coal Block IV/1",
+    "s1by": "C.D. Singh, Deputy Inspector General of Forests — FAC, MoEF&CC New Delhi",
+    "s2by": "Dr. Dheeraj Mittal, AIGF (11.07.2023) | Restoration order: Suneet Bhardwaj, AIGF (03.07.2024)",
+    "flags": [
+      "rediversion"
+    ],
+    "sections": [
+      {
+        "head": "Legal & Land Status",
+        "items": [
+          "Legal status of diverted forest land to remain unchanged",
+          "Forest category: PF (Comp. 794, 795) + Revenue Forest Land — high-conservation class (PF) confirmed",
+          "Stage-I: 02.02.2011 to Stage-II: 11.07.2023 — gap of ~12.4 years (longest gap in dataset)",
+          "Stage-II final approval kept in abeyance after issuance; later RESTORED on 03.07.2024 subject to an additional condition"
+        ]
+      },
+      {
+        "head": "Revenue Forest Land — Special Restoration Condition (03.07.2024)",
+        "items": [
+          "State Government shall NOT handover the Revenue Forest Land to the lessee unless encroachment beyond the R&R plan is removed",
+          "Action under Van (Sanrakshan Evam Samvardhan) Adhiniyam (Forest Conservation Act), 1980 to be taken as per applicability before Revenue Forest Land is handed over"
+        ]
+      },
+      {
+        "head": "Compensatory Afforestation (CA)",
+        "items": [
+          "CA over Non-Forest Land as notified vide CG Govt. notification No. F 5-15/2009/10-2 (Part) dated 07.06.2023, in extent equal to the forest land diverted (91.179 ha)",
+          "CA to be completed within three years of Stage-II"
+        ]
+      },
+      {
+        "head": "Net Present Value (NPV)",
+        "items": [
+          "NPV and additional NPV payable as per Supreme Court decision; undertaking required"
+        ]
+      },
+      {
+        "head": "Mining Operations & Reclamation",
+        "items": [
+          "Phased felling of trees and phased mining as per approved mining plan",
+          "Concurrent reclamation from Year-1 of mining"
+        ]
+      },
+      {
+        "head": "Safety Zone & Boundary",
+        "items": [
+          "Safety zone: 7.5 m strip along inner boundary of mining lease; demarcated with RCC pillars + DGPS + barbed wire; maintained as green belt",
+          "Afforestation on degraded forest land (DFL) measuring 1.5× the safety zone area"
+        ]
+      },
+      {
+        "head": "Water Bodies & Desilting",
+        "items": [
+          "Desilting of village tanks / water bodies within 5 km of the mine lease boundary"
+        ]
+      },
+      {
+        "head": "Wildlife, Elephant & CSR",
+        "items": [
+          "Wildlife Conservation Plan to be prepared with Chief Wildlife Warden; implemented at User Agency cost",
+          "1% of market price of total coal produced earmarked for forest and wildlife protection (CSR)"
+        ]
+      },
+      {
+        "head": "R&R (Rehabilitation & Resettlement)",
+        "items": [
+          "R&R Plan to be implemented per State R&R Policy in consonance with National R&R Policy"
+        ]
+      },
+      {
+        "head": "Compliance & Other Conditions",
+        "items": [
+          "ST & OTFD (Recognition of Forest Rights) Act, 2006 settlement of rights",
+          "Period of diversion coterminous with mining lease under MMDR Act, 1957",
+          "Violation of conditions attracts action per para 1.21 of Chapter 1 of FCA Handbook (Ministry letter 5-2/2017-FC dated 28.03.2019)"
+        ]
+      }
+    ]
+  },
+  "D-5": {
+    "file": "F. No. 8-35/2019-FC | Online Proposal: FP/CG/MIN/30359/2012",
+    "agency": "M/s South Eastern Coalfields Limited (SECL) — Baroud Expansion Open Cast Coal Mine (3 MT capacity), Raigarh",
+    "s1by": "Dr. Dheeraj Mittal, AIGF, MoEF&CC FC Division, New Delhi",
+    "s2by": "Dr. Dheeraj Mittal, AIGF, MoEF&CC FC Division, New Delhi",
+    "flags": [],
+    "sections": [
+      {
+        "head": "Legal & Land Status",
+        "items": [
+          "Legal status of diverted forest land to remain unchanged",
+          "Forest category: contains PF (Comp. 1286) + Revenue Forest Land — high-conservation class (PF) confirmed",
+          "Total forest land utilised for the project not to exceed 238.373 ha"
+        ]
+      },
+      {
+        "head": "Compensatory Afforestation (CA)",
+        "items": [
+          "CA over double (2×) the degraded forest land, i.e. 476.746 ha (238.373 × 2), to be completed within three years of Stage-II",
+          "Funds to be routed through CAMPA e-portal (parivesh.nic.in)"
+        ]
+      },
+      {
+        "head": "Net Present Value (NPV)",
+        "items": [
+          "NPV and additional NPV payable as per Supreme Court decision; funds routed through CAMPA e-portal"
+        ]
+      },
+      {
+        "head": "Wildlife & Elephant Protection (per CWLW letter dt. 24.03.2023)",
+        "items": [
+          "All conditions of Chief Wildlife Warden (CWLW), Chhattisgarh vide letter dated 24.03.2023 are binding",
+          "Elephant-proof wall to be constructed along the entire mine boundary with 2–4 gates for traffic movement",
+          "Funds to be provided for a Hathi Mitra Dal (elephant-friend squad)",
+          "Funds to be provided for a Gajraj vehicle (dedicated elephant monitoring/management vehicle)",
+          "300 m river safety buffer zone for protection of River Kurkut — no mining activities within this zone",
+          "Arrangements to prevent polluted mine water from mixing into River Kurkut",
+          "200 m safety buffer from the standing mountain on the northern boundary",
+          "No new road to be constructed; coal transportation only via existing road",
+          "Detailed study of cumulative impact of existing approved mines on habitat to be completed before further expansion",
+          "Detailed revised comprehensive Wildlife Conservation Plan to be prepared at User Agency cost",
+          "Over / under passes in Protected Areas / Forest Areas as per CWLW / NBWL / AC / REC recommendations"
+        ]
+      },
+      {
+        "head": "Safety Zone & Boundary",
+        "items": [
+          "Safety zone: 7.5 m strip along inner boundary; demarcated, fenced (RCC pillars + DGPS + barbed wire); maintained as green belt",
+          "Desilting of village tanks / water bodies within 5 km of lease boundary"
+        ]
+      },
+      {
+        "head": "Mining & Reclamation",
+        "items": [
+          "Overburden dumps stabilised by grading / benching with angle of repose below 28°",
+          "Compliance with hydrological study prepared by CMPDIL (Central Mine Planning and Design Institute)"
+        ]
+      },
+      {
+        "head": "Compliance & Other Conditions",
+        "items": [
+          "ST & OTFD (Recognition of Forest Rights) Act, 2006 settlement of rights",
+          "Diversion period coterminous with mining lease"
+        ]
+      }
+    ]
+  },
+  "D-6": {
+    "file": "F. No. FC-III/CH-21/2017-NGP [Total: 71.761 ha; Raigarh Division share: 59.179 ha]",
+    "agency": "POWERGRID (Odisha Phase-II Generation Project) — 765 KV Double Circuit Line, Jharsuguda (Sundergarh) to Raipur",
+    "s1by": "Charan Jeet Singh, Scientist 'C', Regional Office (WCZ), Nagpur",
+    "s2by": "Chaturbhuja Behera, IGF, IRO Nava Raipur (final approval: 21.12.2021)",
+    "flags": [
+      "orange",
+      "multidiv"
+    ],
+    "sections": [
+      {
+        "head": "Legal & Land Status",
+        "items": [
+          "Legal status of diverted forest land to remain unchanged",
+          "Multi-division: Raigarh (59.179 ha) + Durg, Bilaspur, Janjgir-Champa, Bemetara (total 71.761 ha)",
+          "FRA proceedings for Bilaspur, Janjgir-Champa and Bemetara were pending at Stage-I"
+        ]
+      },
+      {
+        "head": "Compensatory Afforestation (CA) — Orange Forest Land",
+        "items": [
+          "CA over 144.181 ha of Orange Forest Land (degraded), which is double (2×) the total diverted area (71.761 ha)",
+          "CA location: Compartment / Khasra No. 940, 1, 2, 3/4, 3/1, 6/1 KA, 2_1, 774/1, 775/1, 779, 781, 156/1 and 156/2 in Bilaspur Forest Division, Tehsil & District Bilaspur",
+          "CA land (Orange Forest) to be transferred, mutated to State Forest Department and declared RF (Sec-4) or PF (Sec-29) of Indian Forest Act, 1927"
+        ]
+      },
+      {
+        "head": "Net Present Value (NPV)",
+        "items": [
+          "NPV payable as per Supreme Court orders (WP Civil 202/1995) and Ministry guidelines",
+          "FRA compliance certificate from each concerned District Collector"
+        ]
+      },
+      {
+        "head": "Tree Felling & RoW",
+        "items": [
+          "Felling of trees restricted to 4,185 trees falling within the 10 m RoW below each conductor",
+          "Width of Right of Way (RoW) limited to 67 meters"
+        ]
+      },
+      {
+        "head": "Wildlife & Bird Protection",
+        "items": [
+          "Circuit breakers and adequate ground clearance to prevent electrocution of wild animals",
+          "Bird deflectors to be fixed on the upper conductor at 20 m intervals near Protected Areas and migratory bird routes",
+          "Plantation of dwarf species (preferably medicinal plants) in the RoW",
+          "Alternate habitat / artificial nests for avifauna whose nesting trees are cleared"
+        ]
+      },
+      {
+        "head": "Construction Restrictions",
+        "items": [
+          "No approach road to be constructed in forest area; existing roads / proposed RoW to be used for all material transport"
+        ]
+      },
+      {
+        "head": "Compliance & Other Conditions",
+        "items": [
+          "ST & OTFD (Recognition of Forest Rights) Act, 2006 settlement of rights",
+          "Stage-I: October 2017 to Stage-II: December 2021 (gap: ~4.2 years)",
+          "Violation attracts action per MoEF&CC Guideline F. No. 11-42/2017-FC dated 29.01.2018",
+          "Diversion period co-terminus with lease period or project life, whichever is less"
+        ]
+      }
+    ]
+  },
+  "E-01": {
+    "file": "Stage-I: FC-I/IROCH-03/2021 | Stage-II: FC-II/IROCH-03/2021 [Area discrepancy: cover note 1.782 ha vs official 1.732 ha — official governs]",
+    "agency": "NTPC (per cover note) / PMGSY Road — official project is PMGSY road widening, public road",
+    "s1by": "N.K. Dimri, Technical Officer (Gr-I), IRO Raipur",
+    "s2by": "Chaturbhuja Behera, Inspector General of Forests",
+    "flags": [
+      "orange"
+    ],
+    "sections": [
+      {
+        "head": "Legal & Land Status",
+        "items": [
+          "Legal status of forest land to remain unchanged",
+          "Forest category: 1.732 ha Revenue Forest Land diverted",
+          "Location: Village Sathepalli to Kotrimal; Auraimuda to Teram; Kanchanpur Revenue Forest"
+        ]
+      },
+      {
+        "head": "Compensatory Afforestation (CA) — Orange Area",
+        "items": [
+          "CA over 3.464 ha Orange Area of Compartment No. Baigabahri OA, Village Pusalda, Raigarh District, at User Agency cost",
+          "Orange Area for CA to be transferred, mutated to Forest Department and notified as RF (Sec. 4) / PF (Sec. 29) of Indian Forest Act, 1927 PRIOR to Stage-II",
+          "Declaration to be made under Sec. 4 or Sec. 29 of Indian Forest Act, 1927",
+          "Mixture of local indigenous species + 10% RET species of Raigarh District; monoculture to be avoided"
+        ]
+      },
+      {
+        "head": "Net Present Value (NPV)",
+        "items": [
+          "NPV charged as per Supreme Court orders (IA 566 in WP(C) 202/1995)"
+        ]
+      },
+      {
+        "head": "Plantation & Nursery",
+        "items": [
+          "Strip plantation on both sides of the road",
+          "Separate nursery to be raised producing at least 5,000 seedlings per year"
+        ]
+      },
+      {
+        "head": "Compliance & Other Conditions",
+        "items": [
+          "FRA 2006 compliance certificate required from District Collector before handover",
+          "Road to be used as public road; no restriction on community access",
+          "No labour camp to be established on forest land",
+          "Diversion period co-terminus with lease period or project life, whichever is less"
+        ]
+      }
+    ]
+  },
+  "E-02": {
+    "file": "State Government approval — CG Forest & Climate Change Dept (BharatNet Phase-II)",
+    "agency": "CHiPS — Chhattisgarh Infotech Promotion Society, Raipur — Underground OFC Cable, 116.112 km",
+    "s1by": "K.P. Rajput, Under Secretary, CG Forest & Climate Change Dept (State-level approval)",
+    "s2by": "K.P. Rajput, Under Secretary, CG Forest & Climate Change Dept",
+    "flags": [],
+    "sections": [
+      {
+        "head": "Legal & Land Status — Complete Forest Category Breakdown",
+        "items": [
+          "Legal status of all forest land to remain unchanged",
+          "Reserved Forest (RF): 59,877.248 m across 37 segments = 2.991 ha",
+          "Protected Forest (PF): 90,813.768 m across 51 segments = 4.541 ha",
+          "Orange Area (OA): 18,837.258 m across 13 segments = 0.945 ha",
+          "Revenue Forest (RFL): 6,583.805 m across 33 segments = 0.329 ha",
+          "TOTAL: 176,112.079 m (116.112 km) across 134 segments = 8.806 ha",
+          "RF + PF combined = 7.532 ha = 85.5% of total diversion — highest RF/PF load in Batch E"
+        ]
+      },
+      {
+        "head": "Construction Method — No Tree Felling",
+        "items": [
+          "NO trees to be felled for laying the OFC cable (explicitly stated: वृक्ष नहीं काटे जायेंगे)",
+          "Trench to be dug MANUALLY, WITHOUT machines; maximum trench width: 0.50 m; depth: 1.65 m",
+          "Trench to be backfilled and levelled by applicant immediately after cable laying; surface fully restored"
+        ]
+      },
+      {
+        "head": "Route & Alignment",
+        "items": [
+          "Cable route to follow the approved alignment along road edges only",
+          "Route to remain outside National Park / Wildlife Sanctuary boundaries",
+          "Route alignment not to be altered under any circumstances"
+        ]
+      },
+      {
+        "head": "Ecological Protection",
+        "items": [
+          "Applicant bound to protect flora and fauna in the area at all times during and after construction",
+          "Applicant to bear all maintenance costs"
+        ]
+      },
+      {
+        "head": "Compliance & Other Conditions",
+        "items": [
+          "FRA 2006 compliance applicable",
+          "Legal status of forest land unchanged throughout diversion period"
+        ]
+      }
+    ]
+  },
+  "E-03": {
+    "file": "Stage-I: FC-II/IROCH-08/2021 | Stage-II: FC-II/IROCH-08/2021",
+    "agency": "CSPTCL — Chhattisgarh State Power Transmission Company Ltd — 132 KV DCDS Line, Girwani to Korichhapar TSS",
+    "s1by": "Chaturbhuja Behera, Inspector General of Forests",
+    "s2by": "Dr. D. Manjunatha, Deputy Inspector General of Forests",
+    "flags": [],
+    "sections": [
+      {
+        "head": "Legal & Land Status",
+        "items": [
+          "Legal status of forest land to remain unchanged",
+          "Forest category of diverted 7.011 ha not broken out in approval letters (khasra shows 1183 RF, 1260 PF, 829 RF, 881 PF + Revenue Forest); verify from full proposal",
+          "Line route: 220/132 KV SS Girwani to TSS Korichhapar; Right of Way width: 27 m"
+        ]
+      },
+      {
+        "head": "Compensatory Afforestation (CA)",
+        "items": [
+          "CA over 14.022 ha degraded forest land of Compartment No. 1185 PF, Raigarh District (= 2× the diverted area of 7.011 ha), at user-agency cost",
+          "Local indigenous species to be planted; monoculture to be avoided"
+        ]
+      },
+      {
+        "head": "Net Present Value (NPV)",
+        "items": [
+          "NPV per Supreme Court orders (WP(C) 202/1995)",
+          "FRA 2006 settlement to be confirmed before handover"
+        ]
+      },
+      {
+        "head": "Tree Felling",
+        "items": [
+          "Felling restricted to 165 trees + 35 bamboo clumps only; remaining 412 trees to be kept intact",
+          "3 m clearance strip permitted below each conductor; minimum 4.0 m conductor-to-tree clearance to be maintained",
+          "Felling only when unavoidable, under State Forest Department supervision"
+        ]
+      },
+      {
+        "head": "Wildlife & Safety",
+        "items": [
+          "Circuit breakers and ground clearance to prevent electrocution of wild animals",
+          "Tower heights to be increased in forest areas where needed to maintain clearance",
+          "Alternate habitat / artificial bird nests to be provided for displaced avifauna"
+        ]
+      },
+      {
+        "head": "Construction Restrictions",
+        "items": [
+          "No approach road to be constructed in forest area; material to be moved over existing road / RoW or manually"
+        ]
+      },
+      {
+        "head": "Compliance & Other Conditions",
+        "items": [
+          "Six-monthly self-compliance reports to be submitted on 1 January and 1 July",
+          "State yearly compliance report to be submitted on 31 December",
+          "Diversion period co-terminus with lease period or project life, whichever is less"
+        ]
+      }
+    ]
+  },
+  "E-04": {
+    "file": "Stage-I: FC-I/IROCH-04/2021 [Date typo in source: Stage-I letter header reads '17 Feb 2020' — correct date is 17.02.2021 per file no. FC-I/IROCH-04/2021]",
+    "agency": "Hindalco Industries Limited (HIL), Milupara, Tehsil Tamnar, District Raigarh — 11 KV Underground Solar Evacuation Line",
+    "s1by": "N.K. Dimri, Technical Officer (Gr-I), IRO Raipur",
+    "s2by": "Chaturbhuja Behera, Inspector General of Forests",
+    "flags": [],
+    "sections": [
+      {
+        "head": "Legal & Land Status",
+        "items": [
+          "Legal status of forest land to remain unchanged",
+          "Forest category: 0.011 ha Reserved Forest (RF) — Comp. 782 RF (smallest diversion in the dataset)",
+          "Project: HIL 3 MW Solar Power Plant near GP IV/4 Coal Mine to GP IV/5 Coal Mine substation (Gare Pelma)",
+          "Note: solar power evacuation but BOTH end-points are coal-mine substations — solar-coal interface case",
+          "DATE TYPO: Stage-I letter header reads '17th February 2020' — correct year is 2021 per file number FC-I/IROCH-04/2021"
+        ]
+      },
+      {
+        "head": "Compensatory Afforestation (CA)",
+        "items": [
+          "State Forest Department to plant 10× the number of trees to be felled over degraded forest land, at user-agency cost",
+          "10% RET (Rare, Endangered, Threatened) species of Raigarh District to be included in planting",
+          "CA to be maintained for 10 years"
+        ]
+      },
+      {
+        "head": "Nursery & Village Plantation",
+        "items": [
+          "Separate nursery to be raised producing at least 2,500 seedlings per year",
+          "50% of nursery seedlings to be planted near the project site",
+          "50% of nursery seedlings to be distributed free to villagers"
+        ]
+      },
+      {
+        "head": "Net Present Value (NPV)",
+        "items": [
+          "NPV per Supreme Court orders (IA 566, WP(C) 202/1995)"
+        ]
+      },
+      {
+        "head": "Compliance & Other Conditions",
+        "items": [
+          "No labour camp to be established inside forest area",
+          "No new path to be constructed inside forest area",
+          "Boundary of diverted forest land to be demarcated at project cost",
+          "FRA 2006 certificate from District Collector required",
+          "Diversion period co-terminus with lease period or project life, whichever is less"
+        ]
+      }
+    ]
+  },
+  "E-05": {
+    "file": "Stage-I: FC-I/IROCH-01/2020 | Stage-II: FC-I/IROCH-01/2020",
+    "agency": "CSPGCL — Chhattisgarh State Power Generation Company Ltd — Approach Road for Gharghoda Railway Siding",
+    "s1by": "N.K. Dimri, Technical Officer (Gr-I), IRO Raipur",
+    "s2by": "N.K. Dimri, Technical Officer (Gr-I), IRO Raipur",
+    "flags": [],
+    "sections": [
+      {
+        "head": "Legal & Land Status",
+        "items": [
+          "Legal status of forest land to remain unchanged",
+          "Forest category of Comp. 1235P not specified in approval letters — verify from full khasra/compartment records",
+          "Purpose: construction of approach road for Gharghoda railway siding (serves state power generation company)"
+        ]
+      },
+      {
+        "head": "Compensatory Afforestation (CA)",
+        "items": [
+          "State Forest Department to plant 10× the number of trees to be felled over degraded forest land, at user-agency cost",
+          "10% RET species of Raigad District to be included (added in Stage-II)",
+          "Monoculture to be avoided"
+        ]
+      },
+      {
+        "head": "Net Present Value (NPV)",
+        "items": [
+          "NPV per Supreme Court orders (IA 566, WP(C) 202/1995)",
+          "FRA 2006 certificate from District Collector required"
+        ]
+      },
+      {
+        "head": "Road-side Plantation & Soil Conservation",
+        "items": [
+          "Avenue plantation to be done as per IRC norms along the road",
+          "Speed-regulating signage to be erected in Protected Areas and Forest Areas",
+          "Comprehensive soil-conservation and afforestation measures along road where feasible"
+        ]
+      },
+      {
+        "head": "Wildlife & Ecology",
+        "items": [
+          "Alternate habitat / artificial bird nests to be provided for displaced avifauna"
+        ]
+      },
+      {
+        "head": "Compliance & Other Conditions",
+        "items": [
+          "Transfer of forest land to be withheld until Central formal order is issued",
+          "Diversion period co-terminus with lease period or project life, whichever is less"
+        ]
+      }
+    ]
+  },
+  "E-06A": {
+    "file": "FC-III/CH-7/2016-NGP [Stage-II per File 1: 21.11.2023 — unconfirmed in Batch E PDF; that date coincides with GAIL pipeline Stage-II]",
+    "agency": "Public Works Department (PWD), Raipur — NH-200 / New NH-49 Widening, Raigarh to Odisha Border",
+    "s1by": "Charan Jeet Singh, Scientist 'C', RO (WCZ) Nagpur",
+    "s2by": "Stage-II not in Batch E PDF — 21.11.2023 date in File 1 may be GAIL pipeline Stage-II misattributed",
+    "flags": [
+      "multidiv"
+    ],
+    "sections": [
+      {
+        "head": "Legal & Land Status",
+        "items": [
+          "Legal status of forest land to remain unchanged",
+          "Multi-division project: Raigarh (10.690 ha) + Bilaspur + Janjgir-Champa; total 15.463 ha",
+          "RF compartments in Raigarh portion: 1143, 1147, 1148, 1160, 1163, 1166, 1017, 1018 — high-conservation class confirmed",
+          "Stretch: NH-200 (New NH-49), Raigarh to Urdawal (Odisha Border)"
+        ]
+      },
+      {
+        "head": "Compensatory Afforestation (CA)",
+        "items": [
+          "CA over Revenue Forest land, twice in extent (2×) to the diverted area, raised and maintained by State Forest Department at user cost",
+          "Revenue Forest CA land to be transferred, mutated to Forest Department and notified as RF (Sec. 4) / PF (Sec. 29) of Indian Forest Act, 1927 before Stage-II"
+        ]
+      },
+      {
+        "head": "Net Present Value (NPV)",
+        "items": [
+          "NPV per Supreme Court orders (WP(C) 202/1995)",
+          "FRA 2006 settlement of rights to be completed"
+        ]
+      },
+      {
+        "head": "Wildlife & Ecology",
+        "items": [
+          "Wildlife Conservation Plan required; prepared in consultation with PCCF (Wildlife)",
+          "Number and location of underpasses / overpasses to be finalised in consultation with PCCF (Wildlife)"
+        ]
+      },
+      {
+        "head": "Road & Slope Management",
+        "items": [
+          "Strip plantation on both sides of road + central verge (IRC specification); maintained 7–10 years",
+          "Quarry reclamation and complete afforestation before project closure; overburden not to be dumped outside road width and not to be rolled down slopes",
+          "Retaining walls, breast walls and drainage structures for slope stability; culvert/bridge design not to impede natural water flow"
+        ]
+      },
+      {
+        "head": "Compliance & Notes",
+        "items": [
+          "Stage-II not confirmed — Batch E PDF bundles this case with GAIL pipeline (E-06B = Batch B-A); 21.11.2023 date may refer to GAIL Stage-II",
+          "Diversion period co-terminus with lease period or project life, whichever is less"
+        ]
+      }
+    ]
+  },
+  "X-45": {
+    "file": "F. No. 8-18/2012-FC — Stage-II Final Approval dated 28 January 2014",
+    "agency": "National Thermal Power Corporation (NTPC) Limited — Talaipalli Coal Mining Project + Railway Line Construction, Lailunga Road, Gharghjoda, District Raigarh-496111, CG",
+    "s1by": "Priya Ranjan, Sr. AIGF — in-principle approval dated 05.09.2012 (Stage-I even no. letter)",
+    "s2by": "Priya Ranjan, Sr. Assistant Inspector General of Forests — FC Division, MoEF, Paryavaran Bhawan, CGO Complex, Lodhi Road, New Delhi-110510",
+    "flags": [],
+    "sections": [
+      {"head": "Legal & Land Status", "items": [
+        "(i) Legal status of the diverted forest land shall remain unchanged",
+        "(iv) Period of diversion co-terminus with the period of the mining lease under the Mines and Minerals (Development & Regulating) Act, 1957, or Rules framed thereunder, subject to a maximum period of 30 years",
+        "(xx) The layout plan of the proposal shall not be changed without the prior approval of the Central Government",
+        "(xxi) The forest land shall not be used for any purpose other than that specified in the proposal",
+        "(xxii) The forest land proposed to be diverted shall under no circumstances be transferred to any other agency, department or person without prior approval of the Central Government"
+      ]},
+      {"head": "Compensatory Afforestation (CA) & NPV", "items": [
+        "(ii) Compensatory afforestation over degraded forest land, twice in extent (2×) to the forest land being diverted, shall be raised and maintained by the State Forest Department from the funds already realized from the User Agency",
+        "(iii) The User Agency shall pay the additional amount of NPV, if so determined, as per the final decision of the Hon'ble Supreme Court of India"
+      ]},
+      {"head": "Mining Operations & Reclamation", "items": [
+        "(v) User Agency (directly or through State Forest Dept) shall undertake gap planting and soil and moisture conservation to restock and rejuvenate degraded open forests (crown density <0.40), located within 100 m from outer perimeter of the mining lease",
+        "(vi) Mining to be undertaken in a phased manner after taking due care for reclamation of the mined-over area; concurrent reclamation plan as per approved mining plan to be executed from the very first year; annual report submitted to Nodal Officer (FCA 1980), State Govt and Regional Office of Ministry; if reclamation plan not executed, Nodal Officer or CCF (Central) may suspend mining activities",
+        "(xi) User Agency shall ensure that at least part of fly ash not used otherwise shall be used for back filling",
+        "(xii) User Agency shall have a social welfare department to keep track of socio-economic conditions of all project affected people",
+        "(xiii) User Agency shall undertake comprehensive greening in the surrounding villages"
+      ]},
+      {"head": "Safety Zone", "items": [
+        "(vii) User Agency (directly or through State Forest Dept) shall undertake fencing, protection and afforestation of the safety zone area — 7.5 m strip all along the outer boundary of the mining lease or mining cluster, as applicable, and such other areas as specified in the approved mining plan — in accordance with undertaking given by the user agency",
+        "(viii) State Forest Department shall undertake afforestation on degraded forest land, one and half times (1.5×) in extent to the area used for safety zone, from the funds already realized from the user agency",
+        "(ix) Boundary of safety zone to be demarcated on ground at project cost by erecting four feet high reinforced cement concrete pillars, each inscribed with its serial number, forward and back bearing, and distance from pillar to pillar",
+        "(x) In case of under-ground mines, areas on surface shall be fenced and afforested from the funds to be provided by the user agency"
+      ]},
+      {"head": "Soil & Water Conservation Plan (Rs. 236.22 Lakhs)", "items": [
+        "(xv) User Agency shall undertake de-silting of village tanks and other water bodies located within five km from the mine lease boundary to mitigate the impact of siltation, whenever required",
+        "(xvi-a) Appropriate mitigative measures to minimize soil erosion and choking of streams",
+        "(xvi-b) Planting of adequate drought hardy plant species and sowing of seeds in the appropriate area within the mining lease to arrest soil erosion",
+        "(xvi-c) Construction of check dams, retention/toe walls along the contour to arrest sliding down of excavated material",
+        "(xvi-d) Stabilize the overburden dumps by appropriate grading/benching so as to ensure that angles of repose at any given place is less than 28°",
+        "(xvi-e) Strict adherence to the prescribed top soil management"
+      ]},
+      {"head": "R&R, Labour & Fuel", "items": [
+        "(xiv) User Agency shall implement the R & R Plan as per the R & R Policy of State Government in consonance with National R&R Policy, Government of India, before commencement of project work; R & R Plan to be monitored by State Govt/Regional Office of MoEF with indicators and expected observable milestones",
+        "(xvii) No labour camp shall be established on the forest land",
+        "(xviii) User Agency shall provide fuels, preferably alternate fuels, to the labourers and the staff working at the site so as to avoid any damage and pressure on the nearby forest areas"
+      ]},
+      {"head": "Boundary Demarcation", "items": [
+        "(xix) The boundary of the diverted forest land, mining lease and safety zone, as applicable, shall be demarcated on ground at the project cost by erecting four feet high reinforced cement concrete pillars, each inscribed with its serial number, forward and back bearing, and distance from pillar to pillar"
+      ]},
+      {"head": "Flora, Fauna & Tree Felling", "items": [
+        "(xxiii) No damage to the flora and fauna of the adjoining area shall be caused",
+        "(xxiv) Any tree felling shall be done only when it is unavoidable and that too under strict supervision of the State Forest Department"
+      ]},
+      {"head": "Compliance & Monitoring", "items": [
+        "(xxv) User Agency shall submit the annual self compliance report in respect of the above conditions to the State Government and to the concerned Regional Office of the Ministry regularly",
+        "(xxvi) Any other condition that the concerned Regional Office of this Ministry may stipulate from time to time, in the interest of conservation, protection and development of forests and wildlife",
+        "(xxvii) All other conditions stipulated in the Stage-I approval for which the user agency has submitted undertakings shall be complied with",
+        "(xxviii) The User Agency and the State Government shall ensure compliance to provisions of all Acts, Rules, Regulations and Guidelines, for the time being in force, as applicable to the project"
+      ]}
+    ]
+  }
+};
+
+// ─── TYPE & FC LABELS ────────────────────────────────────────────────────────
+const typeLabel = {coal:"Coal Mining",power_tx:"Power TX/SS",thermal:"Thermal Power",railway:"Railway",pipeline:"Pipeline/OFC",road:"Road",other:"Other"};
+const fcBadge = {
+  rf:'<span class="badge badge-rf">RF</span>',
+  pf:'<span class="badge badge-pf">PF</span>',
+  rf_pf:'<span class="badge badge-rf-pf">RF+PF</span>',
+  revenue:'<span class="badge badge-revenue">Revenue</span>',
+  orange:'<span class="badge badge-orange">Orange</span>',
+  mixed:'<span class="badge badge-mixed">Mixed</span>',
+  unknown:'<span class="badge badge-unknown">Unclassified</span>'
+};
+const fcMatch = {
+  rf:['rf','rf_pf'],pf:['pf','rf_pf'],rf_pf:['rf_pf'],
+  revenue:['revenue'],orange:['orange'],mixed:['mixed'],unknown:['unknown']
+};
+
+// ─── FILTERS ─────────────────────────────────────────────────────────────────
+let activeType='all', activeFC='all', activeCond='all';
+
+function toggleChip(el) {
+  const f = el.dataset.filter, v = el.dataset.val;
+  document.querySelectorAll(`[data-filter="${f}"]`).forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  if(f==='type') activeType=v;
+  else if(f==='fc') activeFC=v;
+  else if(f==='cond') activeCond=v;
+  applyFilters();
+}
+
+function applyFilters() {
+  const q = document.getElementById('search').value.toLowerCase();
+  let vis = 0;
+  cases.forEach(c => {
+    const row = document.getElementById('row-'+c.id);
+    const det = document.getElementById('det-'+c.id);
+    let show = true;
+    if(activeType!=='all' && c.type!==activeType) show=false;
+    if(activeFC!=='all') {
+      const match = fcMatch[activeFC]||[];
+      if(!match.includes(c.fc)) show=false;
+    }
+    if(activeCond==='yes' && !c.batch) show=false;
+    if(activeCond==='no' && c.batch) show=false;
+    if(q) {
+      const searchStr = (c.hi+' '+c.en+' '+c.khasra+' '+(c.batch||'')).toLowerCase();
+      if(!searchStr.includes(q)) show=false;
+    }
+    if(row) row.style.display = show?'':'none';
+    if(det) {
+      // Must use classList, NOT inline style — inline style overrides CSS .detail-row.open
+      det.classList.remove('open');
+      const b = document.getElementById('btn-'+c.id);
+      if(b) b.classList.remove('open');
+    }
+    if(show) vis++;
+  });
+  document.getElementById('visible-count').textContent = vis;
+  document.getElementById('no-results').style.display = vis===0?'':'none';
+}
+
+// ─── EXPAND / COLLAPSE ───────────────────────────────────────────────────────
+function toggleDetail(id) {
+  const det = document.getElementById('det-'+id);
+  const btn = document.getElementById('btn-'+id);
+  if(!det) return;
+  det.style.display = ''; // clear any inline style so CSS class can take effect
+  const open = det.classList.toggle('open');
+  if(btn) btn.classList.toggle('open', open);
+}
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+function renderFlagPills(flags) {
+  if(!flags||!flags.length) return '';
+  const map = {orange:'⚠️ Orange Forest',penal:'⚠️ Penal CA',rediversion:'↩ Re-diversion',multidiv:'⇄ Multi-division',fragmentation:'✂ Fragmentation'};
+  const cls = {orange:'flag-orange',penal:'flag-penal',rediversion:'flag-rediversion',multidiv:'flag-multidiv',fragmentation:'flag-fragmentation'};
+  return flags.map(f=>`<span class="flag-pill ${cls[f]}">${map[f]||f}</span>`).join('');
+}
+
+function toRoman(n) {
+  const v=[10,9,5,4,1], s=['x','ix','v','iv','i'];
+  let r=''; for(let i=0;i<v.length;i++) while(n>=v[i]){r+=s[i];n-=v[i];} return r;
+}
+
+function buildTable() {
+  const tbody = document.getElementById('table-body');
+  let html = '';
+  cases.forEach(c => {
+    const hasCond = !!c.batch;
+    const rowClass = hasCond ? 'has-conditions' : '';
+    const areaNote = (c.total_area && c.total_area !== c.area) ? `<br><span style="font-size:11px;color:#9ca3af;">Total: ${c.total_area} ha</span>`:'';
+    // Truncate khasra
+    const kh = c.khasra.length > 80 ? c.khasra.slice(0,78)+'…' : c.khasra;
+    html += `<tr id="row-${c.id}" class="${rowClass}" onclick="toggleDetail(${c.id})" title="Click to ${hasCond?'expand conditions':'see basic details'}">
+      <td class="id-col">${c.id}</td>
+      <td class="name-col">
+        <div class="name-hi">${c.hi}</div>
+        <div class="name-en">${c.en}</div>
+      </td>
+      <td><span class="type-badge type-${c.type}">${typeLabel[c.type]}</span></td>
+      <td class="khasra-col">${kh}</td>
+      <td class="area-col">${c.area.toFixed(3)}${areaNote}</td>
+      <td>${fcBadge[c.fc]||''}</td>
+      <td class="date-col">${c.s1||'<span style="color:#d1d5db">—</span>'}</td>
+      <td class="date-col">${c.s2||'<span style="color:#d1d5db">—</span>'}</td>
+      <td class="cond-col">${hasCond?`<span class="cond-btn" id="btn-${c.id}"><span class="batch-ref">${c.batch}</span> Detail</span>`:'<span class="no-cond">—</span>'}</td>
+    </tr>`;
+
+    // Detail row
+    if(hasCond) {
+      const d = cond[c.batch];
+      if(d) {
+        let cn = 0;
+        const sectionsHtml = d.sections.map(sec => `
+          <div class="cond-section">
+            <div class="cond-section-head">${sec.head}</div>
+            <div class="cond-items">${sec.items.map(i=>`
+              <div class="cond-item">
+                <span class="cond-num">(${toRoman(++cn)})</span>
+                <span class="cond-text">${i}</span>
+              </div>`).join('')}
+            </div>
+          </div>`).join('');
+        html += `<tr id="det-${c.id}" class="detail-row">
+          <td colspan="9" class="detail-cell">
+            <div class="det-header">
+              <strong style="font-size:13px;color:var(--forest)">${c.hi}</strong>
+              <span class="batch-ref">${c.batch}</span>
+              ${renderFlagPills(d.flags)}
+            </div>
+            <div class="det-meta">
+              <div class="det-meta-col">
+                <div class="detail-kv"><div class="k">File No.</div><div class="v mono">${d.file}</div></div>
+                <div class="detail-kv"><div class="k">User Agency</div><div class="v">${d.agency}</div></div>
+                <div class="detail-kv"><div class="k">Forest Class</div><div class="v">${fcBadge[c.fc]||''}</div></div>
+              </div>
+              <div class="det-meta-col">
+                <div class="detail-kv"><div class="k">Khasra / Compartment</div><div class="v mono">${c.khasra}</div></div>
+                <div class="detail-kv"><div class="k">Area Diverted</div><div class="v">${c.area} ha${c.total_area&&c.total_area!==c.area?' <span style=\"color:#9ca3af\">(Raigarh share of '+c.total_area+' ha total)</span>':''}</div></div>
+              </div>
+              <div class="det-meta-col">
+                <div class="detail-kv"><div class="k">Stage-I — ${c.s1||'—'}</div><div class="v">${d.s1by}</div></div>
+                <div class="detail-kv"><div class="k">Stage-II — ${c.s2||'—'}</div><div class="v">${d.s2by}</div></div>
+              </div>
+            </div>
+            <div class="cond-sections-grid">${sectionsHtml}</div>
+          </td>
+        </tr>`;
+      }
+    }
+  });
+  tbody.innerHTML = html;
+}
+
+buildTable();
+applyFilters();
+</script>
+</body>
+</html>

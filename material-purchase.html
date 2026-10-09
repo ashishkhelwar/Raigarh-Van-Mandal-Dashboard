@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Material Purchase Dashboard — Raigarh Forest Division</title>
+<style>
+:root{
+  --navy:#1F4E79;--blue:#2E75B6;--lBlue:#BDD7EE;--green:#375623;
+  --lGreen:#E2EFDA;--orange:#C55A11;--lOrange:#FCE4D6;--gold:#7F6000;
+  --lGold:#FFF2CC;--red:#C00000;--grey:#F2F2F2;--border:#D0D0D0;
+  --text:#1A1A1A;--muted:#555;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Arial,sans-serif;font-size:13px;color:var(--text);background:#f5f7fa;display:flex;min-height:100vh;}
+
+/* SIDEBAR */
+#sidebar{width:200px;min-width:200px;background:var(--navy);color:#fff;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;}
+#sidebar .logo{padding:14px 12px;font-size:12px;font-weight:bold;border-bottom:1px solid rgba(255,255,255,0.15);line-height:1.4;}
+#sidebar .logo span{display:block;font-size:10px;opacity:.7;margin-top:3px;}
+#sidebar .nav-group{padding:8px 0;}
+#sidebar .nav-label{font-size:10px;text-transform:uppercase;opacity:.5;padding:6px 12px 3px;}
+#sidebar a{display:block;padding:7px 12px 7px 16px;color:rgba(255,255,255,.8);text-decoration:none;font-size:12px;border-left:3px solid transparent;transition:all .15s;}
+#sidebar a:hover,#sidebar a.active{background:rgba(255,255,255,.12);color:#fff;border-left-color:#70AD47;}
+#sidebar .open-sheet{margin:10px;padding:7px;background:#70AD47;color:#fff;text-align:center;border-radius:4px;font-size:11px;font-weight:bold;text-decoration:none;display:block;}
+#sidebar .open-sheet:hover{background:#548235;}
+
+/* MAIN */
+#main{flex:1;overflow-x:hidden;padding:0;}
+
+/* TOP BAR */
+.topbar{background:var(--navy);color:#fff;padding:10px 18px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;}
+.topbar h1{font-size:14px;font-weight:bold;}
+.topbar .meta{font-size:11px;opacity:.7;}
+#refreshBtn{background:rgba(255,255,255,.15);border:none;color:#fff;padding:5px 10px;border-radius:4px;cursor:pointer;font-size:11px;}
+
+/* SECTION */
+.section{display:none;padding:14px;}
+.section.active{display:block;}
+.section-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
+.section-hdr h2{font-size:15px;color:var(--navy);font-weight:bold;}
+.btn-sheet{font-size:11px;background:var(--blue);color:#fff;padding:5px 10px;border-radius:4px;text-decoration:none;white-space:nowrap;}
+.btn-sheet:hover{background:var(--navy);}
+
+/* KPI CARDS */
+.kpi-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
+.kpi{flex:1;min-width:130px;background:#fff;border-radius:6px;padding:10px 12px;border-top:4px solid var(--blue);box-shadow:0 1px 4px rgba(0,0,0,.08);}
+.kpi.green{border-top-color:#375623;}
+.kpi.orange{border-top-color:#C55A11;}
+.kpi.red{border-top-color:#C00000;}
+.kpi label{font-size:10px;color:var(--muted);display:block;margin-bottom:3px;}
+.kpi .val{font-size:16px;font-weight:bold;color:var(--navy);}
+.kpi.green .val{color:#375623;}
+.kpi.orange .val{color:#C55A11;}
+.kpi.red .val{color:#C00000;}
+
+/* OVERVIEW TABLE */
+.summary-tbl{width:100%;background:#fff;border-radius:6px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:14px;}
+.summary-tbl table{width:100%;border-collapse:collapse;}
+.summary-tbl th{background:var(--navy);color:#fff;padding:8px 10px;font-size:11px;text-align:left;}
+.summary-tbl td{padding:7px 10px;font-size:12px;border-bottom:1px solid var(--border);}
+.summary-tbl tr:last-child td{border-bottom:none;}
+.summary-tbl tr:hover td{background:#f0f4f8;}
+.summary-tbl td.num{text-align:right;font-family:monospace;}
+.summary-tbl td.cat{font-weight:600;color:var(--navy);}
+.pct{font-size:10px;color:var(--muted);}
+
+/* DATA TABLE */
+.card{background:#fff;border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:14px;overflow:hidden;}
+.card-title{background:var(--lBlue);color:var(--navy);padding:8px 12px;font-size:12px;font-weight:bold;display:flex;justify-content:space-between;align-items:center;}
+.card-title .range-filter select{font-size:11px;padding:3px 6px;border:1px solid var(--border);border-radius:3px;margin-left:8px;}
+.table-wrap{overflow-x:auto;}
+table.dtbl{width:100%;border-collapse:collapse;min-width:600px;}
+table.dtbl thead tr.hdr1 th{background:var(--navy);color:#fff;padding:6px 8px;font-size:10px;text-align:center;white-space:nowrap;}
+table.dtbl thead tr.hdr2 th{background:var(--lBlue);color:var(--navy);padding:5px 7px;font-size:10px;text-align:center;white-space:nowrap;font-weight:600;}
+table.dtbl thead tr.hdr3 th{background:#DEEAF1;color:var(--navy);padding:4px 6px;font-size:10px;text-align:center;white-space:nowrap;}
+table.dtbl td{padding:6px 8px;font-size:11px;border-bottom:1px solid var(--border);white-space:nowrap;}
+table.dtbl td.num{text-align:right;font-family:monospace;}
+table.dtbl tr.total-row td{background:var(--lGold);font-weight:bold;}
+table.dtbl tr:hover:not(.total-row) td{background:#f8fbff;}
+table.dtbl td.site{max-width:200px;white-space:normal;font-size:11px;}
+.no-data{text-align:center;padding:30px;color:var(--muted);font-size:12px;}
+.loading{text-align:center;padding:20px;color:var(--muted);font-size:12px;}
+.meta-col{background:#FAFAFA;color:var(--navy) !important;font-weight:600;}
+
+/* RANGE FILTER */
+.filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px;}
+.filters label{font-size:11px;color:var(--muted);}
+.filters select{font-size:11px;padding:4px 8px;border:1px solid var(--border);border-radius:4px;}
+
+/* LOADING SPINNER */
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* MATERIAL SUMMARY PANEL */
+.summary-panel{display:none;background:#fff;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,.12);margin-bottom:14px;overflow:hidden;border:2px solid var(--blue);}
+.summary-panel.open{display:block;}
+.summary-panel-hdr{background:var(--blue);color:#fff;padding:9px 14px;font-size:12px;font-weight:bold;display:flex;justify-content:space-between;align-items:center;}
+.summary-panel-hdr button{background:rgba(255,255,255,.2);border:none;color:#fff;padding:3px 8px;border-radius:3px;cursor:pointer;font-size:11px;}
+.sum-tbl{width:100%;border-collapse:collapse;}
+.sum-tbl th{background:var(--lBlue);color:var(--navy);padding:7px 10px;font-size:11px;text-align:center;border-bottom:2px solid var(--blue);}
+.sum-tbl th:first-child{text-align:left;}
+.sum-tbl td{padding:7px 10px;font-size:12px;border-bottom:1px solid var(--border);text-align:right;}
+.sum-tbl td:first-child{text-align:left;font-weight:600;color:var(--navy);}
+.sum-tbl td:nth-child(2){text-align:center;color:var(--muted);}
+.sum-tbl tr:last-child td{background:var(--lGold);font-weight:bold;border-top:2px solid var(--gold);}
+.sum-tbl tr:hover:not(:last-child) td{background:#f0f4f8;}
+.btn-summary{font-size:11px;background:#375623;color:#fff;padding:5px 12px;border-radius:4px;border:none;cursor:pointer;white-space:nowrap;}
+.btn-summary:hover{background:#538135;}
+.btn-summary.active{background:#C55A11;}
+
+/* MOBILE */
+@media(max-width:640px){
+  #sidebar{width:160px;min-width:160px;}
+  #sidebar a{font-size:11px;padding:6px 8px;}
+  .kpi{min-width:100px;}
+  .kpi .val{font-size:14px;}
+}
+@media(max-width:480px){
+  body{flex-direction:column;}
+  #sidebar{width:100%;height:auto;position:relative;flex-direction:row;flex-wrap:wrap;overflow:auto;}
+  #sidebar .logo{display:none;}
+  #sidebar a{padding:6px 10px;font-size:11px;border-left:none;border-bottom:3px solid transparent;}
+  #sidebar a.active{border-bottom-color:#70AD47;border-left:none;}
+  #sidebar .nav-label{display:none;}
+  #sidebar .open-sheet{margin:4px;padding:5px 8px;}
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="logo">Material Purchase<span>Raigarh Forest Division</span></div>
+  <div class="nav-group">
+    <div class="nav-label">Sections</div>
+    <a href="#" onclick="show('s0');return false;" id="nav-s0" class="active">§1  Overview</a>
+    <a href="#" onclick="show('s1');return false;" id="nav-s1">§2  Plantation Material</a>
+    <a href="#" onclick="show('s2');return false;" id="nav-s2">§3  Plantation Fencing</a>
+    <a href="#" onclick="show('s3');return false;" id="nav-s3">§4  Nursery</a>
+    <a href="#" onclick="show('s4');return false;" id="nav-s4">§5  Forestry Regular</a>
+    <a href="#" onclick="show('s5');return false;" id="nav-s5">§6  Forestry CAMPA</a>
+    <a href="#" onclick="show('s6');return false;" id="nav-s6">§7  Major Construction</a>
+    <a href="#" onclick="show('s7');return false;" id="nav-s7">§8  Machine Requirement</a>
+    <a href="#" onclick="show('s8');return false;" id="nav-s8">§9  Minor Construction</a>
+    <a href="#" onclick="show('s9');return false;" id="nav-s9">§10 Small Purchase</a>
+    <a href="#" onclick="show('s10');return false;" id="nav-s10">§11 Awareness Program</a>
+  </div>
+  <a class="open-sheet" href="https://docs.google.com/spreadsheets/d/1UMBZVxUoVgGa5bHUj55OoIG_0RbBVNvIaSL60ttsF8w/edit" target="_blank">Open Google Sheet ↗</a>
+</nav>
+
+<!-- MAIN -->
+<div id="main">
+  <div class="topbar">
+    <h1>📦 Material Purchase Dashboard — 2025-26 <small style="font-size:12px;font-weight:400;opacity:.8">· Data updated: 17 Sep 2026</small></h1>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <span class="meta" id="lastUpdated">Loading...</span>
+      <button id="refreshBtn" onclick="loadAll()">↻ Refresh</button>
+    </div>
+  </div>
+
+  <!-- §1 OVERVIEW -->
+  <div class="section active" id="s0">
+    <div class="section-hdr">
+      <h2>§1  Overview — All Categories</h2>
+      <a class="btn-sheet" href="https://docs.google.com/spreadsheets/d/1UMBZVxUoVgGa5bHUj55OoIG_0RbBVNvIaSL60ttsF8w/edit" target="_blank">Open Sheet ↗</a>
+    </div>
+    <div class="kpi-row">
+      <div class="kpi"><label>Total Budget Allocated (₹)</label><div class="val" id="ov-budget">—</div></div>
+      <div class="kpi green"><label>Total Expenditure (₹)</label><div class="val" id="ov-expend">—</div></div>
+      <div class="kpi orange"><label>Balance (₹)</label><div class="val" id="ov-balance">—</div></div>
+      <div class="kpi"><label>Categories Active</label><div class="val">10</div></div>
+    </div>
+    <div class="summary-tbl">
+      <table>
+        <thead><tr>
+          <th>#</th><th>Category</th><th>Materials</th>
+          <th style="text-align:right">Budget (₹)</th>
+          <th style="text-align:right">Expenditure (₹)</th>
+          <th style="text-align:right">Balance (₹)</th>
+          <th style="text-align:right">Utilisation</th>
+        </tr></thead>
+        <tbody id="ov-body">
+          <tr><td colspan="7" class="loading"><span class="spinner"></span>Loading summary...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- §2 PLANTATION MATERIAL -->
+  <div class="section" id="s1">
+    <div class="section-hdr">
+      <h2>§2  Plantation Material (Category 1)</h2>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn-summary" id="sumBtn-s1" onclick="toggleSummary('s1')">📊 Material Summary</button>
+        <a class="btn-sheet" href="https://docs.google.com/spreadsheets/d/1UMBZVxUoVgGa5bHUj55OoIG_0RbBVNvIaSL60ttsF8w/edit#gid=0" target="_blank">Open Sheet ↗</a>
+      </div>
+    </div>
+    <div class="kpi-row" id="kpi-s1"></div>
+    <div class="summary-panel" id="sumpanel-s1">
+      <div class="summary-panel-hdr">
+        📊 Material-wise Summary — Plantation Material
+        <button onclick="toggleSummary('s1')">✕ Close</button>
+      </div>
+      <div class="table-wrap"><table class="sum-tbl" id="sumtbl-s1">
+        <thead><tr><th>Material</th><th>Unit</th><th>Total Qty</th><th>Total Amount (₹)</th><th>Total Expend. (₹)</th><th>Balance (₹)</th></tr></thead>
+        <tbody><tr><td colspan="6" class="no-data">Loading...</td></tr></tbody>
+      </table></div>
+    </div>
+    <div class="filters">
+      <label>Range:</label>
+      <select onchange="filterSection('s1',this.value)">
+        <option value="">All Ranges</option>
+        <option>रायगढ़</option><option>खरसिया</option>
+        <option>घरघोड़ा</option><option>तमनार</option>
+      </select>
+    </div>
+    <div class="card">
+      <div class="card-title">Site-wise Plantation Material Requirement · 28 Sites</div>
+      <div class="table-wrap" id="tbl-s1"><div class="loading"><span class="spinner"></span>Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- §3 PLANTATION FENCING -->
+  <div class="section" id="s2">
+    <div class="section-hdr">
+      <h2>§3  Plantation Fencing Material (Category 2)</h2>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn-summary" id="sumBtn-s2" onclick="toggleSummary('s2')">📊 Material Summary</button>
+        <a class="btn-sheet" href="https://docs.google.com/spreadsheets/d/1UMBZVxUoVgGa5bHUj55OoIG_0RbBVNvIaSL60ttsF8w/edit" target="_blank">Open Sheet ↗</a>
+      </div>
+    </div>
+    <div class="kpi-row" id="kpi-s2"></div>
+    <div class="summary-panel" id="sumpanel-s2">
+      <div class="summary-panel-hdr">
+        📊 Material-wise Summary — Plantation Fencing
+        <button onclick="toggleSummary('s2')">✕ Close</button>
+      </div>
+      <div class="table-wrap"><table class="sum-tbl" id="sumtbl-s2">
+        <thead><tr><th>Material</th><th>Unit</th><th>Total Qty</th><th>Total Amount (₹)</th><th>Total Expend. (₹)</th><th>Balance (₹)</th></tr></thead>
+        <tbody><tr><td colspan="6" class="no-data">Loading...</td></tr></tbody>
+      </table></div>
+    </div>
+    <div class="filters">
+      <label>Range:</label>
+      <select onchange="filterSection('s2',this.value)">
+        <option value="">All Ranges</option>
+        <option>रायगढ़</option><option>खरसिया</option>
+        <option>घरघोड़ा</option><option>तमनार</option>
+      </select>
+    </div>
+    <div class="card">
+      <div class="card-title">Site-wise Fencing Material Requirement · 28 Sites</div>
+      <div class="table-wrap" id="tbl-s2"><div class="loading"><span class="spinner"></span>Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- §4 NURSERY -->
+  <div class="section" id="s3">
+    <div class="section-hdr">
+      <h2>§4  Nursery Material (Category 3)</h2>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn-summary" id="sumBtn-s3" onclick="toggleSummary('s3')">📊 Material Summary</button>
+        <a class="btn-sheet" href="https://docs.google.com/spreadsheets/d/1UMBZVxUoVgGa5bHUj55OoIG_0RbBVNvIaSL60ttsF8w/edit" target="_blank">Open Sheet ↗</a>
+      </div>
+    </div>
+    <div class="kpi-row" id="kpi-s3"></div>
+    <div class="summary-panel" id="sumpanel-s3">
+      <div class="summary-panel-hdr">📊 Material-wise Summary — Nursery
+        <button onclick="toggleSummary('s3')">✕ Close</button></div>
+      <div class="table-wrap"><table class="sum-tbl" id="sumtbl-s3">
+        <thead><tr><th>Material</th><th>Unit</th><th>Total Qty</th><th>Total Amount (₹)</th><th>Total Expend. (₹)</th><th>Balance (₹)</th></tr></thead>
+        <tbody><tr><td colspan="6" class="no-data">Loading...</td></tr></tbody>
+      </table></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Nursery-wise Material Requirement · 4 Nurseries</div>
+      <div class="table-wrap" id="tbl-s3"><div class="loading"><span class="spinner"></span>Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- §5 FORESTRY REGULAR -->
+  <div class="section" id="s4">
+    <div class="section-hdr">
+      <h2>§5  Forestry Activity — Regular (Category 4)</h2>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn-summary" id="sumBtn-s4" onclick="toggleSummary('s4')">📊 Material Summary</button>
+        <a class="btn-sheet" href="https://docs.google.com/spreadsheets/d/1UMBZVxUoVgGa5bHUj55OoIG_0RbBVNvIaSL60ttsF8w/edit" target="_blank">Open Sheet ↗</a>
+      </div>
+    </div>
+    <div class="kpi-row" id="kpi-s4"></div>
+    <div class="summary-panel" id="sumpanel-s4">
+      <div class="summary-panel-hdr">📊 Material-wise Summary — Forestry Regular
+        <button onclick="toggleSummary('s4')">✕ Close</button></div>
+      <div class="table-wrap"><table class="sum-tbl" id="sumtbl-s4">
+        <thead><tr><th>Material</th><th>Unit</th><th>Total Qty</th></tr></thead>
+        <tbody><tr><td colspan="3" class="no-data">Loading...</td></tr></tbody>
+      </table></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Work-wise Material Requirement (RDF &amp; ANR only)</div>
+      <div class="table-wrap" id="tbl-s4"><div class="loading"><span class="spinner"></span>Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- §6 FORESTRY CAMPA -->
+  <div class="section" id="s5">
+    <div class="section-hdr">
+      <h2>§6  Forestry Activity — CAMPA (Category 5)</h2>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn-summary" id="sumBtn-s5" onclick="toggleSummary('s5')">📊 Material Summary</button>
+        <a class="btn-sheet" href="https://docs.google.com/spreadsheets/d/1UMBZVxUoVgGa5bHUj55OoIG_0RbBVNvIaSL60ttsF8w/edit" target="_blank">Open Sheet ↗</a>
+      </div>
+    </div>
+    <div class="kpi-row" id="kpi-s5"></div>
+    <div class="summary-panel" id="sumpanel-s5">
+      <div class="summary-panel-hdr">📊 Material-wise Summary — Forestry CAMPA
+        <button onclick="toggleSummary('s5')">✕ Close</button></div>
+      <div class="table-wrap"><table class="sum-tbl" id="sumtbl-s5">
+        <thead><tr><th>Material</th><th>Unit</th><th>Total Qty</th></tr></thead>
+        <tbody><tr><td colspan="3" class="no-data">Loading...</td></tr></tbody>
+      </table></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Work-wise Material Requirement</div>
+      <div class="table-wrap" id="tbl-s5"><div class="loading"><span class="spinner"></span>Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- §7 MAJOR CONSTRUCTION -->
+  <div class="section" id="s6">
+    <div class="section-hdr">
+      <h2>§7  Major Construction (Category 6)</h2>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn-summary" id="sumBtn-s6" onclick="toggleSummary('s6')">📊 Material Summary</button>
+        <a class="btn-sheet" href="https://docs.google.com/spreadsheets/d/1UMBZVxUoVgGa5bHUj55OoIG_0RbBVNvIaSL60ttsF8w/edit" target="_blank">Open Sheet ↗</a>
+      </div>
+    </div>
+    <div class="kpi-row" id="kpi-s6"></div>
+    <div class="summary-panel" id="sumpanel-s6">
+      <div class="summary-panel-hdr">📊 Material-wise Summary — Major Construction
+        <button onclick="toggleSummary('s6')">✕ Close</button></div>
+      <div class="table-wrap"><table class="sum-tbl" id="sumtbl-s6">
+        <thead><tr><th>Material</th><th>Unit</th><th>Total Qty</th></tr></thead>
+        <tbody><tr><td colspan="3" class="no-data">Loading...</td></tr></tbody>
+      </table></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Work-wise Material Requirement</div>
+      <div class="table-wrap" id="tbl-s6"><div class="loading"><span class="spinner"></span>Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- §8 MACHINE REQUIREMENT -->
+  <div class="section" id="s7">
+    <div class="section-hdr">
+      <h2>§8  Machine Requirement (Category 7)</h2>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn-summary" id="sumBtn-s7" onclick="toggleSummary('s7')">📊 Machine Summary</button>
+        <a class="btn-sheet" href="https://docs.google.com/spreadsheets/d/1UMBZVxUoVgGa5bHUj55OoIG_0RbBVNvIaSL60ttsF8w/edit" target="_blank">Open Sheet ↗</a>
+      </div>
+    </div>
+    <div class="kpi-row" id="kpi-s7"></div>
+    <div class="summary-panel" id="sumpanel-s7">
+      <div class="summary-panel-hdr">📊 Machine-wise Summary — Total Hours / Trips
+        <button onclick="toggleSummary('s7')">✕ Close</button></div>
+      <div class="table-wrap"><table class="sum-tbl" id="sumtbl-s7">
+        <thead><tr><th>Machine</th><th>Unit</th><th>Total</th></tr></thead>
+        <tbody><tr><td colspan="3" class="no-data">Loading...</td></tr></tbody>
+      </table></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Work-wise Machine Requirement</div>
+      <div class="table-wrap" id="tbl-s7"><div class="loading"><span class="spinner"></span>Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- §9 MINOR CONSTRUCTION -->
+  <div class="section" id="s8">
+    <div class="section-hdr">
+      <h2>§9  Minor Construction — Munara (Category 8)</h2>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn-summary" id="sumBtn-s8" onclick="toggleSummary('s8')">📊 Material Summary</button>
+        <a class="btn-sheet" href="https://docs.google.com/spreadsheets/d/1UMBZVxUoVgGa5bHUj55OoIG_0RbBVNvIaSL60ttsF8w/edit" target="_blank">Open Sheet ↗</a>
+      </div>
+    </div>
+    <div class="kpi-row" id="kpi-s8"></div>
+    <div class="summary-panel" id="sumpanel-s8">
+      <div class="summary-panel-hdr">📊 Material-wise Summary — Minor Construction
+        <button onclick="toggleSummary('s8')">✕ Close</button></div>
+      <div class="table-wrap"><table class="sum-tbl" id="sumtbl-s8">
+        <thead><tr><th>Material</th><th>Unit</th><th>Total Qty</th></tr></thead>
+        <tbody><tr><td colspan="3" class="no-data">Loading...</td></tr></tbody>
+      </table></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Work-wise Material Requirement</div>
+      <div class="table-wrap" id="tbl-s8"><div class="loading"><span class="spinner"></span>Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- §10 SMALL PURCHASE -->
+  <div class="section" id="s9">
+    <div class="section-hdr">
+      <h2>§10  Small Purchase (Category 9)</h2>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn-summary" id="sumBtn-s9" onclick="toggleSummary('s9')">📊 Purchase Summary</button>
+        <a class="btn-sheet" href="https://docs.google.com/spreadsheets/d/1UMBZVxUoVgGa5bHUj55OoIG_0RbBVNvIaSL60ttsF8w/edit" target="_blank">Open Sheet ↗</a>
+      </div>
+    </div>
+    <div class="kpi-row" id="kpi-s9"></div>
+    <div class="summary-panel" id="sumpanel-s9">
+      <div class="summary-panel-hdr">📊 Purchase Summary — Small Purchase
+        <button onclick="toggleSummary('s9')">✕ Close</button></div>
+      <div class="table-wrap"><table class="sum-tbl" id="sumtbl-s9">
+        <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+        <tbody><tr><td colspan="2" class="no-data">Loading...</td></tr></tbody>
+      </table></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Purchase-wise Details</div>
+      <div class="table-wrap" id="tbl-s9"><div class="loading"><span class="spinner"></span>Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- §11 AWARENESS PROGRAM -->
+  <div class="section" id="s10">
+    <div class="section-hdr">
+      <h2>§11  Awareness Program (Category 10)</h2>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn-summary" id="sumBtn-s10" onclick="toggleSummary('s10')">📊 Program Summary</button>
+        <a class="btn-sheet" href="https://docs.google.com/spreadsheets/d/1UMBZVxUoVgGa5bHUj55OoIG_0RbBVNvIaSL60ttsF8w/edit" target="_blank">Open Sheet ↗</a>
+      </div>
+    </div>
+    <div class="kpi-row" id="kpi-s10"></div>
+    <div class="summary-panel" id="sumpanel-s10">
+      <div class="summary-panel-hdr">📊 Program Summary — Awareness Program
+        <button onclick="toggleSummary('s10')">✕ Close</button></div>
+      <div class="table-wrap"><table class="sum-tbl" id="sumtbl-s10">
+        <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+        <tbody><tr><td colspan="2" class="no-data">Loading...</td></tr></tbody>
+      </table></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Program-wise Details</div>
+      <div class="table-wrap" id="tbl-s10"><div class="loading"><span class="spinner"></span>Loading...</div></div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+const SHEET_ID='1UMBZVxUoVgGa5bHUj55OoIG_0RbBVNvIaSL60ttsF8w';
+const BASE=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq`;
+
+// Tab configurations
+const TABS={
+  s1:{sheet:'1-Plantation Material', range:'A4:Y32', metaN:4,
+    meta:['S.No.','Compartment No.','Range','Area (Ha.)'],
+    mats:[
+      {n:'उपजाऊ मृदा',u:'cmt.'},
+      {n:'वर्मिकम्पोस्ट खाद',u:'Kg'},
+      {n:'DAP',u:'Kg'},
+      {n:'Biofertilizer/Hormones',u:'Kg'},
+      {n:'नीम खली',u:'Kg'},
+      {n:'क्लोरोपायरीफ़ॉस',u:'Ltr'},
+      {n:'एन.पी.के.',u:'Kg'}
+    ], rangeCol:2, totalKeyword:'TOTAL'},
+  s2:{sheet:'2-Plantation Fencing', range:'A4:S32', metaN:4,
+    meta:['S.No.','Compartment No.','Range','Area (Ha.)'],
+    mats:[
+      {n:'RCC Pole',u:'Nos'},
+      {n:'Chainlink GI Wire',u:'Kg'},
+      {n:'Cement',u:'Bags'},
+      {n:'Sand',u:'cmt.'},
+      {n:'Aggregate 20mm',u:'cmt.'}
+    ], rangeCol:2, totalKeyword:'TOTAL'},
+  s3:{sheet:'3-Nursery', range:'A4:AD8', metaN:3,
+    meta:['S.No.','Nursery','Range'],
+    mats:[
+      {n:'पॉलीपॉट 15×25',u:'No.'},
+      {n:'रेत',u:'cmt.'},
+      {n:'उपजाऊ मिट्टी',u:'cmt.'},
+      {n:'वर्मीकम्पोस्ट/FYM',u:'cmt.'},
+      {n:'बोन मिल खाद',u:'Bags'},
+      {n:'बीज',u:'Kg'},
+      {n:'कीटनाशक',u:'Ltr'},
+      {n:'नीमखली',u:'Kg'},
+      {n:'पोषक तत्व',u:'Ltr'}
+    ], rangeCol:2, totalKeyword:''},
+  s4:{sheet:'4-Forestry Regular', range:'A3:L53', metaN:7,
+    meta:['S.N.','Work Name','Work Type','Site Details','Range','Budget Head','APO Year'],
+    mats:[
+      {n:'RCC Pole',u:'No.'},
+      {n:'Barbed Wire',u:'Kg'},
+      {n:'Cement',u:'Bags'},
+      {n:'Aggregate 20mm',u:'cmt.'},
+      {n:'Sand',u:'cmt.'}
+    ], rangeCol:4, totalKeyword:'', simple:true},
+  s5:{sheet:'5-Forestry CAMPA', range:'A3:O53', metaN:7,
+    meta:['S.N.','Work Name','Work Type','Site Details','Range','Budget Head','APO Year'],
+    mats:[
+      {n:'कम्पोस्ट/गोबर खाद',u:'Kg'},
+      {n:'वर्मिकम्पोस्ट',u:'Kg'},
+      {n:'DAP',u:'Kg'},
+      {n:'नीम खली/बोन मिल',u:'Kg'},
+      {n:'क्लोरोपायरीफ़ॉस',u:'Ltr'},
+      {n:'Biofertilizer/Hormones',u:'Kg/Ltr'},
+      {n:'उपजाऊ मिट्टी',u:'cmt.'},
+      {n:'एन.पी.के.',u:'Kg'}
+    ], rangeCol:4, totalKeyword:'', simple:true},
+  s6:{sheet:'6-Major Construction', range:'A3:P23', metaN:7,
+    meta:['S.N.','Work Name','Work Type','Site Details','Range','Budget Head','APO Year'],
+    mats:[
+      {n:'Cement',u:'Bags'},{n:'TMT 8mm',u:'Kg'},{n:'TMT 10mm',u:'Kg'},
+      {n:'TMT 12mm',u:'Kg'},{n:'TMT 16mm',u:'Kg'},{n:'Brick',u:'No.'},
+      {n:'Sand',u:'cmt.'},{n:'Aggregate 20mm',u:'cmt.'},{n:'Aggregate 40mm',u:'cmt.'}
+    ], rangeCol:4, totalKeyword:'', simple:true},
+  s7:{sheet:'7-Machine Requirement', range:'A3:M33', metaN:7,
+    meta:['S.N.','Work Name','Work Type','Site Details','Range','Budget Head','APO Year'],
+    mats:[
+      {n:'JCB',u:'Hour'},{n:'Tractor',u:'Hour'},{n:'Roller',u:'Hour'},
+      {n:'Concrete Mixer',u:'Hour'},{n:'Water Tanker',u:'Trip'},{n:'Hyva',u:'Trip'}
+    ], rangeCol:4, totalKeyword:'', simple:true},
+  s8:{sheet:'8-Minor Construction', range:'A3:I23', metaN:6,
+    meta:['S.N.','Work Name','Site Details','Range','Budget Head','APO Year'],
+    mats:[{n:'Cement',u:'Bags'},{n:'Sand',u:'cmt.'},{n:'Aggregate 20mm',u:'cmt.'}],
+    rangeCol:3, totalKeyword:'', simple:true},
+  s9:{sheet:'9-Small Purchase', range:'A3:K53', metaN:6,
+    meta:['S.N.','Work Name','Site Details','Range','Budget Head','APO Year'],
+    mats:[{n:'Product / Material Name',u:''},{n:'Quantity',u:''},{n:'Unit',u:''},{n:'Budget Amount (₹)',u:''},{n:'Remarks',u:''}],
+    rangeCol:3, totalKeyword:'', simple:true, noQAE:true},
+  s10:{sheet:'10-Awareness Program', range:'A3:J53', metaN:6,
+    meta:['S.N.','Work Name','Site Details','Range','Budget Head','APO Year'],
+    mats:[{n:'Awareness Program',u:''},{n:'Quantity',u:''},{n:'Amount (₹)',u:''},{n:'Remarks',u:''}],
+    rangeCol:3, totalKeyword:'', simple:true, noQAE:true}
+};
+
+// Loaded data cache
+const CACHE={};
+let cbIdx=0;
+
+function fmt(n){
+  if(n===null||n===undefined||n==='')return '—';
+  const v=parseFloat(n);
+  if(isNaN(v))return n;
+  if(v===0)return '0';
+  return v.toLocaleString('en-IN',{maximumFractionDigits:2});
+}
+function fmtCurr(n){
+  const v=parseFloat(n);
+  if(isNaN(v)||v===0)return '—';
+  return '₹'+v.toLocaleString('en-IN',{maximumFractionDigits:0});
+}
+function pct(a,b){
+  if(!b||b===0)return '—';
+  return ((a/b)*100).toFixed(1)+'%';
+}
+
+function gvizParse(raw){
+  try{
+    const m=raw.match(/setResponse\(([\s\S]*)\)/);
+    if(!m)return null;
+    return JSON.parse(m[1]);
+  }catch(e){return null;}
+}
+
+function loadGviz(sheet,range,headers,cb){
+  const id='cb_'+(cbIdx++);
+  const url=`${BASE}?tqx=out:json;responseHandler:${id}&sheet=${encodeURIComponent(sheet)}&range=${range}&headers=${headers}`;
+  window[id]=function(d){
+    delete window[id];
+    const s=document.querySelector(`script[src="${CSS.escape?url:url}"]`);
+    if(s)s.remove();
+    cb(d);
+  };
+  const sc=document.createElement('script');
+  sc.src=url;
+  document.head.appendChild(sc);
+}
+
+function getRows(data){
+  if(!data||!data.table)return[];
+  return (data.table.rows||[]).map(r=>
+    (r.c||[]).map(c=>c?c.v:null)
+  );
+}
+
+// ── RENDER MATERIAL TABLE (with Qty/Amount/Expend) ──────────
+function renderMaterialTable(sectionId, rows, cfg, filterRange){
+  const {meta,mats,metaN,rangeCol,totalKeyword}=cfg;
+  const dataRows=rows.filter(r=>r&&r[0]!==null&&r[0]!==''&&r[0]!==totalKeyword);
+  const totRow=rows.find(r=>r&&(r[0]==='TOTAL'||r[0]===totalKeyword))||null;
+  const filtered=filterRange?dataRows.filter(r=>(r[rangeCol]||'').toString().trim()===filterRange):dataRows;
+
+  // KPI from total row or sum
+  let totAmt=0,totExp=0;
+  if(totRow){
+    for(let j=0;j<mats.length;j++){
+      const base=metaN+j*3;
+      totAmt+=(parseFloat(totRow[base+1])||0);
+      totExp+=(parseFloat(totRow[base+2])||0);
+    }
+  }
+  renderKPI(sectionId,totAmt,totExp);
+
+  // Table
+  let html=`<table class="dtbl"><thead>`;
+  // Header row 1: meta + material names (colspan 3 each)
+  html+=`<tr class="hdr1">`;
+  meta.forEach((m,i)=>html+=`<th rowspan="2" class="meta-col">${m}</th>`);
+  mats.forEach(m=>html+=`<th colspan="3">${m.n}${m.u?`<br><small>(${m.u})</small>`:''}</th>`);
+  html+=`</tr>`;
+  // Header row 2: Qty/Amt/Exp
+  html+=`<tr class="hdr2">`;
+  mats.forEach(()=>html+=`<th>Qty</th><th>Amount (₹)</th><th>Expend. (₹)</th>`);
+  html+=`</tr></thead><tbody>`;
+
+  if(filtered.length===0){
+    html+=`<tr><td colspan="${metaN+mats.length*3}" class="no-data">No data entered yet — fill in the Google Sheet.</td></tr>`;
+  } else {
+    filtered.forEach(r=>{
+      html+=`<tr>`;
+      for(let i=0;i<metaN;i++) html+=`<td class="${i===1?'site':i>=2?'':'num'}">${r[i]??'—'}</td>`;
+      for(let j=0;j<mats.length;j++){
+        const base=metaN+j*3;
+        const qty=r[base],amt=r[base+1],exp=r[base+2];
+        html+=`<td class="num">${fmt(qty)}</td><td class="num">${fmt(amt)}</td><td class="num">${fmt(exp)}</td>`;
+      }
+      html+=`</tr>`;
+    });
+  }
+  // Total row
+  if(totRow&&!filterRange){
+    html+=`<tr class="total-row"><td colspan="${metaN}">TOTAL</td>`;
+    for(let j=0;j<mats.length;j++){
+      const base=metaN+j*3;
+      html+=`<td class="num">${fmt(totRow[base])}</td><td class="num">${fmt(totRow[base+1])}</td><td class="num">${fmt(totRow[base+2])}</td>`;
+    }
+    html+=`</tr>`;
+  }
+  html+=`</tbody></table>`;
+  document.getElementById('tbl-'+sectionId).innerHTML=html;
+  // Refresh summary panel if open
+  const panel=document.getElementById('sumpanel-'+sectionId);
+  if(panel&&panel.classList.contains('open')) renderSummaryTable(sectionId);
+}
+
+// ── RENDER SIMPLE TABLE (no Qty/Amount/Expend) ──────────────
+function renderSimpleTable(sectionId, rows, cfg){
+  const {meta,mats,metaN,noQAE}=cfg;
+  const allCols=[...meta,...mats.map(m=>m.n+(m.u?` (${m.u})`:'')).map(n=>n)];
+  const dataRows=rows.filter(r=>r&&r[0]!==null&&r[0]!=='');
+
+  // KPI - for simple tabs, try to sum last numeric columns
+  let totAmt=0,totExp=0;
+  dataRows.forEach(r=>{
+    for(let i=metaN;i<r.length;i++) totAmt+=(parseFloat(r[i])||0);
+  });
+  renderKPI(sectionId,totAmt,0,true);
+
+  let html=`<table class="dtbl"><thead><tr class="hdr1">`;
+  allCols.forEach((c,i)=>html+=`<th class="${i<metaN?'meta-col':''}">${c}</th>`);
+  html+=`</tr></thead><tbody>`;
+  if(dataRows.length===0){
+    html+=`<tr><td colspan="${allCols.length}" class="no-data">No data entered yet — fill in the Google Sheet.</td></tr>`;
+  } else {
+    dataRows.forEach(r=>{
+      html+=`<tr>`;
+      allCols.forEach((_,i)=>html+=`<td class="${i>=metaN?'num':i===1?'site':''}">${r[i]!=null?r[i]:'—'}</td>`);
+      html+=`</tr>`;
+    });
+  }
+  html+=`</tbody></table>`;
+  document.getElementById('tbl-'+sectionId).innerHTML=html;
+  const p=document.getElementById('sumpanel-'+sectionId);
+  if(p&&p.classList.contains('open')) renderSummaryTable(sectionId);
+}
+
+function renderKPI(sid,amt,exp,qty=false){
+  const bal=amt-exp;
+  const pctStr=pct(exp,amt);
+  document.getElementById('kpi-'+sid).innerHTML=`
+    <div class="kpi"><label>${qty?'Total Qty (sum)':'Budget Allocated (₹)'}</label><div class="val">${qty?fmt(amt):fmtCurr(amt)}</div></div>
+    ${!qty?`<div class="kpi green"><label>Expenditure (₹)</label><div class="val">${fmtCurr(exp)}</div></div>
+    <div class="kpi orange"><label>Balance (₹)</label><div class="val">${fmtCurr(bal)}</div></div>
+    <div class="kpi"><label>Utilisation</label><div class="val">${pctStr}</div></div>`:''}
+  `;
+}
+
+// ── SUMMARY PANEL ─────────────────────────────────────────────
+const SIMPLE_SIDS=['s4','s5','s6','s7','s8'];
+const ROWWISE_SIDS=['s9','s10'];
+
+function toggleSummary(sid){
+  const panel=document.getElementById('sumpanel-'+sid);
+  const btn=document.getElementById('sumBtn-'+sid);
+  const isOpen=panel.classList.contains('open');
+  if(isOpen){
+    panel.classList.remove('open');
+    btn.textContent=btn.textContent.replace('✕ Hide','📊');
+    btn.classList.remove('active');
+  } else {
+    panel.classList.add('open');
+    btn.textContent=btn.textContent.replace('📊','✕ Hide');
+    btn.classList.add('active');
+    renderSummaryTable(sid);
+  }
+}
+
+function renderSummaryTable(sid){
+  const rows=CACHE[sid]; const cfg=TABS[sid];
+  if(!rows||!cfg)return;
+  if(ROWWISE_SIDS.includes(sid)) return renderRowwiseSummary(sid,rows,cfg);
+  if(SIMPLE_SIDS.includes(sid))  return renderSimpleSummary(sid,rows,cfg);
+  renderMaterialSummary(sid,rows,cfg); // s1,s2,s3
+}
+
+// Material tabs (s1,s2,s3) — Qty / Amount / Expend per material
+function renderMaterialSummary(sid,rows,cfg){
+  const {mats,metaN}=cfg;
+  const totRow=rows.find(r=>r&&r[0]==='TOTAL');
+  const dataRows=rows.filter(r=>r&&r[0]!==null&&r[0]!==''&&r[0]!=='TOTAL');
+  let tQty=0,tAmt=0,tExp=0, tbody='';
+  mats.forEach((mat,j)=>{
+    const base=metaN+j*3;
+    let qty=0,amt=0,exp=0;
+    if(totRow){qty=parseFloat(totRow[base])||0;amt=parseFloat(totRow[base+1])||0;exp=parseFloat(totRow[base+2])||0;}
+    else dataRows.forEach(r=>{qty+=(parseFloat(r[base])||0);amt+=(parseFloat(r[base+1])||0);exp+=(parseFloat(r[base+2])||0);});
+    tQty+=qty;tAmt+=amt;tExp+=exp;
+    tbody+=`<tr><td>${mat.n}</td><td>${mat.u||'—'}</td><td>${fmt(qty)}</td><td>${fmtCurr(amt)}</td><td>${fmtCurr(exp)}</td><td>${fmtCurr(amt-exp)}</td></tr>`;
+  });
+  tbody+=`<tr><td>TOTAL</td><td>—</td><td>${fmt(tQty)}</td><td>${fmtCurr(tAmt)}</td><td>${fmtCurr(tExp)}</td><td>${fmtCurr(tAmt-tExp)}</td></tr>`;
+  document.querySelector('#sumtbl-'+sid+' tbody').innerHTML=tbody;
+}
+
+// Simple tabs (s4-s8) — single Qty per material, sum across all works
+function renderSimpleSummary(sid,rows,cfg){
+  const {mats,metaN}=cfg;
+  const dataRows=rows.filter(r=>r&&r[0]!==null&&r[0]!=='');
+  let grandTotal=0, tbody='';
+  mats.forEach((mat,j)=>{
+    const col=metaN+j;
+    let total=dataRows.reduce((s,r)=>s+(parseFloat(r[col])||0),0);
+    grandTotal+=total;
+    tbody+=`<tr><td>${mat.n}</td><td>${mat.u||'—'}</td><td>${fmt(total)}</td></tr>`;
+  });
+  tbody+=`<tr><td>TOTAL</td><td>—</td><td>${fmt(grandTotal)}</td></tr>`;
+  document.querySelector('#sumtbl-'+sid+' tbody').innerHTML=tbody;
+}
+
+// Row-wise tabs (s9,s10) — count entries + total budget amount
+function renderRowwiseSummary(sid,rows,cfg){
+  const {metaN}=cfg;
+  const dataRows=rows.filter(r=>r&&r[0]!==null&&r[0]!=='');
+  // For s9: budget col = metaN+3 (Budget Amount); for s10: amount col = metaN+2
+  const amtCol=sid==='s9'?metaN+3:metaN+2;
+  const qtyCol=metaN+1;
+  let totalAmt=0,totalQty=0;
+  dataRows.forEach(r=>{totalAmt+=(parseFloat(r[amtCol])||0);totalQty+=(parseFloat(r[qtyCol])||0);});
+  const label=sid==='s9'?'Total Budget Amount (₹)':'Total Amount (₹)';
+  const tbody=`
+    <tr><td>Total Entries</td><td>${dataRows.length}</td></tr>
+    <tr><td>Total Quantity</td><td>${fmt(totalQty)}</td></tr>
+    <tr><td>${label}</td><td>${fmtCurr(totalAmt)}</td></tr>
+  `;
+  document.querySelector('#sumtbl-'+sid+' tbody').innerHTML=tbody;
+}
+
+// ── OVERVIEW SUMMARY ─────────────────────────────────────────
+const OV_CATS=[
+  {id:'s1',label:'Plantation Material',mats:7,sheetNum:1},
+  {id:'s2',label:'Plantation Fencing',mats:5,sheetNum:2},
+  {id:'s3',label:'Nursery Material',mats:9,sheetNum:3},
+  {id:'s4',label:'Forestry Activity (Regular)',mats:5,sheetNum:4},
+  {id:'s5',label:'Forestry Activity (CAMPA)',mats:8,sheetNum:5},
+  {id:'s6',label:'Major Construction',mats:9,sheetNum:6},
+  {id:'s7',label:'Machine Requirement',mats:6,sheetNum:7},
+  {id:'s8',label:'Minor Construction',mats:3,sheetNum:8},
+  {id:'s9',label:'Small Purchase',mats:5,sheetNum:9},
+  {id:'s10',label:'Awareness Program',mats:4,sheetNum:10},
+];
+
+function buildOverview(){
+  let totAmt=0,totExp=0;
+  let rows='';
+  OV_CATS.forEach((c,i)=>{
+    const cached=CACHE[c.id];
+    let amt=0,exp=0;
+    if(cached){
+      const cfg=TABS[c.id];
+      if(cfg&&!cfg.simple){
+        const tr=cached.find(r=>r&&r[0]==='TOTAL');
+        if(tr) for(let j=0;j<cfg.mats.length;j++){
+          amt+=(parseFloat(tr[cfg.metaN+j*3+1])||0);
+          exp+=(parseFloat(tr[cfg.metaN+j*3+2])||0);
+        }
+      }
+    }
+    totAmt+=amt; totExp+=exp;
+    const bal=amt-exp;
+    rows+=`<tr>
+      <td>${c.sheetNum}</td>
+      <td class="cat"><a href="#" onclick="show('${c.id}');return false;">${c.label}</a></td>
+      <td>${c.mats} items</td>
+      <td class="num">${fmtCurr(amt)}</td>
+      <td class="num">${fmtCurr(exp)}</td>
+      <td class="num">${fmtCurr(bal)}</td>
+      <td class="num">${pct(exp,amt)}</td>
+    </tr>`;
+  });
+  document.getElementById('ov-body').innerHTML=rows;
+  document.getElementById('ov-budget').textContent=fmtCurr(totAmt)||'₹0';
+  document.getElementById('ov-expend').textContent=fmtCurr(totExp)||'₹0';
+  document.getElementById('ov-balance').textContent=fmtCurr(totAmt-totExp)||'₹0';
+}
+
+// ── FILTER ────────────────────────────────────────────────────
+function filterSection(sid,rangeVal){
+  const rows=CACHE[sid];
+  if(!rows)return;
+  const cfg=TABS[sid];
+  if(!cfg.simple) renderMaterialTable(sid,rows,cfg,rangeVal);
+}
+
+// ── LOAD ALL ─────────────────────────────────────────────────
+function loadSection(sid){
+  const cfg=TABS[sid];
+  if(!cfg)return;
+  loadGviz(cfg.sheet,cfg.range,0,function(data){
+    const rows=getRows(data);
+    CACHE[sid]=rows;
+    if(cfg.simple) renderSimpleTable(sid,rows,cfg);
+    else renderMaterialTable(sid,rows,cfg,'');
+    buildOverview();
+  });
+}
+
+function loadAll(){
+  document.getElementById('lastUpdated').textContent='Loading...';
+  Object.keys(TABS).forEach(sid=>loadSection(sid));
+  setTimeout(()=>{
+    document.getElementById('lastUpdated').textContent=
+      'Updated: '+new Date().toLocaleTimeString('en-IN');
+  },4000);
+}
+
+// ── NAVIGATION ───────────────────────────────────────────────
+function show(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('#sidebar a[id^="nav-"]').forEach(a=>a.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('nav-'+id).classList.add('active');
+  window.scrollTo(0,0);
+  // Lazy load section if not cached
+  if(!CACHE[id]&&id!='s0') loadSection(id);
+}
+
+// ── INIT ─────────────────────────────────────────────────────
+window.onload=function(){
+  loadAll();
+};
+</script>
+</body>
+</html>

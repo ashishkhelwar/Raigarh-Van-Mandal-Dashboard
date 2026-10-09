@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>रायगढ़ वनमंडल — Monitoring &amp; Records Hub</title>
+<style>
+/* ============================================================
+   RAIGARH FOREST DIVISION — MONITORING & RECORDS HUB
+   Single self-contained file · no external CDN · offline-capable
+   Design language: deep-green forestry-ledger (matches division dashboards)
+   ============================================================ */
+:root{
+  --bg:#f2eee1; --surface:#fffdf7; --surface-2:#f8f4e8;
+  --forest-deep:#10241b; --forest:#1c4335; --forest-mid:#2e7d5b; --leaf:#57a17c;
+  --gold:#b8860b; --gold-soft:#e7c66a; --clay:#a8492f;
+  --ink:#1c241d; --ink-soft:#5c6b5f; --ink-faint:#8a9488;
+  --rule:#ddd7c5; --rule-strong:#c7c2ad;
+  --ok:#2e7d5b; --warn:#a8492f; --wait:#8a7a3a;
+  --serif:Georgia,'Times New Roman',serif;
+  --sans:'Segoe UI',system-ui,-apple-system,BlinkMacSystemFont,Roboto,'Nirmala UI','Noto Sans Devanagari',sans-serif;
+  --deva:'Nirmala UI','Noto Sans Devanagari','Segoe UI',system-ui,sans-serif;
+  --gap:18px; --radius:4px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:var(--sans); font-size:15px; line-height:1.5;
+  background-image:
+    radial-gradient(circle at 12% 8%, rgba(46,125,91,.05), transparent 42%),
+    radial-gradient(circle at 88% 4%, rgba(184,134,11,.05), transparent 40%);
+}
+.wrap{max-width:1120px; margin:0 auto; padding:22px 20px 60px}
+a{color:var(--forest); text-decoration:none}
+a:hover{text-decoration:underline}
+.deva{font-family:var(--deva)}
+
+/* ---------- Masthead ---------- */
+.masthead{
+  background:linear-gradient(160deg,var(--forest-deep),var(--forest) 68%);
+  color:#f4f1e6; border-radius:var(--radius);
+  padding:22px 26px; position:relative; overflow:hidden;
+  border:1px solid var(--forest-deep);
+  box-shadow:0 6px 22px rgba(16,36,27,.20);
+}
+.masthead::after{
+  content:""; position:absolute; inset:0;
+  background:repeating-linear-gradient(90deg,rgba(255,255,255,.03) 0 1px,transparent 1px 42px);
+  pointer-events:none;
+}
+.mast-row{display:flex; align-items:center; gap:20px; position:relative; z-index:1}
+.seal{flex:0 0 auto; width:74px; height:74px}
+.seal svg{display:block; width:100%; height:100%}
+.mast-txt{flex:1 1 auto; min-width:0}
+.mast-txt .kick{
+  font-size:11px; letter-spacing:2.5px; text-transform:uppercase;
+  color:var(--gold-soft); margin:0 0 4px;
+}
+.mast-txt h1{
+  font-family:var(--serif); font-weight:600; margin:0;
+  font-size:26px; line-height:1.15; color:#fbf8ee;
+}
+.mast-txt h1 .en{display:block; font-size:19px; color:#dfeadf; font-weight:500; margin-top:2px}
+.mast-txt .office{margin:8px 0 0; font-size:13px; color:#cdd8cd}
+.mast-txt .office b{color:#f0e9cf; font-weight:600}
+.mast-rule{
+  height:3px; margin-top:16px; border-radius:2px; position:relative; z-index:1;
+  background:linear-gradient(90deg,var(--gold),var(--gold-soft) 40%,transparent);
+}
+
+/* ---------- Stat strip ---------- */
+.stats{
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:12px; margin:var(--gap) 0;
+}
+.stat{
+  background:var(--surface); border:1px solid var(--rule);
+  border-top:3px solid var(--forest-mid); border-radius:var(--radius);
+  padding:13px 16px;
+}
+.stat.gold{border-top-color:var(--gold)}
+.stat .l{font-size:11px; letter-spacing:.4px; text-transform:uppercase; color:var(--ink-soft)}
+.stat .v{font-family:var(--serif); font-size:25px; font-weight:700; color:var(--forest); margin-top:3px; line-height:1}
+.stat.gold .v{color:var(--gold)}
+.stat .u{font-size:11px; color:var(--ink-faint); margin-top:3px}
+
+/* ---------- Toolbar (search) ---------- */
+.toolbar{
+  display:flex; gap:12px; align-items:center; flex-wrap:wrap;
+  background:var(--surface); border:1px solid var(--rule);
+  border-radius:var(--radius); padding:12px 14px; margin-bottom:var(--gap);
+}
+.search{flex:1 1 260px; display:flex; align-items:center; gap:8px;
+  border:1px solid var(--rule-strong); border-radius:var(--radius);
+  background:var(--surface-2); padding:8px 11px;}
+.search svg{flex:0 0 auto; opacity:.6}
+.search input{
+  flex:1 1 auto; border:0; outline:0; background:transparent;
+  font-family:var(--sans); font-size:14px; color:var(--ink);
+}
+.search input::placeholder{color:var(--ink-faint)}
+.count{font-size:12px; color:var(--ink-soft); white-space:nowrap}
+.btn-clear{
+  border:1px solid var(--rule-strong); background:var(--surface);
+  color:var(--ink-soft); border-radius:var(--radius);
+  padding:7px 12px; font-size:12.5px; cursor:pointer; font-family:var(--sans);
+}
+.btn-clear:hover{background:var(--surface-2); color:var(--ink)}
+
+/* ---------- Alert banner ---------- */
+.banner{
+  display:none; align-items:flex-start; gap:12px;
+  background:#fbf4e4; border:1px solid var(--gold-soft);
+  border-left:4px solid var(--gold); border-radius:var(--radius);
+  padding:13px 15px; margin-bottom:var(--gap); font-size:13.5px; color:#5a4a1e;
+}
+.banner.show{display:flex}
+.banner svg{flex:0 0 auto; margin-top:1px}
+.banner b{color:#4a3c12}
+.banner code{
+  font-family:'Consolas',monospace; background:#fff7e6; border:1px solid var(--gold-soft);
+  padding:1px 6px; border-radius:3px; font-size:12.5px; color:#7a5a10;
+}
+.banner .x{margin-left:auto; cursor:pointer; border:0; background:transparent;
+  font-size:18px; line-height:1; color:#9a8340; padding:0 2px}
+
+/* ---------- Section heading ---------- */
+.sec-h{
+  display:flex; align-items:baseline; gap:10px;
+  font-family:var(--serif); font-size:17px; font-weight:600; color:var(--forest);
+  margin:28px 0 12px; padding-bottom:7px; border-bottom:2px solid var(--rule-strong);
+}
+.sec-h .n{color:var(--gold); font-size:14px; letter-spacing:1px}
+.sec-h .hint{margin-left:auto; font-family:var(--sans); font-size:12px; font-weight:400; color:var(--ink-faint)}
+
+/* ---------- Register cards ---------- */
+.cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:var(--gap)}
+.card{
+  background:var(--surface); border:1px solid var(--rule);
+  border-radius:var(--radius); display:flex; flex-direction:column;
+  position:relative; overflow:hidden;
+  box-shadow:0 2px 8px rgba(28,67,53,.06);
+  transition:box-shadow .15s ease, transform .15s ease;
+}
+.card:hover{box-shadow:0 8px 20px rgba(28,67,53,.13); transform:translateY(-2px)}
+.card.dim{opacity:.62}
+.card .spine{position:absolute; left:0; top:0; bottom:0; width:5px; background:var(--forest-mid)}
+.card[data-kind="static"] .spine{background:var(--gold)}
+.card[data-kind="wait"] .spine{background:var(--ink-faint)}
+.card-body{padding:16px 18px 14px 20px; flex:1 1 auto}
+.folio{
+  display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px;
+}
+.folio .no{
+  font-family:var(--serif); font-size:12px; letter-spacing:1.5px; font-weight:700;
+  color:var(--gold); text-transform:uppercase;
+}
+.badge{
+  font-size:10.5px; letter-spacing:.5px; text-transform:uppercase; font-weight:600;
+  padding:3px 9px; border-radius:11px; white-space:nowrap;
+}
+.badge.live{background:#e4f2ea; color:var(--forest); border:1px solid var(--leaf)}
+.badge.static{background:#f6ecd4; color:#7a5a10; border:1px solid var(--gold-soft)}
+.badge.wait{background:#efece3; color:var(--ink-soft); border:1px dashed var(--rule-strong)}
+.card h3{
+  font-family:var(--serif); font-size:18px; font-weight:600; color:var(--forest-deep);
+  margin:0 0 3px; line-height:1.2;
+}
+.card h3 .hi{display:block; font-size:13.5px; color:var(--ink-soft); font-weight:400; margin-top:2px}
+.card .desc{font-size:13px; color:var(--ink-soft); margin:8px 0 10px}
+.card .src{
+  display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--ink-faint);
+  border-top:1px dotted var(--rule); padding-top:9px; margin-top:2px;
+}
+.card .src svg{flex:0 0 auto; opacity:.7}
+
+/* collapsible notes */
+.disc{border-top:1px dotted var(--rule); margin-top:10px}
+.disc summary{
+  list-style:none; cursor:pointer; padding:9px 0 4px; font-size:12.5px;
+  color:var(--forest-mid); font-weight:600; display:flex; align-items:center; gap:6px;
+  user-select:none;
+}
+.disc summary::-webkit-details-marker{display:none}
+.disc summary .tri{transition:transform .15s ease; font-size:10px; color:var(--gold)}
+.disc[open] summary .tri{transform:rotate(90deg)}
+.disc .note-body{padding:2px 0 10px; font-size:12.5px; color:var(--ink-soft)}
+.disc .note-body dl{margin:0}
+.disc .note-body dt{font-weight:600; color:var(--forest); margin-top:7px; font-size:12px}
+.disc .note-body dd{margin:1px 0 0}
+.disc .note-body ul{margin:4px 0 0; padding-left:18px}
+.disc .note-body li{margin:2px 0}
+
+/* card footer / action */
+.card-foot{padding:12px 18px 15px 20px; border-top:1px solid var(--rule); background:var(--surface-2)}
+.open{
+  display:flex; align-items:center; justify-content:center; gap:8px; width:100%;
+  background:var(--forest); color:#f4f1e6; border:1px solid var(--forest-deep);
+  border-radius:var(--radius); padding:10px 14px; font-family:var(--sans);
+  font-size:13.5px; font-weight:600; cursor:pointer; text-decoration:none;
+}
+.open:hover{background:var(--forest-mid); text-decoration:none}
+.open svg{transition:transform .15s ease}
+.open:hover svg{transform:translateX(3px)}
+.open.disabled{
+  background:var(--surface); color:var(--ink-faint); border:1px dashed var(--rule-strong);
+  cursor:not-allowed; pointer-events:none;
+}
+
+/* ---------- Finder table ---------- */
+.finder-wrap{border:1px solid var(--rule); border-radius:var(--radius); overflow:hidden; background:var(--surface)}
+table.finder{width:100%; border-collapse:collapse; font-size:13.5px}
+table.finder thead{background:linear-gradient(160deg,var(--forest),var(--forest-mid))}
+table.finder th{
+  color:#f2efe4; text-align:left; padding:11px 14px; font-size:12px;
+  letter-spacing:.4px; text-transform:uppercase; font-weight:600;
+}
+table.finder td{padding:11px 14px; border-top:1px solid var(--rule); vertical-align:top}
+table.finder tbody tr:nth-child(even){background:var(--surface-2)}
+table.finder tbody tr:hover{background:#eef3ec}
+.finder .q{color:var(--ink); width:56%}
+.finder .go a{
+  display:inline-flex; align-items:center; gap:5px; font-weight:600; color:var(--forest);
+}
+.finder .go a .fno{color:var(--gold); font-size:11px; font-weight:700}
+.finder .go a.na{color:var(--ink-faint); cursor:default}
+.finder .go a.na:hover{text-decoration:none}
+
+.empty{display:none; text-align:center; color:var(--ink-faint); font-style:italic; padding:26px 10px}
+.empty.show{display:block}
+
+/* ---------- Footer ---------- */
+.foot{
+  margin-top:34px; padding-top:16px; border-top:2px solid var(--rule-strong);
+  font-size:12px; color:var(--ink-faint); display:flex; flex-wrap:wrap; gap:6px 16px; align-items:center;
+}
+.foot .dot{color:var(--gold)}
+.foot .badge-off{
+  font-size:10.5px; letter-spacing:.4px; text-transform:uppercase; color:var(--forest-mid);
+  border:1px solid var(--leaf); border-radius:10px; padding:2px 8px; background:#eaf3ee;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width:640px){
+  body{font-size:14.5px}
+  .wrap{padding:16px 14px 48px}
+  .mast-row{gap:14px}
+  .seal{width:56px; height:56px}
+  .mast-txt h1{font-size:21px}
+  .mast-txt h1 .en{font-size:16px}
+  .cards{grid-template-columns:1fr}
+  .finder .q{width:auto}
+  table.finder th:nth-child(1){width:60%}
+}
+
+/* ---------- Print ---------- */
+@media print{
+  body{background:#fff; background-image:none}
+  .toolbar,.banner,.btn-clear,.foot .badge-off{display:none !important}
+  .card{break-inside:avoid; box-shadow:none; border:1px solid #bbb; transform:none}
+  .card:hover{transform:none; box-shadow:none}
+  .masthead{box-shadow:none; background:#12281d !important; -webkit-print-color-adjust:exact; print-color-adjust:exact}
+  .disc{display:block}
+  .disc .note-body{display:block !important}
+  .open{background:#1c4335 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact}
+  a[href]::after{content:""}
+}
+/* ---------- Settings gear + modal ---------- */
+.gear{
+  position:absolute; top:14px; right:16px; z-index:2;
+  display:inline-flex; align-items:center; gap:7px;
+  background:rgba(255,253,247,.10); color:#f0e9cf;
+  border:1px solid var(--gold-soft); border-radius:20px;
+  padding:7px 13px 7px 11px; font-family:var(--sans); font-size:12.5px; font-weight:600;
+  cursor:pointer; letter-spacing:.3px;
+}
+.gear:hover{background:rgba(255,253,247,.20); color:#fff}
+.gear svg{display:block}
+@media (max-width:640px){ .gear{top:10px; right:10px; padding:6px 9px} .gear .glbl{display:none} }
+
+.modal-overlay{
+  position:fixed; inset:0; z-index:50; display:none;
+  align-items:flex-start; justify-content:center;
+  background:rgba(16,36,27,.55); padding:34px 16px; overflow-y:auto;
+}
+.modal-overlay.show{display:flex}
+.modal{
+  width:100%; max-width:640px; background:var(--surface);
+  border:1px solid var(--rule-strong); border-top:5px solid var(--forest);
+  border-radius:6px; box-shadow:0 20px 60px rgba(16,36,27,.4); font-family:var(--sans);
+}
+.modal-head{display:flex; align-items:flex-start; gap:12px; padding:18px 20px 14px; border-bottom:1px solid var(--rule)}
+.modal-head h2{font-family:var(--serif); font-size:19px; color:var(--forest); margin:0; line-height:1.2}
+.modal-head p{margin:5px 0 0; font-size:12.5px; color:var(--ink-soft)}
+.modal-close{margin-left:auto; border:0; background:transparent; font-size:24px; line-height:1; color:var(--ink-faint); cursor:pointer; padding:0 2px}
+.modal-close:hover{color:var(--clay)}
+.modal-body{padding:14px 20px 4px}
+.lrow{display:grid; grid-template-columns:130px 1fr auto; gap:8px 10px; align-items:center; padding:9px 0; border-bottom:1px dotted var(--rule)}
+.lrow:last-child{border-bottom:0}
+.lrow .lname{font-size:12.5px; font-weight:600; color:var(--forest)}
+.lrow .lname small{display:block; font-weight:400; color:var(--ink-faint); font-size:10.5px; font-family:'Consolas',monospace}
+.lrow input[type=text]{width:100%; font-family:'Consolas',monospace; font-size:12.5px; color:var(--ink); border:1px solid var(--rule-strong); border-radius:4px; padding:7px 9px; background:var(--surface-2)}
+.lrow input[type=text]:focus{outline:2px solid var(--leaf); outline-offset:-1px; background:#fff}
+.lrow .file-btn{border:1px solid var(--rule-strong); background:var(--surface); color:var(--ink-soft); border-radius:4px; padding:6px 9px; font-size:11.5px; cursor:pointer; white-space:nowrap}
+.lrow .file-btn:hover{background:var(--surface-2); color:var(--forest)}
+.lrow.is-local input[type=text]{border-color:var(--gold); background:#fdf7e6}
+@media (max-width:560px){ .lrow{grid-template-columns:1fr; gap:5px} .lrow .file-btn{justify-self:start} }
+.modal-note{margin:12px 0 4px; font-size:11.5px; color:var(--ink-soft); line-height:1.55; background:var(--surface-2); border:1px solid var(--rule); border-radius:4px; padding:9px 11px}
+.modal-note code{font-family:'Consolas',monospace; background:#fff7e6; border:1px solid var(--gold-soft); padding:0 5px; border-radius:3px}
+.modal-foot{display:flex; flex-wrap:wrap; gap:9px; align-items:center; padding:14px 20px 18px; border-top:1px solid var(--rule); background:var(--surface-2); border-radius:0 0 6px 6px}
+.mbtn{border-radius:4px; padding:9px 15px; font-family:var(--sans); font-size:13px; font-weight:600; cursor:pointer; border:1px solid var(--rule-strong); background:var(--surface); color:var(--ink)}
+.mbtn:hover{background:#fff}
+.mbtn.primary{background:var(--forest); color:#f4f1e6; border-color:var(--forest-deep)}
+.mbtn.primary:hover{background:var(--forest-mid)}
+.mbtn.ghost{border-style:dashed; color:var(--ink-soft)}
+.mbtn.right{margin-left:auto}
+.toast{font-size:12px; color:var(--forest-mid); font-weight:600; opacity:0; transition:opacity .2s}
+.toast.show{opacity:1}
+@media print{ .gear{display:none !important} .modal-overlay{display:none !important} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ============ MASTHEAD ============ -->
+  <header class="masthead">
+    <button class="gear" id="open-settings" title="Settings — manage register links" aria-label="Open settings">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span class="glbl">Settings</span>
+    </button>
+    <div class="mast-row">
+      <div class="seal" aria-hidden="true">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="50" cy="50" r="47" fill="none" stroke="#e7c66a" stroke-width="2"/>
+          <circle cx="50" cy="50" r="41" fill="none" stroke="#57a17c" stroke-width="1"/>
+          <!-- tree trunk -->
+          <rect x="47" y="52" width="6" height="26" rx="1.5" fill="#e7c66a"/>
+          <!-- canopy -->
+          <path d="M50 18 C34 30 30 44 40 50 C30 50 28 62 42 64 L58 64 C72 62 70 50 60 50 C70 44 66 30 50 18 Z" fill="#57a17c"/>
+          <path d="M50 24 C40 33 38 43 45 48 L55 48 C62 43 60 33 50 24 Z" fill="#8fc4a5" opacity=".65"/>
+          <!-- ground line -->
+          <path d="M28 80 H72" stroke="#e7c66a" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="mast-txt">
+        <p class="kick">Forest Department · Government of Chhattisgarh</p>
+        <h1 class="deva">रायगढ़ वनमंडल<span class="en">Raigarh Forest Division</span></h1>
+        <p class="office">
+          <b class="deva">अनुश्रवण एवं अभिलेख केंद्र</b> — Monitoring &amp; Records Hub &nbsp;·&nbsp;
+          Office of the <b>Divisional Forest Officer (DFO)</b>
+        </p>
+      </div>
+    </div>
+    <div class="mast-rule"></div>
+  </header>
+
+  <!-- ============ UNSET-LINKS BANNER ============ -->
+  <div class="banner" id="banner" role="alert">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#b8860b" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+    <div id="banner-text"></div>
+    <button class="x" id="banner-x" title="Dismiss" aria-label="Dismiss">×</button>
+  </div>
+
+  <!-- ============ REGISTER CARDS ============ -->
+  <div class="sec-h"><span class="n">§ I</span> Registers &amp; Dashboards <span class="hint">tap a register to open it · ⚙ Settings to manage links</span></div>
+
+  <div class="cards" id="cards">
+
+    <!-- 1 · FCA -->
+    <article class="card" data-kind="static" data-reg="fca"
+      data-search="fca forest conservation act 1980 diversion वन संरक्षण अधिनियम प्रकरण diverted land hectare coal mining transmission thermal railway road pipeline npv compensatory afforestation approved cases terms conditions">
+      <div class="spine"></div>
+      <div class="card-body">
+        <div class="folio"><span class="no">Folio I</span><span class="badge static">Static register</span></div>
+        <h3 class="deva">वन (संरक्षण) अधिनियम 1980<span class="hi">FCA Diversion Cases</span></h3>
+      </div>
+      <div class="card-foot"><a class="open" data-open="fca" target="_blank" rel="noopener"><span class="deva">वन (संरक्षण) अधिनियम 1980</span> <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+    </article>
+
+    <!-- 2 · CAMPA APO 2025-26 -->
+    <article class="card" data-kind="static" data-reg="campa25"
+      data-search="campa apo 2025-26 annual plan of operations expenditure activity head compensatory afforestation fund व्यय स्वीकृत budget range financial tracker previous year">
+      <div class="spine"></div>
+      <div class="card-body">
+        <div class="folio"><span class="no">Folio II</span><span class="badge static">Aug-2026 &middot; updated 17 Sep 2026</span></div>
+        <h3>CAMPA APO 2025-26<span class="hi">Expenditure by Activity Head &middot; position as on Aug-2026</span></h3>
+      </div>
+      <div class="card-foot"><a class="open" data-open="campa25" target="_blank" rel="noopener">CAMPA APO 2025-26 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+    </article>
+
+    <!-- 3 · CAMPA APO 2026-27 (current year · live) -->
+    <article class="card" data-kind="live" data-reg="campa26"
+      data-search="campa apo 2026-27 annual plan of operations activity wise progress expenditure compensatory afforestation fund व्यय स्वीकृत budget range live google sheet current year">
+      <div class="spine"></div>
+      <div class="card-body">
+        <div class="folio"><span class="no">Folio III</span><span class="badge live">Live · Sheet</span></div>
+        <h3>CAMPA APO 2026-27<span class="hi">Activity-wise Progress &middot; position as on Aug-2026</span></h3>
+      </div>
+      <div class="card-foot"><a class="open" data-open="campa26" target="_blank" rel="noopener">CAMPA APO 2026-27 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+    </article>
+
+    <!-- 4 · Regular Head -->
+    <article class="card" data-kind="live" data-reg="regular"
+      data-search="regular head expenditure नियमित मद व्यय 2026-27 budget heads schemes ranges live google sheet अनुश्रवण वनमंडल">
+      <div class="spine"></div>
+      <div class="card-body">
+        <div class="folio"><span class="no">Folio IV</span><span class="badge live">Live · Sheet</span></div>
+        <h3 class="deva">नियमित मद व्यय 2026-27<span class="hi">Regular Head Expenditure</span></h3>
+      </div>
+      <div class="card-foot"><a class="open" data-open="regular" target="_blank" rel="noopener"><span class="deva">नियमित मद व्यय 2026-27</span> <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+    </article>
+
+    <!-- 5 · Plantation -->
+    <article class="card" data-kind="live" data-reg="plantation"
+      data-search="plantation nursery monitoring progress expenditure sites species github pages live google sheet afforestation seedling">
+      <div class="spine"></div>
+      <div class="card-body">
+        <div class="folio"><span class="no">Folio V</span><span class="badge live">Live · Sheet</span></div>
+        <h3>Plantation &amp; Nursery<span class="hi">Sites · Species · Nurseries</span></h3>
+      </div>
+      <div class="card-foot"><a class="open" data-open="plantation" target="_blank" rel="noopener">Plantation &amp; Nursery <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+    </article>
+
+    <!-- 6 · Material Purchase -->
+    <article class="card" data-kind="live" data-reg="material"
+      data-search="material purchase procurement 2025-26 categories taxonomy live google sheet supply items store">
+      <div class="spine"></div>
+      <div class="card-body">
+        <div class="folio"><span class="no">Folio VI</span><span class="badge live">Live · Sheet</span></div>
+        <h3>Material Purchase 2025-26<span class="hi">Procurement Tracker</span></h3>
+      </div>
+      <div class="card-foot"><a class="open" data-open="material" target="_blank" rel="noopener">Material Purchase 2025-26 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+    </article>
+
+    <!-- 7 · Project Preparation -->
+    <article class="card dim" data-kind="wait" data-reg="project"
+      data-search="project preparation परियोजना तैयारी dpr proposal scoped coming soon planning">
+      <div class="spine"></div>
+      <div class="card-body">
+        <div class="folio"><span class="no">Folio VII</span><span class="badge wait">In preparation</span></div>
+        <h3 class="deva">परियोजना तैयारी<span class="hi">Project Preparation</span></h3>
+      </div>
+      <div class="card-foot"><a class="open disabled" data-open="project" aria-disabled="true"><span class="deva">परियोजना तैयारी</span> · soon</a></div>
+    </article>
+
+  </div>
+
+  <!-- ============ FINDER TABLE ============ -->
+  <div class="sec-h"><span class="n">§ II</span> Where do I find a record? <span class="hint">record type → the register that holds it</span></div>
+  <div class="finder-wrap">
+    <table class="finder">
+      <thead><tr><th>I need to find…</th><th>Register</th></tr></thead>
+      <tbody id="finder-body">
+        <tr data-search="fca diversion approval area conditions terms compensatory afforestation npv forest land coal mine transmission railway road pipeline">
+          <td class="q">An <b>FCA diversion</b> — approval, diverted area, category or terms &amp; conditions for a project</td>
+          <td class="go"><a data-open="fca"><span class="fno">I ·</span> FCA Diversion Cases</a></td>
+        </tr>
+        <tr data-search="campa apo activity head expenditure spending afforestation fund plan operations 2025-26 previous year last year">
+          <td class="q"><b>CAMPA APO</b> spending against an activity head or range for <b>2025-26</b> (previous year)</td>
+          <td class="go"><a data-open="campa25"><span class="fno">II ·</span> CAMPA APO 2025-26</a></td>
+        </tr>
+        <tr data-search="campa apo activity head expenditure spending afforestation fund plan operations 2026-27 current year progress live">
+          <td class="q"><b>CAMPA APO</b> activity-wise progress or expenditure for the <b>current year (2026-27)</b></td>
+          <td class="go"><a data-open="campa26"><span class="fno">III ·</span> CAMPA APO 2026-27</a></td>
+        </tr>
+        <tr data-search="regular head budget scheme expenditure व्यय range 2026-27 non campa current year">
+          <td class="q"><b>Regular budget-head / scheme</b> expenditure for the current year (2026-27)</td>
+          <td class="go"><a data-open="regular"><span class="fno">IV ·</span> Regular Head व्यय</a></td>
+        </tr>
+        <tr data-search="plantation site species nursery stock progress expenditure seedling afforestation">
+          <td class="q">A <b>plantation site, species, nursery stock</b>, plantation progress or expenditure</td>
+          <td class="go"><a data-open="plantation"><span class="fno">V ·</span> Plantation &amp; Nursery</a></td>
+        </tr>
+        <tr data-search="material procurement purchase item category supply store 2025-26">
+          <td class="q">A <b>material / procurement item</b> by category (2025-26)</td>
+          <td class="go"><a data-open="material"><span class="fno">VI ·</span> Material Purchase</a></td>
+        </tr>
+        <tr data-search="project preparation dpr proposal status परियोजना तैयारी">
+          <td class="q"><b>Project preparation</b> status or proposal</td>
+          <td class="go"><a data-open="project" class="na"><span class="fno">VII ·</span> Project Preparation (soon)</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============ FOOTER ============ -->
+  <div class="foot">
+    <span class="deva">रायगढ़ वनमंडल · वन विभाग, छत्तीसगढ़</span>
+    <span class="dot">◆</span>
+    <span>Monitoring &amp; Records Hub</span>
+    <span class="dot">◆</span>
+    <span class="badge-off">Self-contained · Offline-capable · Mobile &amp; print ready</span>
+  </div>
+
+</div><!-- /wrap -->
+
+<!-- ============ SETTINGS MODAL ============ -->
+<div class="modal-overlay" id="settings-modal" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <h2 id="settings-title">Register Links</h2>
+        <p>Set where each card opens — paste a hosted URL, keep the filename if co-hosted, or load a local file to preview.</p>
+      </div>
+      <button class="modal-close" id="close-settings" aria-label="Close">×</button>
+    </div>
+    <div class="modal-body" id="settings-rows"><!-- rows injected by JS --></div>
+    <div class="modal-body" style="padding-top:0">
+      <div class="modal-note">
+        <b>How saving works.</b> &nbsp;<b>Apply</b> updates the cards now and remembers your links in <i>this browser</i>.
+        For a permanent change everyone sees on the hosted hub, click <b>Copy config block</b> and paste it over the
+        <code>REGISTER_LINKS</code> section in this file. A local file you pick works only in this browser session —
+        upload it to your host and set its URL to make it permanent.
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="mbtn primary" id="apply-settings">Apply</button>
+      <button class="mbtn" id="copy-config">Copy config block</button>
+      <button class="mbtn ghost" id="reset-settings">Reset to file defaults</button>
+      <span class="toast" id="settings-toast"></span>
+      <button class="mbtn right" id="done-settings">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   REGISTER_LINKS — the ONLY block you edit to wire dashboards.
+   ------------------------------------------------------------
+   Put the address of each dashboard here.
+     • If all files sit in ONE folder / one GitHub Pages repo,
+       the relative filenames below already work — just keep them.
+     • Otherwise paste the full URL, e.g.
+         campa: "https://<user>.github.io/raigarh/CAMPA.html",
+     • Leave "" to mark a register as not-yet-available.
+   ============================================================ */
+const REGISTER_LINKS = {
+  fca:        "./fca-diversions.html",
+  campa25:    "./campa-apo-2025-26.html",
+  campa26:    "./campa-apo-2026-27.html",
+  regular:    "./regular-expenditure.html",
+  plantation: "./plantation.html",
+  material:   "./material-purchase.html",
+  project:    ""   /* Project Preparation — not built yet */
+};
+
+/* Friendly names for the banner */
+const REG_NAMES = {
+  fca:"FCA Diversion Cases", campa25:"CAMPA APO 2025-26", campa26:"CAMPA APO 2026-27",
+  regular:"Regular Head व्यय", plantation:"Plantation & Nursery",
+  material:"Material Purchase", project:"Project Preparation"
+};
+
+(function(){
+  "use strict";
+  const $  = (s,c)=> (c||document).querySelector(s);
+  const $$ = (s,c)=> Array.from((c||document).querySelectorAll(s));
+  const IDS = Object.keys(REGISTER_LINKS);
+  const STORE_KEY = 'raigarh_hub_links_v2';   // v2: campa → campa25 + campa26
+
+  /* ---- persistence (safe no-op if storage is blocked, e.g. sandboxed preview) ---- */
+  function loadSaved(){ try{ const r = localStorage.getItem(STORE_KEY); return r ? JSON.parse(r) : {}; }catch(e){ return {}; } }
+  function saveLinks(o){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(o)); return true; }catch(e){ return false; } }
+
+  let saved = loadSaved();          // per-browser overrides of the file defaults
+  const sessionLocal = {};          // id -> blob: URL from a picked local file (never persisted)
+
+  function effective(){
+    const e = {};
+    IDS.forEach(function(id){
+      e[id] = sessionLocal[id] || (saved[id]!=null ? saved[id] : REGISTER_LINKS[id]);
+    });
+    return e;
+  }
+
+  /* ---- wire cards + finder from effective links; rebuild banner. Re-runnable. ---- */
+  function applyLinks(){
+    const eff = effective(), unset = [];
+    IDS.forEach(function(id){
+      const url = (eff[id]||"").trim(), isSet = url.length>0;
+      if(!isSet && id!=="project") unset.push(id);       // project = 'in preparation', not an error
+      $$('[data-open="'+id+'"]').forEach(function(el){
+        const isCardBtn = el.classList.contains('open');
+        if(isSet){
+          el.setAttribute('href', url);
+          el.classList.remove('na');
+          if(isCardBtn) el.classList.remove('disabled');
+          el.removeAttribute('aria-disabled');
+        } else {
+          el.removeAttribute('href');                    // an <a> with no href is inert — no listener needed
+          el.classList.add('na');
+          if(isCardBtn && id!=="project"){ el.classList.add('disabled'); el.setAttribute('aria-disabled','true'); }
+        }
+      });
+    });
+    const banner = $('#banner');
+    if(unset.length){
+      const names = unset.map(function(id){ return REG_NAMES[id]||id; }).join(', ');
+      $('#banner-text').innerHTML =
+        '<b>'+unset.length+' register link'+(unset.length>1?'s are':' is')+' not set yet:</b> '+names+
+        '. &nbsp;Click <b>⚙ Settings</b> (top-right) to set them, or edit the <code>REGISTER_LINKS</code> block in the file.';
+      banner.classList.add('show');
+    } else { banner.classList.remove('show'); }
+  }
+  $('#banner-x').addEventListener('click', function(){ $('#banner').classList.remove('show'); });
+
+  /* ---- settings modal ---- */
+  const modal = $('#settings-modal'), rowsWrap = $('#settings-rows'), toast = $('#settings-toast');
+
+  function escAttr(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+  function flash(msg){ toast.textContent = msg; toast.classList.add('show'); clearTimeout(flash._t); flash._t = setTimeout(function(){ toast.classList.remove('show'); }, 2800); }
+
+  function buildRows(){
+    const eff = effective();
+    rowsWrap.innerHTML = '';
+    IDS.forEach(function(id){
+      const val = eff[id]||'', isLocal = !!sessionLocal[id];
+      const row = document.createElement('div');
+      row.className = 'lrow' + (isLocal ? ' is-local' : '');
+      row.innerHTML =
+        '<div class="lname">'+(REG_NAMES[id]||id)+'<small>'+id+'</small></div>'+
+        '<input type="text" data-lid="'+id+'" placeholder="https://…   or   ./file.html   (blank = not set)" value="'+escAttr(val)+'">'+
+        '<button class="file-btn" data-fid="'+id+'">📁 Local file…</button>'+
+        '<input type="file" accept=".html,text/html" data-file="'+id+'" hidden>';
+      rowsWrap.appendChild(row);
+    });
+    $$('.file-btn', rowsWrap).forEach(function(b){
+      b.addEventListener('click', function(){ rowsWrap.querySelector('input[type=file][data-file="'+b.getAttribute('data-fid')+'"]').click(); });
+    });
+    $$('input[type=file]', rowsWrap).forEach(function(fi){
+      fi.addEventListener('change', function(){
+        const id = fi.getAttribute('data-file'), f = fi.files && fi.files[0];
+        if(!f) return;
+        const url = URL.createObjectURL(f);
+        sessionLocal[id] = url;
+        const tx = rowsWrap.querySelector('input[type=text][data-lid="'+id+'"]');
+        tx.value = url; tx.closest('.lrow').classList.add('is-local');
+        flash('Loaded "'+f.name+'" for this session');
+      });
+    });
+  }
+  function readInputs(){ const o = {}; $$('input[type=text][data-lid]', rowsWrap).forEach(function(i){ o[i.getAttribute('data-lid')] = i.value.trim(); }); return o; }
+
+  function openModal(){ buildRows(); modal.classList.add('show'); }
+  function closeModal(){ modal.classList.remove('show'); }
+  $('#open-settings').addEventListener('click', openModal);
+  $('#close-settings').addEventListener('click', closeModal);
+  $('#done-settings').addEventListener('click', closeModal);
+  modal.addEventListener('click', function(e){ if(e.target===modal) closeModal(); });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape' && modal.classList.contains('show')) closeModal(); });
+
+  $('#apply-settings').addEventListener('click', function(){
+    const vals = readInputs(), toPersist = {};
+    IDS.forEach(function(id){
+      const v = vals[id]||'';
+      if(v.indexOf('blob:')===0){ sessionLocal[id] = v; }         // keep local file as session-only
+      else { toPersist[id] = v; delete sessionLocal[id]; }
+    });
+    saved = toPersist;
+    const ok = saveLinks(saved);
+    applyLinks();
+    flash(ok ? 'Applied and saved in this browser ✓' : 'Applied for this session ✓');
+  });
+
+  $('#reset-settings').addEventListener('click', function(){
+    saved = {}; for(const k in sessionLocal) delete sessionLocal[k];
+    saveLinks(saved); buildRows(); applyLinks();
+    flash('Reset to the file defaults');
+  });
+
+  $('#copy-config').addEventListener('click', function(){
+    const vals = readInputs();
+    const pad = Math.max.apply(null, IDS.map(function(i){ return i.length; })) + 2;
+    const lines = IDS.map(function(id){
+      let v = vals[id]||'';
+      if(v.indexOf('blob:')===0) v = REGISTER_LINKS[id]||'';       // don't bake a session blob URL
+      return '  ' + (id+':').padEnd(pad,' ') + ' ' + JSON.stringify(v) + ',';
+    });
+    const block = 'const REGISTER_LINKS = {\n' + lines.join('\n') + '\n};';
+    copyText(block).then(function(ok){
+      if(ok){ flash('Config block copied — paste it into the file ✓'); }
+      else { window.prompt('Copy this REGISTER_LINKS block into the file:', block); }
+    });
+  });
+  function copyText(t){
+    if(navigator.clipboard && navigator.clipboard.writeText){ return navigator.clipboard.writeText(t).then(function(){return true;}, function(){return false;}); }
+    return Promise.resolve(false);
+  }
+
+  applyLinks();   // init
+})();
+</script>
+</body>
+</html>

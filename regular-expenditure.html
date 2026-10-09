@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>नियमित मद व्यय डैशबोर्ड — रायगढ़ वनमंडल 2026-27</title>
+<style>
+:root{
+  --fs:16px;
+  --cream:#FBF7F0;
+  --cream-2:#F5EEE1;
+  --card:#FFFDF9;
+  --card-hover:#FFF9F0;
+  --border:#E8DFCF;
+  --border-soft:#F0E9DB;
+  --ink:#4A3F32;
+  --ink-soft:#7A6E5D;
+  --muted:#A89C87;
+  --accent:#C9985A;      /* warm caramel */
+  --accent-d:#A87838;
+  --green:#6B9362;       /* sage */
+  --green-d:#4E7245;
+  --orange:#D89552;      /* terracotta-amber */
+  --orange-d:#B87438;
+  --blue:#7BA6B0;        /* dusty teal */
+  --rose:#C77B6B;
+  --shadow:0 4px 20px rgba(120,100,70,0.10);
+  --shadow-lg:0 10px 34px rgba(120,100,70,0.16);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Segoe UI','Noto Sans Devanagari',Arial,sans-serif;
+  font-size:var(--fs);color:var(--ink);min-height:100vh;
+  background:
+    radial-gradient(circle at 12% 15%,#F6EBD6 0%,transparent 42%),
+    radial-gradient(circle at 88% 20%,#F2E7D4 0%,transparent 40%),
+    radial-gradient(circle at 80% 88%,#F5ECDD 0%,transparent 45%),
+    linear-gradient(135deg,#FBF7F0 0%,#F5EEE1 100%);
+  background-attachment:fixed;
+}
+.wrap{padding:20px;max-width:1500px;margin:0 auto}
+
+/* ── Header ── */
+.hdr{
+  background:var(--card);border:1px solid var(--border);border-radius:20px;
+  padding:22px 28px;box-shadow:var(--shadow);margin-bottom:20px;
+  position:relative;overflow:hidden;
+}
+.hdr::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;
+  background:linear-gradient(90deg,var(--accent),var(--green),var(--orange))}
+.hdr h1{font-size:22px;font-weight:700;color:var(--ink);letter-spacing:.2px}
+.hdr h2{font-size:14.5px;font-weight:400;color:var(--ink-soft);margin-top:6px}
+.hdr-badges{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.hdr-badges span{
+  font-size:13px;background:var(--cream-2);border:1px solid var(--border);
+  padding:5px 15px;border-radius:20px;color:var(--ink-soft);font-weight:500;
+}
+.live-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--green);
+  margin-right:6px;box-shadow:0 0 8px rgba(107,147,98,0.6);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.35}}
+
+/* ── Tabs ── */
+.tabs{display:flex;gap:9px;margin-bottom:20px;flex-wrap:wrap}
+.tab{
+  background:var(--card);border:1px solid var(--border);border-radius:14px;
+  padding:12px 22px;cursor:pointer;font-size:15px;font-weight:600;
+  color:var(--ink-soft);transition:all .22s;box-shadow:var(--shadow);
+}
+.tab:hover{color:var(--ink);background:var(--card-hover);transform:translateY(-2px)}
+.tab.active{color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent-d));
+  border-color:var(--accent-d);box-shadow:0 6px 20px rgba(201,152,90,0.35)}
+
+/* ── Content ── */
+.content{display:none;animation:fadeIn .4s}
+.content.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── KPI cards ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px;margin-bottom:22px}
+.kpi{
+  background:var(--card);border:1px solid var(--border);border-radius:18px;
+  padding:20px 22px;box-shadow:var(--shadow);position:relative;overflow:hidden;
+  transition:transform .22s,box-shadow .22s;
+}
+.kpi:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+.kpi-icon{font-size:24px;margin-bottom:9px}
+.kpi-lbl{font-size:12.5px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.6px}
+.kpi-val{font-size:28px;font-weight:800;margin-top:7px;color:var(--ink)}
+.kpi-sub{font-size:13px;color:var(--ink-soft);margin-top:5px}
+.kpi.accent-cyan{border-top:3px solid var(--blue)}
+.kpi.accent-green{border-top:3px solid var(--green)}
+.kpi.accent-orange{border-top:3px solid var(--orange)}
+.kpi.accent-blue{border-top:3px solid var(--accent)}
+
+/* ── Filter bar ── */
+.filter-bar{
+  background:var(--card);border:1px solid var(--border);border-radius:16px;
+  padding:18px 22px;box-shadow:var(--shadow);margin-bottom:20px;
+  display:flex;gap:18px;flex-wrap:wrap;align-items:flex-end;
+}
+.filter-group{display:flex;flex-direction:column;gap:7px;flex:1;min-width:190px}
+.filter-group label{font-size:13px;font-weight:700;color:var(--ink-soft);letter-spacing:.3px}
+.filter-group select{
+  background:var(--cream);color:var(--ink);
+  border:1px solid var(--border);border-radius:11px;
+  padding:11px 14px;font-size:15px;font-family:inherit;font-weight:500;
+  cursor:pointer;transition:all .2s;
+}
+.filter-group select:focus{outline:none;box-shadow:0 0 0 3px rgba(201,152,90,0.28);
+  background:#fff;border-color:var(--accent)}
+.filter-reset{
+  background:var(--cream-2);border:1px solid var(--border);
+  color:var(--ink);border-radius:11px;padding:11px 20px;font-size:14px;font-weight:600;
+  cursor:pointer;transition:all .2s;white-space:nowrap;
+}
+.filter-reset:hover{background:rgba(199,123,107,0.15);border-color:var(--rose);color:var(--rose)}
+
+/* ── Section title ── */
+.sec{
+  font-size:17px;font-weight:700;margin:24px 0 16px;color:var(--ink);
+  display:flex;align-items:center;gap:10px;
+}
+.sec::before{content:'';width:5px;height:22px;
+  background:linear-gradient(var(--accent),var(--green));border-radius:4px}
+
+/* ── Glass/soft cards ── */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:18px;margin-bottom:22px}
+.gcard{
+  background:var(--card);border:1px solid var(--border);border-radius:18px;
+  padding:20px 22px;box-shadow:var(--shadow);position:relative;overflow:hidden;
+  transition:transform .22s,box-shadow .22s;
+}
+.gcard:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);background:var(--card-hover)}
+.gcard-title{font-size:15.5px;font-weight:700;line-height:1.45;margin-bottom:14px;
+  color:var(--ink);word-wrap:break-word;overflow-wrap:break-word}
+.gcard-nums{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:14px}
+.gnum{background:var(--cream);border:1px solid var(--border-soft);
+  border-radius:12px;padding:10px 6px;text-align:center}
+.gnum-lbl{font-size:11.5px;color:var(--muted);margin-bottom:4px;font-weight:600}
+.gnum-val{font-size:15.5px;font-weight:800}
+.gnum-val.s{color:var(--accent-d)}.gnum-val.v{color:var(--green-d)}.gnum-val.b{color:var(--orange-d)}
+.gbar-track{background:var(--cream-2);border-radius:10px;height:11px;overflow:hidden;
+  border:1px solid var(--border-soft)}
+.gbar-fill{height:100%;border-radius:10px;transition:width .6s cubic-bezier(.4,0,.2,1);
+  background:linear-gradient(90deg,var(--accent),var(--green))}
+.gbar-foot{display:flex;justify-content:space-between;font-size:13px;color:var(--ink-soft);margin-top:8px;font-weight:500}
+.gcard-meta{display:inline-block;margin-bottom:10px;font-size:12px;color:var(--ink-soft);
+  background:var(--cream-2);padding:4px 11px;border-radius:12px;border:1px solid var(--border-soft);font-weight:600}
+
+/* ── Tables ── */
+.table-glass{
+  background:var(--card);border:1px solid var(--border);border-radius:16px;
+  box-shadow:var(--shadow);overflow:hidden;margin-bottom:22px;
+}
+.table-scroll{overflow-x:auto;max-height:72vh;overflow-y:auto}
+table{width:100%;border-collapse:collapse}
+thead th{
+  background:linear-gradient(135deg,#8A6D45,#6E5636);
+  color:#FBF7F0;font-size:13.5px;font-weight:700;padding:13px 13px;
+  text-align:center;white-space:nowrap;position:sticky;top:0;z-index:5;
+}
+thead th.l{text-align:left}
+tbody td{padding:11px 13px;font-size:14.5px;border-bottom:1px solid var(--border-soft);color:var(--ink)}
+tbody td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+tbody td.ctr{text-align:center}
+tbody tr{transition:background .15s}
+tbody tr:hover{background:var(--card-hover)}
+tbody tr:nth-child(even){background:#FDFAF4}
+tfoot td{background:var(--cream-2);color:var(--ink);font-weight:800;padding:13px;
+  font-size:14.5px;border-top:2px solid var(--border)}
+tfoot td.num{text-align:right;font-variant-numeric:tabular-nums}
+.grp-row td{background:#F0E4CE!important;font-weight:700!important;font-size:14.5px!important;color:var(--ink)!important}
+
+/* ── Badge ── */
+.badge{display:inline-block;padding:4px 12px;border-radius:12px;font-size:13px;font-weight:700}
+.b-hi{background:rgba(107,147,98,0.18);color:var(--green-d);border:1px solid rgba(107,147,98,0.35)}
+.b-mid{background:rgba(216,149,82,0.18);color:var(--orange-d);border:1px solid rgba(216,149,82,0.35)}
+.b-lo{background:rgba(123,166,176,0.18);color:#4E7580;border:1px solid rgba(123,166,176,0.35)}
+.b-zero{background:var(--cream-2);color:var(--muted);border:1px solid var(--border)}
+
+/* ── Chart bars ── */
+.chart-box{
+  background:var(--card);border:1px solid var(--border);border-radius:16px;
+  padding:22px;box-shadow:var(--shadow);margin-bottom:22px;
+}
+.chart-title{font-size:15.5px;font-weight:700;margin-bottom:18px;color:var(--ink)}
+.hbar-row{display:flex;align-items:center;gap:12px;margin-bottom:11px}
+.hbar-label{flex:0 0 60px;font-size:12.5px;font-weight:600;text-align:right;color:var(--ink-soft)}
+.hbar-track{flex:1;background:var(--cream-2);border-radius:8px;height:26px;position:relative;
+  border:1px solid var(--border-soft);overflow:hidden}
+.hbar-fill{height:100%;border-radius:8px;transition:width .8s cubic-bezier(.4,0,.2,1);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden}
+.hbar-sanc{background:linear-gradient(90deg,var(--blue),#9BBEC6)}
+.hbar-spent{background:linear-gradient(90deg,var(--green-d),var(--green))}
+
+/* ── Loading / status ── */
+.status{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:16px;padding:44px;text-align:center;box-shadow:var(--shadow);color:var(--ink-soft);font-size:15px;
+}
+.spinner{width:46px;height:46px;border:4px solid var(--cream-2);
+  border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 18px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.err{color:var(--rose);font-size:15px;line-height:1.6}
+.refresh-btn{
+  background:var(--cream-2);border:1px solid var(--border);color:var(--ink);
+  border-radius:11px;padding:9px 18px;font-size:14px;font-weight:600;cursor:pointer;
+  transition:all .2s;
+}
+.refresh-btn:hover{background:var(--accent);color:#fff;border-color:var(--accent-d)}
+
+@media(max-width:640px){
+  .hdr h1{font-size:19px}
+  .card-grid{grid-template-columns:1fr}
+  .kpi-val{font-size:24px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hdr">
+    <div style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap">
+      <div style="flex:1;min-width:260px">
+        <h1>🌲 नियमित मद (Regular Head) व्यय अनुश्रवण — रायगढ़ वनमंडल 2026-27</h1>
+        <h2>बजट शीर्ष: 10-2406 (आयोजनेत्तर) एवं 64-2406 (अनुसूचित जाति उपयोजना)</h2>
+        <div style="font-size:12px;opacity:.8;margin-top:4px">Data updated: 17 Sep 2026</div>
+      </div>
+      <button class="refresh-btn" onclick="loadData()">🔄 रिफ्रेश</button>
+    </div>
+    <div class="hdr-badges" id="badges">
+      <span><span class="live-dot"></span>Live Google Sheet</span>
+      <span id="badge-works">कार्य: —</span>
+      <span id="badge-schemes">योजनाएं: —</span>
+      <span id="badge-updated">अपडेट: —</span>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('overview',this)">📊 सारांश</div>
+    <div class="tab" onclick="showTab('schemes',this)">📋 योजनावार</div>
+    <div class="tab" onclick="showTab('ranges',this)">🗺 परिक्षेत्रवार</div>
+    <div class="tab" onclick="showTab('years',this)">📅 वर्षवार</div>
+    <div class="tab" onclick="showTab('works',this)">📄 कार्यवार विवरण</div>
+    <div class="tab" onclick="showTab('form7',this)">📑 फॉर्म-7 योजनावार</div>
+  </div>
+
+  <!-- FILTER BAR (shared) -->
+  <div class="filter-bar" id="filterBar" style="display:none">
+    <div class="filter-group">
+      <label>🗂 योजना का नाम</label>
+      <select id="f-scheme" onchange="applyFilters()"><option value="">— सभी योजनाएं —</option></select>
+    </div>
+    <div class="filter-group">
+      <label>🌿 परिक्षेत्र</label>
+      <select id="f-range" onchange="applyFilters()"><option value="">— सभी परिक्षेत्र —</option></select>
+    </div>
+    <div class="filter-group">
+      <label>📅 वर्ष</label>
+      <select id="f-year" onchange="applyFilters()"><option value="">— सभी वर्ष —</option></select>
+    </div>
+    <button class="filter-reset" onclick="resetFilters()">✕ फ़िल्टर हटाएं</button>
+  </div>
+
+  <div id="loading" class="status">
+    <div class="spinner"></div>
+    <div>Google Sheet से डेटा लोड हो रहा है…</div>
+  </div>
+
+  <!-- TAB: OVERVIEW -->
+  <div id="tab-overview" class="content active">
+    <div class="kpi-grid" id="kpi-area"></div>
+    <div class="chart-box">
+      <div class="chart-title">💰 योजनावार स्वीकृत बनाम व्यय (₹ लाख)</div>
+      <div id="scheme-chart"></div>
+    </div>
+  </div>
+
+  <!-- TAB: SCHEMES -->
+  <div id="tab-schemes" class="content">
+    <div class="sec">योजनावार बजट एवं व्यय स्थिति</div>
+    <div class="card-grid" id="scheme-cards"></div>
+    <div class="table-glass" id="scheme-summary-wrap"><div class="table-scroll">
+      <table id="scheme-table">
+        <thead><tr>
+          <th class="l">योजना का नाम</th><th>कार्य</th>
+          <th>स्वीकृत (₹)</th><th>व्यय (₹)</th><th>शेष (₹)</th><th>% उपयोग</th>
+        </tr></thead>
+        <tbody id="scheme-tbody"></tbody>
+        <tfoot id="scheme-tfoot"></tfoot>
+      </table>
+    </div></div>
+    <!-- Site-level detail (shown when a scheme is selected in filter) -->
+    <div id="scheme-site-detail" style="display:none"></div>
+  </div>
+
+  <!-- TAB: FORM 7 (scheme-level monthly position, division) -->
+  <div id="tab-form7" class="content">
+    <div class="sec">फॉर्म-7 योजनावार व्यय स्थिति — <span id="f7-month">…</span> (वनमंडल स्तर)</div>
+    <div class="kpi-grid" id="f7-kpi"></div>
+    <div class="table-glass"><div class="table-scroll">
+      <table id="f7-table">
+        <thead><tr>
+          <th class="l">बजट शीर्ष</th><th class="l">योजना</th>
+          <th>आवंटन (₹)</th><th>गत माह तक व्यय (₹)</th><th>चालू माह व्यय (₹)</th><th>कुल व्यय (₹)</th><th>% उपयोग</th>
+        </tr></thead>
+        <tbody id="f7-tbody"></tbody>
+        <tfoot id="f7-tfoot"></tfoot>
+      </table>
+    </div></div>
+    <div id="f7-note" style="font-size:12.5px;color:var(--muted);margin-top:10px">
+      स्रोत: फॉर्म-7 मासिक व्यय विवरण, वनमंडल रायगढ़ &middot; Google Sheet टैब <b>Form7</b> &middot; यह योजना-स्तरीय आँकड़े हैं, कार्यवार नहीं।
+    </div>
+  </div>
+
+  <!-- TAB: RANGES -->
+  <div id="tab-ranges" class="content">
+    <div class="sec">परिक्षेत्रवार बजट एवं व्यय स्थिति</div>
+    <div class="card-grid" id="range-cards"></div>
+    <div class="table-glass"><div class="table-scroll">
+      <table id="range-table">
+        <thead><tr>
+          <th class="l">परिक्षेत्र</th><th>कार्य</th>
+          <th>स्वीकृत (₹)</th><th>व्यय (₹)</th><th>शेष (₹)</th><th>% उपयोग</th>
+        </tr></thead>
+        <tbody id="range-tbody"></tbody>
+        <tfoot id="range-tfoot"></tfoot>
+      </table>
+    </div></div>
+  </div>
+
+  <!-- TAB: YEARS -->
+  <div id="tab-years" class="content">
+    <div class="sec">वर्षवार बजट एवं व्यय स्थिति</div>
+    <div class="card-grid" id="year-cards"></div>
+    <div class="table-glass"><div class="table-scroll">
+      <table id="year-table">
+        <thead><tr>
+          <th class="l">वर्ष</th><th>कार्य</th>
+          <th>स्वीकृत (₹)</th><th>व्यय (₹)</th><th>शेष (₹)</th><th>% उपयोग</th>
+        </tr></thead>
+        <tbody id="year-tbody"></tbody>
+        <tfoot id="year-tfoot"></tfoot>
+      </table>
+    </div></div>
+  </div>
+
+  <!-- TAB: WORKS -->
+  <div id="tab-works" class="content">
+    <div class="sec">कार्यवार विस्तृत विवरण <span id="works-count" style="font-size:12px;color:var(--muted);font-weight:400;margin-left:8px"></span></div>
+    <div class="table-glass"><div class="table-scroll">
+      <table id="works-table">
+        <thead><tr>
+          <th>क्र.</th><th class="l">बजट मद</th><th class="l">योजना</th>
+          <th class="l">कार्य का नाम</th><th class="l">परिक्षेत्र</th>
+          <th class="l">वर्ष</th><th class="l">स्थल</th>
+          <th>स्वीकृत (₹)</th><th>व्यय (₹)</th><th>शेष (₹)</th><th>%</th>
+        </tr></thead>
+        <tbody id="works-tbody"></tbody>
+        <tfoot id="works-tfoot"></tfoot>
+      </table>
+    </div></div>
+  </div>
+
+</div>
+
+<script>
+const SHEET_ID = "1jREIJDkq2QPhlEDUztvRJZFrs3ac_oHLiP4w9E528iE";
+const SHEET_NAME = "Budget";
+
+let ALL = [];      // all work rows
+let FILTERED = []; // after filters
+
+// ── Formatting ──
+const fmt = n => (n>0 ? '₹'+Math.round(n).toLocaleString('en-IN') : '—');
+const fmtN = n => (n>0 ? Math.round(n).toLocaleString('en-IN') : '—');
+const lakh = n => (n/100000).toFixed(2);
+const pct = (s,b) => b>0 ? Math.round(s/b*1000)/10 : 0;
+function badge(p){
+  if(p>=75) return `<span class="badge b-hi">${p}%</span>`;
+  if(p>=25) return `<span class="badge b-mid">${p}%</span>`;
+  if(p>0)   return `<span class="badge b-lo">${p}%</span>`;
+  return `<span class="badge b-zero">0%</span>`;
+}
+function esc(s){return s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'):''}
+const clean = s => (s||'').toString().trim();
+
+// ── Tab switching ──
+function showTab(name, el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.content').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+// ── Multi-method loader: tries JSONP → CSV → proxy in sequence ──
+function loadData(){
+  document.getElementById('loading').style.display='block';
+  document.getElementById('loading').innerHTML='<div class="spinner"></div><div>Google Sheet से डेटा लोड हो रहा है…</div>';
+  tryJSONP();
+}
+
+// Method 1: JSONP (works in normal browsers, may be blocked in some sandboxes)
+function tryJSONP(){
+  const cb = 'gvizCB_'+Date.now();
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json;responseHandler:${cb}&sheet=${encodeURIComponent(SHEET_NAME)}&_=${Date.now()}`;
+  let done=false;
+  const timer=setTimeout(()=>{ if(!done){ done=true; cleanup(); tryCSV(); } },6000);
+  function cleanup(){ delete window[cb]; document.querySelectorAll('script[data-gviz]').forEach(s=>s.remove()); }
+  window[cb]=function(resp){
+    if(done) return; done=true; clearTimeout(timer);
+    try{ processGviz(resp); }catch(e){ cleanup(); tryCSV(); return; }
+    cleanup();
+  };
+  const s=document.createElement('script');
+  s.src=url; s.dataset.gviz='1';
+  s.onerror=()=>{ if(!done){ done=true; clearTimeout(timer); cleanup(); tryCSV(); } };
+  document.body.appendChild(s);
+}
+
+// Method 2: direct CSV fetch (CORS-friendly on most setups)
+function tryCSV(){
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}&_=${Date.now()}`;
+  fetch(url)
+    .then(r=>{ if(!r.ok) throw new Error('HTTP '+r.status); return r.text(); })
+    .then(txt=>processCSV(txt))
+    .catch(()=>tryProxy());
+}
+
+// Method 3: CORS proxy fallback (last resort)
+function tryProxy(){
+  const target = encodeURIComponent(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${SHEET_NAME}`);
+  const url = `https://api.allorigins.win/raw?url=${target}`;
+  fetch(url)
+    .then(r=>{ if(!r.ok) throw new Error('HTTP '+r.status); return r.text(); })
+    .then(txt=>processCSV(txt))
+    .catch(e=>showError('डेटा लोड नहीं हो सका। कृपया इस फ़ाइल को अपने ब्राउज़र (Chrome/Safari) में खोलें — ⋮ मेन्यू → Open in Browser। ('+e.message+')'));
+}
+
+function showError(msg){
+  document.getElementById('loading').innerHTML =
+    `<div class="err">⚠️ ${esc(msg)}</div>
+     <button class="refresh-btn" style="margin-top:14px" onclick="loadData()">पुनः प्रयास</button>`;
+}
+
+// Process gviz JSON (Method 1)
+function processGviz(resp){
+  const rows = resp.table.rows||[];
+  const getV=(c,i)=>{ const x=c[i]; return x?(x.v!=null?x.v:''):''; };
+  let hIdx=-1;
+  for(let i=0;i<rows.length;i++){
+    if((rows[i].c||[]).some(c=>c&&String(c.v||'').includes('बजट मद'))){ hIdx=i; break; }
+  }
+  const dr = hIdx>=0?rows.slice(hIdx+1):rows;
+  ALL=[];
+  dr.forEach(r=>{
+    const c=r.c||[];
+    const budgetHead=clean(getV(c,2)),scheme=clean(getV(c,3)),work=clean(getV(c,4));
+    const year=clean(getV(c,5)),range=clean(getV(c,6)),site=clean(getV(c,7));
+    const sanctioned=Number(getV(c,8))||0, spent=Number(getV(c,9))||0;
+    let balance=getV(c,10); balance=(balance===''||balance==null)?(sanctioned-spent):(Number(balance)||0);
+    if(!budgetHead&&!scheme&&!work) return;
+    ALL.push({budgetHead,scheme,work,year,range,site,sanctioned,spent,balance});
+  });
+  finishLoad();
+}
+
+// Minimal CSV parser
+function parseCSV(text){
+  const rows=[]; let row=[], field='', inQ=false;
+  for(let i=0;i<text.length;i++){
+    const ch=text[i], nx=text[i+1];
+    if(inQ){
+      if(ch==='"'&&nx==='"'){ field+='"'; i++; }
+      else if(ch==='"'){ inQ=false; }
+      else field+=ch;
+    } else {
+      if(ch==='"') inQ=true;
+      else if(ch===','){ row.push(field); field=''; }
+      else if(ch==='\r'){}
+      else if(ch==='\n'){ row.push(field); rows.push(row); row=[]; field=''; }
+      else field+=ch;
+    }
+  }
+  if(field!==''||row.length){ row.push(field); rows.push(row); }
+  return rows;
+}
+
+// Process CSV (Methods 2 & 3)
+function processCSV(txt){
+  const rows=parseCSV(txt);
+  const num=v=>{ const n=Number(String(v).replace(/,/g,'').trim()); return isNaN(n)?0:n; };
+  let hIdx=-1;
+  for(let i=0;i<rows.length;i++){
+    if(rows[i].some(c=>String(c).includes('बजट मद'))){ hIdx=i; break; }
+  }
+  const dr = hIdx>=0?rows.slice(hIdx+1):rows;
+  ALL=[];
+  dr.forEach(r=>{
+    const budgetHead=clean(r[2]),scheme=clean(r[3]),work=clean(r[4]);
+    const year=clean(r[5]),range=clean(r[6]),site=clean(r[7]);
+    const sanctioned=num(r[8]),spent=num(r[9]);
+    let balance=(r[10]===undefined||r[10]==='')?(sanctioned-spent):num(r[10]);
+    if(!budgetHead&&!scheme&&!work) return;
+    ALL.push({budgetHead,scheme,work,year,range,site,sanctioned,spent,balance});
+  });
+  finishLoad();
+}
+
+// Common post-load
+
+// ── Form-7 tab: scheme-level monthly position from the "Form7" sheet tab ──
+function loadForm7(){
+  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Form7&_=${Date.now()}`;
+  fetch(url).then(r=>{ if(!r.ok) throw new Error('HTTP '+r.status); return r.text(); })
+    .then(txt=>renderForm7(parseCSV(txt)))
+    .catch(()=>{ document.getElementById('f7-note').innerHTML='<b>Form7 टैब नहीं मिला।</b> Google Sheet में "Form7" नाम का टैब बनाकर उसमें Month, Section, Scheme_Code, Scheme_Name, Allocation, Upto_Last_Month, Current_Month, Total_Exp कॉलम रखें।'; });
+}
+function renderForm7(rows){
+  const num=v=>{ const n=Number(String(v).replace(/,/g,'').trim()); return isNaN(n)?0:n; };
+  const hdr=rows[0].map(c=>String(c).trim()); const ix=n=>hdr.indexOf(n);
+  const R=rows.slice(1).filter(r=>r[ix('Scheme_Code')]).map(r=>({
+    month:r[ix('Month')], sec:r[ix('Section')], code:r[ix('Scheme_Code')], name:r[ix('Scheme_Name')],
+    al:num(r[ix('Allocation')]), up:num(r[ix('Upto_Last_Month')]), cu:num(r[ix('Current_Month')]), to:num(r[ix('Total_Exp')]) }));
+  if(!R.length) return;
+  const month=R[0].month||''; document.getElementById('f7-month').textContent=month;
+  const S=k=>R.reduce((a,x)=>a+x[k],0); const AL=S('al'),UP=S('up'),CU=S('cu'),TO=S('to');
+  document.getElementById('f7-kpi').innerHTML=[
+    ['accent-blue','💰','कुल आवंटन',fmt(AL),`₹${lakh(AL)} लाख`],
+    ['accent-cyan','📆','गत माह तक व्यय',fmt(UP),`${pct(UP,AL)}% आवंटन का`],
+    ['accent-orange','🗓','चालू माह व्यय ('+month+')',fmt(CU),`₹${lakh(CU)} लाख`],
+    ['accent-green','✅','कुल व्यय',fmt(TO),`${pct(TO,AL)}% उपयोग · शेष ${fmt(AL-TO)}`]
+  ].map(([c,i,l,v,s])=>`<div class="kpi ${c}"><div class="kpi-icon">${i}</div><div class="kpi-lbl">${l}</div><div class="kpi-val">${v}</div><div class="kpi-sub">${s}</div></div>`).join('');
+  const secs=[...new Set(R.map(x=>x.sec))]; let html='';
+  secs.forEach(sec=>{
+    const g=R.filter(x=>x.sec===sec); const T=k=>g.reduce((a,x)=>a+x[k],0);
+    g.forEach(x=>{ html+=`<tr><td class="l">${sec}</td><td class="l">(${x.code}) ${x.name}</td><td>${fmtN(x.al)}</td><td>${fmtN(x.up)}</td><td>${fmtN(x.cu)}</td><td>${fmtN(x.to)}</td><td>${pct(x.to,x.al)}%</td></tr>`; });
+    html+=`<tr style="font-weight:700;background:var(--bg2,rgba(0,0,0,.04))"><td class="l">योग — ${sec}</td><td></td><td>${fmtN(T('al'))}</td><td>${fmtN(T('up'))}</td><td>${fmtN(T('cu'))}</td><td>${fmtN(T('to'))}</td><td>${pct(T('to'),T('al'))}%</td></tr>`;
+  });
+  document.getElementById('f7-tbody').innerHTML=html;
+  document.getElementById('f7-tfoot').innerHTML=`<tr style="font-weight:800"><td class="l">महायोग</td><td></td><td>${fmtN(AL)}</td><td>${fmtN(UP)}</td><td>${fmtN(CU)}</td><td>${fmtN(TO)}</td><td>${pct(TO,AL)}%</td></tr>`;
+}
+loadForm7();
+
+function finishLoad(){
+  document.getElementById('loading').style.display='none';
+  document.getElementById('filterBar').style.display='flex';
+  buildFilters();
+  applyFilters();
+  document.getElementById('badge-works').textContent=`कार्य: ${ALL.length}`;
+  document.getElementById('badge-schemes').textContent=
+    `योजनाएं: ${new Set(ALL.map(w=>w.scheme).filter(Boolean)).size}`;
+  const now=new Date();
+  document.getElementById('badge-updated').textContent=
+    `अपडेट: ${now.toLocaleTimeString('hi-IN',{hour:'2-digit',minute:'2-digit'})}`;
+}
+
+// ── Build filter dropdowns ──
+function buildFilters(){
+  const schemes = [...new Set(ALL.map(w=>w.scheme).filter(Boolean))];
+  const ranges  = [...new Set(ALL.map(w=>w.range).filter(Boolean))];
+  const YEARORD = ['प्रथम वर्ष','सेकंड वर्ष','द्वितीय वर्ष','तृतीय वर्ष','चतुर्थ वर्ष','पंचम वर्ष','षष्ठम् वर्ष'];
+  const years = [...new Set(ALL.map(w=>w.year).filter(Boolean))]
+                 .sort((a,b)=>YEARORD.indexOf(a)-YEARORD.indexOf(b));
+
+  const fill = (id,arr)=>{
+    const sel=document.getElementById(id);
+    const cur=sel.value;
+    sel.innerHTML = sel.options[0].outerHTML +
+      arr.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('');
+    sel.value=cur;
+  };
+  fill('f-scheme',schemes);
+  fill('f-range',ranges);
+  fill('f-year',years);
+}
+
+function resetFilters(){
+  document.getElementById('f-scheme').value='';
+  document.getElementById('f-range').value='';
+  document.getElementById('f-year').value='';
+  applyFilters();
+}
+
+// ── Apply filters + re-render everything ──
+function applyFilters(){
+  const fs=document.getElementById('f-scheme').value;
+  const fr=document.getElementById('f-range').value;
+  const fy=document.getElementById('f-year').value;
+  FILTERED = ALL.filter(w=>
+    (!fs||w.scheme===fs)&&(!fr||w.range===fr)&&(!fy||w.year===fy));
+
+  renderOverview();
+  renderSchemes();
+  renderRanges();
+  renderYears();
+  renderWorks();
+}
+
+// ── Aggregation helper ──
+function aggregate(rows, key){
+  const map={};
+  rows.forEach(w=>{
+    const k=w[key]||'—';
+    if(!map[k]) map[k]={sanctioned:0,spent:0,count:0};
+    map[k].sanctioned+=w.sanctioned;
+    map[k].spent+=w.spent;
+    map[k].count++;
+  });
+  return map;
+}
+
+// ── OVERVIEW ──
+function renderOverview(){
+  const sanc = FILTERED.reduce((a,w)=>a+w.sanctioned,0);
+  const spent= FILTERED.reduce((a,w)=>a+w.spent,0);
+  const bal  = sanc-spent;
+  const p    = pct(spent,sanc);
+
+  document.getElementById('kpi-area').innerHTML=`
+    <div class="kpi accent-cyan"><div class="kpi-icon">💰</div>
+      <div class="kpi-lbl">स्वीकृत राशि</div>
+      <div class="kpi-val">₹${lakh(sanc)}L</div>
+      <div class="kpi-sub">${FILTERED.length} कार्य</div></div>
+    <div class="kpi accent-green"><div class="kpi-icon">✅</div>
+      <div class="kpi-lbl">कुल व्यय</div>
+      <div class="kpi-val" style="color:var(--green-d)">₹${lakh(spent)}L</div>
+      <div class="kpi-sub">${p}% उपयोग</div></div>
+    <div class="kpi accent-orange"><div class="kpi-icon">📦</div>
+      <div class="kpi-lbl">शेष राशि</div>
+      <div class="kpi-val" style="color:var(--orange-d)">₹${lakh(bal)}L</div>
+      <div class="kpi-sub">उपलब्ध शेष</div></div>
+    <div class="kpi accent-blue"><div class="kpi-icon">📊</div>
+      <div class="kpi-lbl">बजट उपयोग</div>
+      <div class="kpi-val" style="color:var(--accent-d)">${p}%</div>
+      <div class="kpi-sub">स्वीकृत का</div></div>`;
+
+  // Scheme horizontal bar chart
+  const scMap = aggregate(FILTERED,'scheme');
+  const scArr = Object.entries(scMap).sort((a,b)=>b[1].sanctioned-a[1].sanctioned);
+  const maxV = Math.max(...scArr.map(([,d])=>d.sanctioned),1);
+  const chart = document.getElementById('scheme-chart');
+  chart.innerHTML = scArr.map(([name,d])=>{
+    const wS = Math.max(d.sanctioned/maxV*100,1);
+    const wV = Math.max(d.spent/maxV*100, d.spent>0?1:0);
+    return `<div style="margin-bottom:18px">
+      <div style="font-size:13.5px;font-weight:700;margin-bottom:6px;word-wrap:break-word;color:var(--ink)">${esc(name)}</div>
+      <div class="hbar-row" style="margin-bottom:5px">
+        <div class="hbar-label" style="flex:0 0 62px;font-size:12px">स्वीकृत</div>
+        <div class="hbar-track"><div class="hbar-fill hbar-sanc" style="width:${wS}%">${wS>18?'₹'+lakh(d.sanctioned)+'L':''}</div></div>
+        <div style="flex:0 0 78px;font-size:12.5px;font-weight:700;color:var(--accent-d);text-align:left">₹${lakh(d.sanctioned)}L</div>
+      </div>
+      <div class="hbar-row">
+        <div class="hbar-label" style="flex:0 0 62px;font-size:12px">व्यय</div>
+        <div class="hbar-track"><div class="hbar-fill hbar-spent" style="width:${wV}%">${wV>18&&d.spent>0?'₹'+lakh(d.spent)+'L':''}</div></div>
+        <div style="flex:0 0 78px;font-size:12.5px;font-weight:700;color:var(--green-d);text-align:left">${d.spent>0?'₹'+lakh(d.spent)+'L':'—'}</div>
+      </div>
+    </div>`;
+  }).join('') || '<div style="color:var(--muted);text-align:center;padding:20px">कोई डेटा नहीं</div>';
+}
+
+// ── Reusable glass card ──
+function makeCard(name,d,p){
+  const bal=d.sanctioned-d.spent;
+  const card=document.createElement('div');
+  card.className='gcard';
+  card.innerHTML=`
+    <div class="gcard-meta">${d.count} कार्य</div>
+    <div class="gcard-title">${esc(name)}</div>
+    <div class="gcard-nums">
+      <div class="gnum"><div class="gnum-lbl">स्वीकृत</div><div class="gnum-val s">₹${lakh(d.sanctioned)}L</div></div>
+      <div class="gnum"><div class="gnum-lbl">व्यय</div><div class="gnum-val v">₹${lakh(d.spent)}L</div></div>
+      <div class="gnum"><div class="gnum-lbl">शेष</div><div class="gnum-val b">₹${lakh(bal)}L</div></div>
+    </div>
+    <div class="gbar-track"><div class="gbar-fill" style="width:${Math.min(p,100)}%"></div></div>
+    <div class="gbar-foot"><span>${p}% व्यय</span><span>${badge(p)}</span></div>`;
+  return card;
+}
+
+// ── Generic table + cards renderer ──
+function renderAgg(key, cardsId, tbodyId, tfootId, cardsToo){
+  const map = aggregate(FILTERED,key);
+  let arr = Object.entries(map);
+  // sort: schemes/ranges by sanctioned desc; years by fixed order
+  if(key==='year'){
+    const YO=['प्रथम वर्ष','सेकंड वर्ष','द्वितीय वर्ष','तृतीय वर्ष','चतुर्थ वर्ष','पंचम वर्ष','षष्ठम् वर्ष'];
+    arr.sort((a,b)=>YO.indexOf(a[0])-YO.indexOf(b[0]));
+  } else {
+    arr.sort((a,b)=>b[1].sanctioned-a[1].sanctioned);
+  }
+
+  if(cardsToo){
+    const cdiv=document.getElementById(cardsId);
+    cdiv.innerHTML='';
+    arr.forEach(([name,d])=>cdiv.appendChild(makeCard(name,d,pct(d.spent,d.sanctioned))));
+  }
+
+  let tB=0,tS=0,tC=0;
+  const tbody=document.getElementById(tbodyId);
+  tbody.innerHTML = arr.map(([name,d])=>{
+    const p=pct(d.spent,d.sanctioned);
+    tB+=d.sanctioned; tS+=d.spent; tC+=d.count;
+    return `<tr>
+      <td class="l" style="font-weight:600">${esc(name)}</td>
+      <td class="ctr">${d.count}</td>
+      <td class="num">${fmtN(d.sanctioned)}</td>
+      <td class="num" style="color:#4E7245;font-weight:700">${fmtN(d.spent)}</td>
+      <td class="num" style="color:#B87438;font-weight:700">${fmtN(d.sanctioned-d.spent)}</td>
+      <td class="ctr">${badge(p)}</td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">कोई डेटा नहीं</td></tr>`;
+
+  document.getElementById(tfootId).innerHTML = `<tr>
+    <td>महायोग</td><td class="num">${tC}</td>
+    <td class="num">${fmtN(tB)}</td><td class="num">${fmtN(tS)}</td>
+    <td class="num">${fmtN(tB-tS)}</td><td class="ctr">${pct(tS,tB)}%</td>
+  </tr>`;
+}
+
+function renderSchemes(){
+  const selectedScheme = document.getElementById('f-scheme').value;
+
+  if(selectedScheme){
+    // A scheme is selected → show ALL sites' expenditure for this scheme
+    document.getElementById('scheme-cards').style.display='none';
+    document.getElementById('scheme-summary-wrap').style.display='none';
+    document.getElementById('scheme-site-detail').style.display='block';
+    renderSchemeSiteDetail(selectedScheme);
+  } else {
+    // No scheme selected → show scheme-level summary cards + table
+    document.getElementById('scheme-cards').style.display='grid';
+    document.getElementById('scheme-summary-wrap').style.display='block';
+    document.getElementById('scheme-site-detail').style.display='none';
+    renderAgg('scheme','scheme-cards','scheme-tbody','scheme-tfoot',true);
+  }
+}
+
+// Show every site (row) under the selected scheme, grouped by परिक्षेत्र
+function renderSchemeSiteDetail(scheme){
+  const rows = FILTERED.filter(w=>w.scheme===scheme);
+  const div = document.getElementById('scheme-site-detail');
+
+  const sanc = rows.reduce((a,w)=>a+w.sanctioned,0);
+  const spent= rows.reduce((a,w)=>a+w.spent,0);
+  const p = pct(spent,sanc);
+
+  // Compact summary bar — name on top, figures below (wrap-safe)
+  let html = `
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;
+                padding:14px 20px;box-shadow:var(--shadow);margin-bottom:16px">
+      <div style="font-size:16px;font-weight:700;color:var(--ink);margin-bottom:8px">
+        🗂 ${esc(scheme)}
+      </div>
+      <div style="display:flex;gap:10px 20px;flex-wrap:wrap;font-size:14.5px;align-items:center">
+        <span style="color:var(--ink-soft)">स्थल: <b style="color:var(--ink)">${rows.length}</b></span>
+        <span style="color:var(--ink-soft)">स्वीकृत: <b style="color:var(--accent-d)">₹${lakh(sanc)}L</b></span>
+        <span style="color:var(--ink-soft)">व्यय: <b style="color:var(--green-d)">₹${lakh(spent)}L</b></span>
+        <span style="color:var(--ink-soft)">शेष: <b style="color:var(--orange-d)">₹${lakh(sanc-spent)}L</b></span>
+        <span>${badge(p)}</span>
+      </div>
+    </div>`;
+
+  // Group by range
+  const RANGEORD = ['रायगढ़','खरसिया','तमनार','घरघोड़ा','वनमण्डल','व.म.अ.'];
+  const ranges = [...new Set(rows.map(w=>w.range||'—'))]
+                  .sort((a,b)=>{
+                    const ia=RANGEORD.indexOf(a), ib=RANGEORD.indexOf(b);
+                    return (ia<0?99:ia)-(ib<0?99:ib);
+                  });
+
+  html += `<div class="table-glass"><div class="table-scroll">
+    <table>
+      <thead><tr>
+        <th>क्र.</th>
+        <th class="l">परिक्षेत्र</th>
+        <th class="l">स्थल</th>
+        <th class="l">कार्य का नाम</th>
+        <th class="l">वर्ष</th>
+        <th>स्वीकृत (₹)</th><th>व्यय (₹)</th><th>शेष (₹)</th><th>%</th>
+      </tr></thead>
+      <tbody>`;
+
+  let gB=0,gS=0,sn=0;
+  ranges.forEach(rng=>{
+    const rRows = rows.filter(w=>(w.range||'—')===rng);
+    const rB=rRows.reduce((a,w)=>a+w.sanctioned,0);
+    const rS=rRows.reduce((a,w)=>a+w.spent,0);
+    const rP=pct(rS,rB);
+    // Range group header
+    html += `<tr class="grp-row"><td colspan="9">🌿 ${esc(rng)} परिक्षेत्र — ${rRows.length} स्थल | स्वीकृत ₹${lakh(rB)}L | व्यय ₹${lakh(rS)}L | ${rP}%</td></tr>`;
+    rRows.forEach(w=>{
+      sn++;
+      gB+=w.sanctioned; gS+=w.spent;
+      const wp=pct(w.spent,w.sanctioned);
+      html += `<tr>
+        <td class="ctr">${sn}</td>
+        <td class="l">${esc(w.range)}</td>
+        <td class="l" style="font-weight:600">${esc(w.site)}</td>
+        <td class="l">${esc(w.work)}</td>
+        <td class="l">${esc(w.year)}</td>
+        <td class="num">${fmtN(w.sanctioned)}</td>
+        <td class="num" style="color:#4E7245;font-weight:700">${fmtN(w.spent)}</td>
+        <td class="num" style="color:#B87438;font-weight:700">${fmtN(w.balance)}</td>
+        <td class="ctr">${badge(wp)}</td>
+      </tr>`;
+    });
+  });
+
+  html += `</tbody>
+    <tfoot><tr>
+      <td colspan="5">महायोग (${rows.length} स्थल)</td>
+      <td class="num">${fmtN(gB)}</td>
+      <td class="num">${fmtN(gS)}</td>
+      <td class="num">${fmtN(gB-gS)}</td>
+      <td class="ctr">${pct(gS,gB)}%</td>
+    </tr></tfoot>
+  </table></div></div>`;
+
+  div.innerHTML = html;
+}
+function renderRanges(){  renderAgg('range','range-cards','range-tbody','range-tfoot',true); }
+function renderYears(){   renderAgg('year','year-cards','year-tbody','year-tfoot',true); }
+
+// ── WORKS detail ──
+function renderWorks(){
+  document.getElementById('works-count').textContent =
+    `(${FILTERED.length} कार्य प्रदर्शित)`;
+  let tB=0,tS=0;
+  const tbody=document.getElementById('works-tbody');
+  tbody.innerHTML = FILTERED.map((w,i)=>{
+    const p=pct(w.spent,w.sanctioned);
+    tB+=w.sanctioned; tS+=w.spent;
+    const bhShort = w.budgetHead.includes('64-2406') ? '64-2406' :
+                    w.budgetHead.includes('10-2406') ? '10-2406' : esc(w.budgetHead);
+    return `<tr>
+      <td class="ctr">${i+1}</td>
+      <td class="l" style="font-size:11.5px">${bhShort}</td>
+      <td class="l" style="font-size:11.5px">${esc(w.scheme)}</td>
+      <td class="l">${esc(w.work)}</td>
+      <td class="l">${esc(w.range)}</td>
+      <td class="l">${esc(w.year)}</td>
+      <td class="l" style="font-size:11.5px">${esc(w.site)}</td>
+      <td class="num">${fmtN(w.sanctioned)}</td>
+      <td class="num" style="color:#4E7245;font-weight:700">${fmtN(w.spent)}</td>
+      <td class="num" style="color:#B87438;font-weight:700">${fmtN(w.balance)}</td>
+      <td class="ctr">${badge(p)}</td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="11" style="text-align:center;padding:24px;color:var(--muted)">कोई डेटा नहीं</td></tr>`;
+
+  document.getElementById('works-tfoot').innerHTML = `<tr>
+    <td colspan="7">महायोग (${FILTERED.length} कार्य)</td>
+    <td class="num">${fmtN(tB)}</td>
+    <td class="num">${fmtN(tS)}</td>
+    <td class="num">${fmtN(tB-tS)}</td>
+    <td class="ctr">${pct(tS,tB)}%</td>
+  </tr>`;
+}
+
+// ── Init ──
+loadData();
+</script>
+</body>
+</html>
