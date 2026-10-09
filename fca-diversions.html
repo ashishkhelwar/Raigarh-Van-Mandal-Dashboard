@@ -131,9 +131,9 @@
   .cond-item { display:flex; gap:12px; align-items:flex-start; }
   .cond-num { flex-shrink:0; font-size:15px; font-weight:800; color:var(--forest); font-family:var(--mono); background:#d1fae5; border-radius:3px; padding:2px 7px; margin-top:2px; min-width:42px; text-align:center; }
   .cond-text { font-size:20px; color:#1f2937; line-height:1.6; }
-  @media(max-width:1400px){.cond-sections-grid{grid-template-columns:repeat(3,1fr);}}
-  @media(max-width:1000px){.cond-sections-grid{grid-template-columns:repeat(2,1fr);}}
-  @media(max-width:768px){.det-meta{grid-template-columns:1fr;}.cond-sections-grid{grid-template-columns:1fr;}}
+  @media(max-width:1400px){.cond-sections-grid:not(.kc-grid){grid-template-columns:repeat(3,1fr);}}
+  @media(max-width:1000px){.cond-sections-grid:not(.kc-grid){grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:768px){.det-meta{grid-template-columns:1fr;}.cond-sections-grid:not(.kc-grid){grid-template-columns:1fr;}}
 
   .khd summary{cursor:pointer;list-style:none}.khd summary::-webkit-details-marker{display:none}.khd[open] summary{display:none}
   .pdf-link{display:inline-block;margin-top:4px;font-size:11.5px;font-weight:600;color:#9a3412;text-decoration:none}
@@ -166,7 +166,8 @@
   .fullrec-grid{padding:10px 12px 12px}
   .full-kv{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:4px 22px;margin:10px 12px}
   .full-kv .detail-kv .v{font-size:13px}
-  .kc-grid{grid-template-columns:repeat(2,1fr)}@media(max-width:1000px){.kc-grid{grid-template-columns:1fr}}
+  .kc-grid{grid-template-columns:repeat(2,minmax(0,1fr))}@media(max-width:640px){.kc-grid{grid-template-columns:1fr}}
+  .kc-jump{display:flex;flex-wrap:wrap;gap:6px;margin:8px 12px 0}.kc-jump button{font:600 12px inherit;padding:5px 12px;border-radius:14px;border:1px solid #86efac;background:#f0fdf4;color:#14532d;cursor:pointer}.kc-jump button:hover{background:#dcfce7}
   .kc-d summary{cursor:pointer;list-style:none}.kc-d summary::-webkit-details-marker{display:none}.kc-d summary::after{content:' ▸';color:#9ca3af;font-size:11px}
   .kc-d[open] summary{display:none}
 </style>
@@ -2147,7 +2148,7 @@ fetch('fca-orders/conditions-verbatim.json').then(r=>r.json()).then(V=>{
     const rank={'Stage-I':0,'Stage-II':1}; L.sort((x,y)=>(rank[x.kind]??2)-(rank[y.kind]??2));
     const title=l=>l.kind==='Stage-I'?'KEY CONDITIONS — प्रथम चरण (Stage-I)':l.kind==='Stage-II'?'KEY CONDITIONS — अंतिम चरण (Stage-II)':l.kind==='Forwarding'?'राज्य शासन का अग्रेषण पत्र (Forwarding)':'अन्य पत्र (Other)';
     let k=0;
-    box.innerHTML=`<div class="cond-sections-grid fullrec-grid kc-grid">${L.map(l=>`<div class="cond-section"><div class="cond-section-head">${title(l)} · ${esc(l.date)} · ${(l.conditions||[]).length} ${/Stage/.test(l.kind)?'शर्तें':'बिंदु'}</div><div class="cond-items">${(l.conditions||[]).map(x=>{
+    box.innerHTML=`<div class="kc-jump">${L.map((l,i)=>`<button type="button" onclick="event.stopPropagation();this.closest('.kc-all').querySelectorAll('.kc-grid>.cond-section')[${i}].scrollIntoView({behavior:'smooth',block:'start'})">${title(l).replace('KEY CONDITIONS — ','')} · ${esc(l.date)} · ${(l.conditions||[]).length}</button>`).join('')}</div><div class="cond-sections-grid fullrec-grid kc-grid">${L.map(l=>`<div class="cond-section"><div class="cond-section-head">${title(l)} · ${esc(l.date)} · ${(l.conditions||[]).length} ${/Stage/.test(l.kind)?'शर्तें':'बिंदु'}</div><div class="cond-items">${(l.conditions||[]).map(x=>{
         const full=esc(x.text).replace(/\n/g,'<br>')+((x.sub||[]).length?'<br>'+x.sub.map(s=>`(${esc(s.no)}) ${esc(s.text)}`).join('<br>'):'');
         const short=esc(one(x.text||(x.sub&&x.sub[0]?x.sub[0].text:'')));
         const long=full.replace(/<br>/g,' ').length>short.length+5;
