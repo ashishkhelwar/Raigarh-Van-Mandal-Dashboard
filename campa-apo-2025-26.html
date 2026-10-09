@@ -135,6 +135,21 @@ footer{text-align:center;font-size:10.5px;color:var(--mut);padding:14px 0 6px}
 document.addEventListener("DOMContentLoaded",function(){var b=document.createElement("button");b.id="kpiToggle";
 var s=function(){b.textContent=d.classList.contains("show-kpi")?"KPI छिपाएँ":"KPI दिखाएँ"};s();
 b.onclick=function(){d.classList.toggle("show-kpi");try{localStorage.setItem(k,d.classList.contains("show-kpi")?"1":"0")}catch(e){}s()};document.body.appendChild(b)})})();</script>
+<!-- Scrolling: full-page tables, back-to-top, progress bar, section snap -->
+<style>.scroll{max-height:none!important}@media(min-width:900px){.scroll{overflow:visible!important}}
+html{scroll-behavior:smooth;scroll-snap-type:y proximity}
+section,.card,.panel,.chart-box,.table-glass,.sec-h,.masthead,header{scroll-snap-align:start;scroll-margin-top:0px}
+#sProg{position:fixed;left:0;top:0;height:3px;width:0;background:#e0a526;z-index:10001;pointer-events:none}
+#sTop{position:fixed;right:16px;bottom:16px;width:44px;height:44px;border-radius:50%;border:0;background:#1f4e5f;color:#fff;font-size:20px;
+ box-shadow:0 4px 12px rgba(0,0,0,.3);cursor:pointer;z-index:10000;opacity:0;pointer-events:none;transition:opacity .2s}
+#sTop.on{opacity:.9;pointer-events:auto}
+@media print{#sTop,#sProg{display:none}}
+</style>
+<script>document.addEventListener("DOMContentLoaded",function(){var d=document.documentElement,p=document.createElement("div"),b=document.createElement("button");
+p.id="sProg";b.id="sTop";b.textContent="\u2191";b.title="ऊपर जाएँ";b.setAttribute("aria-label","Back to top");document.body.append(p,b);
+b.onclick=function(){scrollTo({top:0,behavior:"smooth"})};
+function u(){var y=scrollY,m=d.scrollHeight-innerHeight;b.classList.toggle("on",y>400);p.style.width=(m>0?y/m*100:0)+"%"}
+addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});</script>
 </head>
 <body>
 <div class="wrap">
