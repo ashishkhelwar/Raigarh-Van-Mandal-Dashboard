@@ -31,6 +31,7 @@ tr.tot td{font-weight:700;background:#eef3ec}
 .tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
 .tab{border:1px solid var(--line);background:var(--card);border-radius:16px;padding:6px 12px;cursor:pointer;font:inherit;font-size:13px;color:var(--ink)}
 .tab.on{background:var(--forest);color:#fff;border-color:var(--forest)}
+#tabs .tab[data-g=all]{font-weight:700}
 .tab .c{font-size:11px;opacity:.75;margin-left:4px}
 .bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
 .bar input,.bar select{font:inherit;padding:6px 9px;border:1px solid var(--line);border-radius:4px;background:#fff}
@@ -139,7 +140,18 @@ function renderGoswara(R){
 function markSel(){document.querySelectorAll("#gos tr[data-g]").forEach(tr=>tr.classList.toggle("sel",tr.dataset.g===cur))}
 
 /* ---- Lists ---- */
-const DATA={};let cur=LISTS[0][1];
+const DATA={};let cur="all";
+const TABLIST=()=>[["सभी","all"],...LISTS];
+/* "All" tab: every source in one table with common columns */
+function buildAll(){
+  const pick=(d,res)=>d.head.findIndex(h=>res.some(re=>re.test(h)));
+  const rows=[];
+  LISTS.forEach(([lab,g])=>{const d=DATA[g];if(!d)return;
+    const ix={no:pick(d,[/प्रकरण क्र/,/नस्ती/,/टोकन/,/रजिस्ट्रेशन/]),nm:pick(d,[/शिकायत?कर्ता/,/शिकायकर्ता/,/आवेदक/]),
+      sb:pick(d,[/विषय/,/विवरण/]),dv:pick(d,[/वनमंडल का नाम/,/व\.मं\. का नाम/,/संबंधित वनमंडल/,/वनमंडल/]),rm:pick(d,[/रिमार्क/])};
+    d.rows.forEach(r=>rows.push([lab,r[0]||"",ix.no>=0?r[ix.no]:"",ix.nm>=0?r[ix.nm]:"",ix.sb>=0?r[ix.sb]:"",ix.dv>=0?r[ix.dv]:"",d.si>=0?r[d.si]:"",ix.rm>=0?r[ix.rm]:""]));});
+  DATA.all={head:["स्रोत","क्र.","प्रकरण / नस्ती क्र.","शिकायतकर्ता","विषय","वनमंडल","निराकृत/लंबित","रिमार्क"],rows,si:6};
+}
 function clean(R){
   const hdr=R[0].map(c=>c.trim()); const keep=hdr.map((c,i)=>c?i:-1).filter(i=>i>=0);
   const si=keep.find(i=>/^निराकृत/.test(hdr[i]));
@@ -149,7 +161,7 @@ function clean(R){
     .map(r=>keep.map(i=>{const x=(r[i]||"").trim();return x==="VIEW"?"":x}));
   return{head:keep.map(i=>hdr[i]),rows,si:keep.indexOf(si)};
 }
-function drawTabs(){$("tabs").innerHTML=LISTS.map(([l,g])=>`<button class="tab${g===cur?" on":""}" data-g="${g}">${esc(l)}<span class=c>${DATA[g]?DATA[g].rows.length:"…"}</span></button>`).join("");
+function drawTabs(){$("tabs").innerHTML=TABLIST().map(([l,g])=>`<button class="tab${g===cur?" on":""}" data-g="${g}">${esc(l)}<span class=c>${DATA[g]?DATA[g].rows.length:"…"}</span></button>`).join("");
   document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{cur=b.dataset.g;$("q").value="";$("fs").value="";drawTabs();fillStatus();drawList();markSel()})}
 function fillStatus(){const d=DATA[cur];const opts=d&&d.si>=0?[...new Set(d.rows.map(r=>statusOf(r[d.si])[0]).filter(Boolean))]:[];
   $("fs").innerHTML='<option value="">सभी स्थिति</option>'+opts.map(o=>`<option>${esc(o)}</option>`).join("")}
@@ -165,7 +177,7 @@ $("q").oninput=drawList;$("fs").onchange=drawList;
 
 drawTabs();
 Promise.all([load(GOSWARA_GID).then(renderGoswara),
-  ...LISTS.map(([l,g])=>load(g).then(R=>{DATA[g]=clean(R);drawTabs();if(g===cur){fillStatus();drawList()}}))])
+  ...LISTS.map(([l,g])=>load(g).then(R=>{DATA[g]=clean(R);buildAll();drawTabs();if(g===cur||cur==="all"){fillStatus();drawList()}}))])
  .then(()=>{$("dot").className="dot live";$("src").textContent="Live · Google Sheet"})
  .catch(e=>{$("dot").className="dot err";$("src").textContent="Sheet नहीं पढ़ी जा सकी ("+e.message+")";});
 </script>
