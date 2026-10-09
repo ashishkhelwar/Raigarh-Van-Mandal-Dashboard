@@ -470,12 +470,23 @@ addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});<
       <div class="card-foot"><a class="open" data-open="production" target="_blank" rel="noopener"><span class="deva">उत्पादन प्रभाग</span> <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
     </article>
 
-    <!-- 9 · Project Preparation -->
+    <!-- 9 · Complaints register -->
+    <article class="card" data-kind="live" data-reg="shikayat"
+      data-search="complaints शिकायत पंजी गोशवारा pgn जनचौपाल janchopal cpgrams eow आर्थिक अपराध ई-समाधान e-samadhan लोक आयोग lok ayog gem जेम शासन सीधे प्राप्त निराकृत लंबित pending disposed grievance">
+      <div class="spine"></div>
+      <div class="card-body">
+        <div class="folio"><span class="no">Folio IX</span><span class="badge live">Live · Sheet</span></div>
+        <h3 class="deva">शिकायत पंजी<span class="hi">Complaints · PGN · Janchopal · CPGRAMS · EOW · Lok Ayog · GeM</span></h3>
+      </div>
+      <div class="card-foot"><a class="open" data-open="shikayat" target="_blank" rel="noopener"><span class="deva">शिकायत पंजी</span> <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+    </article>
+
+    <!-- 10 · Project Preparation -->
     <article class="card dim" data-kind="wait" data-reg="project"
       data-search="project preparation परियोजना तैयारी dpr proposal scoped coming soon planning">
       <div class="spine"></div>
       <div class="card-body">
-        <div class="folio"><span class="no">Folio IX</span><span class="badge wait">In preparation</span></div>
+        <div class="folio"><span class="no">Folio X</span><span class="badge wait">In preparation</span></div>
         <h3 class="deva">परियोजना तैयारी<span class="hi">Project Preparation</span></h3>
       </div>
       <div class="card-foot"><a class="open disabled" data-open="project" aria-disabled="true"><span class="deva">परियोजना तैयारी</span> · soon</a></div>
@@ -521,9 +532,13 @@ addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});<
           <td class="q"><b>Production</b> — coupe register, timber/bamboo harvesting, auctions, forest revenue or loss cases</td>
           <td class="go"><a data-open="production"><span class="fno">VIII ·</span> Production</a></td>
         </tr>
+        <tr data-search="complaints शिकायत pgn जनचौपाल cpgrams eow ई-समाधान लोक आयोग gem pending लंबित निराकृत grievance">
+          <td class="q">A <b>complaint (शिकायत)</b> — PGN, Janchopal, CPGRAMS, EOW, E-Samadhan, Lok Ayog, GeM, from Government or received directly</td>
+          <td class="go"><a data-open="shikayat"><span class="fno">IX ·</span> शिकायत पंजी</a></td>
+        </tr>
         <tr data-search="project preparation dpr proposal status परियोजना तैयारी">
           <td class="q"><b>Project preparation</b> status or proposal</td>
-          <td class="go"><a data-open="project" class="na"><span class="fno">IX ·</span> Project Preparation (soon)</a></td>
+          <td class="go"><a data-open="project" class="na"><span class="fno">X ·</span> Project Preparation (soon)</a></td>
         </tr>
       </tbody>
     </table>
@@ -589,6 +604,7 @@ const REGISTER_LINKS = {
   material:   "./material-purchase.html",
   court:      "./court-cases.html",
   production: "./production.html",
+  shikayat:   "./shikayat.html",
   project:    ""   /* Project Preparation — not built yet */
 };
 
@@ -596,7 +612,7 @@ const REGISTER_LINKS = {
 const REG_NAMES = {
   fca:"FCA Diversion Cases", campa25:"CAMPA APO 2025-26", campa26:"CAMPA APO 2026-27",
   regular:"Regular Head व्यय", plantation:"Plantation & Nursery",
-  material:"Material Purchase", court:"Court Cases", production:"Production", project:"Project Preparation"
+  material:"Material Purchase", court:"Court Cases", production:"Production", shikayat:"शिकायत पंजी", project:"Project Preparation"
 };
 
 (function(){
