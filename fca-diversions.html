@@ -164,6 +164,8 @@
   .stage-strip{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
   .stg{font-size:12px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:3px 10px;color:#14532d}
   .fullrec-grid{padding:10px 12px 12px}
+  .full-kv{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:4px 22px;margin:10px 12px}
+  .full-kv .detail-kv .v{font-size:13px}
 </style>
 <!-- KPI toggle: KPI cards hidden by default; button shows them (remembered per browser) -->
 <style>html:not(.show-kpi) .stats-row{display:none!important}
@@ -2028,6 +2030,19 @@ function renderOrders(c){
   if(!L.length) return '';
   return `<div class="stage-strip">${L.map(l=>`<span class="stg"><b>${l.kind==='Stage-I'?'प्रथम चरण':'अंतिम चरण'}</b> ${esc(l.date)} · <span class="mono">${esc(l.file_no)}</span> · ${l.n} शर्तें</span>`).join('')}</div>`;
 }
+function renderFull(secs){
+  const isCond=s=>/condition|safeguard/i.test(s.head);
+  const info=secs.filter(s=>!isCond(s)), cond=secs.filter(isCond);
+  const kv=[];
+  info.forEach(s=>{
+    const plain=[];
+    s.items.forEach(i=>{const m=i.match(/^<strong>([^<]+?):?<\/strong>:?\s*([\s\S]*)$/); if(m) kv.push(`<div class="detail-kv"><div class="k">${m[1].replace(/:$/,'')}</div><div class="v">${m[2]||'—'}</div></div>`); else plain.push(i);});
+    if(plain.length) kv.push(`<div class="detail-kv"><div class="k">${s.head}</div><div class="v">${plain.join('<br>')}</div></div>`);
+  });
+  let k=0;
+  const cards=cond.map(sec=>`<div class="cond-section"><div class="cond-section-head">${sec.head}</div><div class="cond-items">${sec.items.map(i=>`<div class="cond-item"><span class="cond-num">(${toRoman(++k)})</span><span class="cond-text">${i}</span></div>`).join('')}</div></div>`).join('');
+  return `${kv.length?`<div class="det-meta full-kv">${kv.join('')}</div>`:''}${cards?`<div class="cond-sections-grid fullrec-grid">${cards}</div>`:''}`;
+}
 function buildTable() {
   const tbody = document.getElementById('table-body');
   let html = '';
@@ -2091,7 +2106,7 @@ function buildTable() {
             </div>
             <div class="cond-sections-grid">${sectionsHtml}</div>
             ${c.pdf?`<p style="margin:10px 0 0"><a class="pdf-link" href="${encodeURI(c.pdf)}" target="_blank" rel="noopener">📄 मूल स्वीकृति आदेश (PDF) खोलें</a></p>`:''}
-            ${FULL[c.batch]?`<details class="fullrec"><summary>📑 पूर्ण अनुपालन अभिलेख (Full compliance record — ${c.batch})</summary><div class="cond-sections-grid fullrec-grid">${(()=>{let k=0;return FULL[c.batch].map(sec=>`<div class="cond-section"><div class="cond-section-head">${sec.head}</div><div class="cond-items">${sec.items.map(i=>`<div class="cond-item"><span class="cond-num">(${toRoman(++k)})</span><span class="cond-text">${i}</span></div>`).join('')}</div></div>`).join('')})()}</div></details>`:''}
+            ${FULL[c.batch]?`<details class="fullrec"><summary>📑 पूर्ण अनुपालन अभिलेख (Full compliance record — ${c.batch})</summary>${renderFull(FULL[c.batch])}</details>`:''}
           </td>
         </tr>`;
       }
