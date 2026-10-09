@@ -150,6 +150,11 @@ p.id="sProg";b.id="sTop";b.textContent="\u2191";b.title="ऊपर जाएँ"
 b.onclick=function(){scrollTo({top:0,behavior:"smooth"})};
 function u(){var y=scrollY,m=d.scrollHeight-innerHeight;b.classList.toggle("on",y>400);p.style.width=(m>0?y/m*100:0)+"%"}
 addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});</script>
+<!-- Home button: back to the hub -->
+<style>#homeBtn{position:fixed;left:12px;bottom:12px;z-index:10000;display:flex;align-items:center;gap:6px;height:38px;padding:0 14px;border-radius:19px;
+ background:#1c4335;color:#fff;font:600 13px system-ui,'Nirmala UI',sans-serif;text-decoration:none;box-shadow:0 4px 12px rgba(0,0,0,.28);opacity:.92}
+#homeBtn:hover{opacity:1}#kpiToggle{left:118px!important;bottom:17px!important}@media print{#homeBtn{display:none}}</style>
+<script>document.addEventListener("DOMContentLoaded",function(){var a=document.createElement("a");a.id="homeBtn";a.href="./index.html";a.title="होम — रायगढ़ वनमंडल हब";a.innerHTML="\uD83C\uDFE0 होम";document.body.appendChild(a)});</script>
 </head>
 <body>
 <div class="wrap">
