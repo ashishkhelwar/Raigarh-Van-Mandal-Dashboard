@@ -37,12 +37,21 @@ tr.tot td{font-weight:700;background:#eef3ec}
 .bar input{flex:1 1 240px}
 .cnt{font-size:12px;color:var(--soft);align-self:center}
 .msg{padding:14px;color:var(--soft)}
-@media print{header .tools,.bar,.tabs{display:none}th{position:static}}
+.layout{display:grid;grid-template-columns:250px minmax(0,1fr);gap:16px;margin-top:16px;align-items:start}
+.side{position:sticky;top:10px;background:var(--card);border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:6px;padding:10px;font-size:12.5px}
+.sideh{font-weight:700;color:var(--forest);font-size:14px;margin-bottom:6px}.sideh small{display:block;font-weight:400;color:var(--soft);font-size:11px}
+.side table{font-size:12.5px}.side th{position:static;padding:4px 5px;font-size:11.5px}.side td{padding:4px 5px}
+.side tbody tr[data-g]{cursor:pointer}.side tbody tr[data-g]:hover{background:#eef3ec}.side tbody tr.sel td{background:#e4f2ea;font-weight:700}
+.side td.pd{color:var(--pend);font-weight:700}
+.nd{margin-top:6px}.nd summary{cursor:pointer;color:var(--forest2);font-size:12px}.nd .notes{font-size:11.5px;padding-left:16px}
+.mainc h2{margin-top:0}
+@media(max-width:820px){.layout{grid-template-columns:1fr}.side{position:static}}
+@media print{header .tools,.bar,.tabs{display:none}th{position:static}.layout{grid-template-columns:1fr}}
 </style>
 <!-- Scrolling: back-to-top, progress bar, section snap (same as other pages) -->
 <style>
 html{scroll-behavior:smooth;scroll-snap-type:y proximity}
-section,.card,header{scroll-snap-align:start;scroll-margin-top:0px}
+section,header{scroll-snap-align:start;scroll-margin-top:0px}
 #sProg{position:fixed;left:0;top:0;height:3px;width:0;background:#e0a526;z-index:10001;pointer-events:none}
 #sTop{position:fixed;right:16px;bottom:16px;width:44px;height:44px;border-radius:50%;border:0;background:#1f4e5f;color:#fff;font-size:20px;
  box-shadow:0 4px 12px rgba(0,0,0,.3);cursor:pointer;z-index:10000;opacity:0;pointer-events:none;transition:opacity .2s}
@@ -66,13 +75,14 @@ addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});<
   </div>
 </header>
 
-<section>
-  <h2>गोशवारा — स्रोतवार प्राप्त / निराकृत / लंबित</h2>
-  <div class="card"><div class="tw"><table id="gos"><tbody><tr><td class="msg">लोड हो रहा है…</td></tr></tbody></table></div>
-    <ol class="notes" id="gosNotes"></ol></div>
-</section>
+<div class="layout">
+<aside class="side">
+  <div class="sideh">गोशवारा <small>प्राप्त / निराकृत / लंबित</small></div>
+  <table id="gos"><tbody><tr><td class="msg">लोड हो रहा है…</td></tr></tbody></table>
+  <details class="nd"><summary>टिप्पणी</summary><ol class="notes" id="gosNotes"></ol></details>
+</aside>
 
-<section>
+<section class="mainc">
   <h2>प्रकरणवार सूची</h2>
   <div class="tabs" id="tabs"></div>
   <div class="bar">
@@ -82,6 +92,7 @@ addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});<
   </div>
   <div class="card"><div class="tw"><table id="lst"><tbody><tr><td class="msg">लोड हो रहा है…</td></tr></tbody></table></div></div>
 </section>
+</div>
 </div>
 
 <script>
@@ -111,12 +122,16 @@ function renderGoswara(R){
   const rows=[];for(let i=1;i+2<h.length;i+=3){if(!h[i])continue;
     rows.push([h[i].trim().replace(/\s+प्राप्त$/,"").trim(),+v[i]||0,+v[i+1]||0,+v[i+2]||0])}
   const T=k=>rows.reduce((a,r)=>a+r[k],0);
-  $("gos").innerHTML="<thead><tr><th>स्रोत</th><th class=n>प्राप्त</th><th class=n>निराकृत</th><th class=n>लंबित</th></tr></thead><tbody>"+
-    rows.map(r=>`<tr><td>${esc(r[0])}</td><td class=n>${r[1]}</td><td class=n>${r[2]}</td><td class=n>${r[3]}</td></tr>`).join("")+
+  const gidOf=l=>{const k=[["पी.जी",0],["जनचौपाल",1],["ग्राम",2],["शासन",3],["सीधे",4],["लोक",5],["आर्थिक",6],["समाधान",7],["जेम",8]].find(([w])=>l.includes(w));return k?LISTS[k[1]][1]:""};
+  $("gos").innerHTML="<thead><tr><th>स्रोत</th><th class=n>प्रा.</th><th class=n>नि.</th><th class=n>लं.</th></tr></thead><tbody>"+
+    rows.map(r=>`<tr data-g="${gidOf(r[0])}" title="${esc(r[0])} की सूची देखें"><td>${esc(r[0])}</td><td class=n>${r[1]}</td><td class=n>${r[2]}</td><td class="n pd">${r[3]}</td></tr>`).join("")+
     `<tr class=tot><td>योग</td><td class=n>${T(1)}</td><td class=n>${T(2)}</td><td class=n>${T(3)}</td></tr></tbody>`;
   $("gosNotes").innerHTML=R.slice(3).map(r=>r.find(c=>c.trim().length>20)).filter(Boolean)
     .map(t=>"<li>"+esc(t.replace(/^\d+\.\s*/,""))+"</li>").join("");
+  document.querySelectorAll("#gos tr[data-g]").forEach(tr=>tr.onclick=()=>{if(!tr.dataset.g)return;cur=tr.dataset.g;$("q").value="";$("fs").value="";drawTabs();fillStatus();drawList();markSel()});
+  markSel();
 }
+function markSel(){document.querySelectorAll("#gos tr[data-g]").forEach(tr=>tr.classList.toggle("sel",tr.dataset.g===cur))}
 
 /* ---- Lists ---- */
 const DATA={};let cur=LISTS[0][1];
@@ -130,7 +145,7 @@ function clean(R){
   return{head:keep.map(i=>hdr[i]),rows,si:keep.indexOf(si)};
 }
 function drawTabs(){$("tabs").innerHTML=LISTS.map(([l,g])=>`<button class="tab${g===cur?" on":""}" data-g="${g}">${esc(l)}<span class=c>${DATA[g]?DATA[g].rows.length:"…"}</span></button>`).join("");
-  document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{cur=b.dataset.g;$("q").value="";$("fs").value="";drawTabs();fillStatus();drawList()})}
+  document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{cur=b.dataset.g;$("q").value="";$("fs").value="";drawTabs();fillStatus();drawList();markSel()})}
 function fillStatus(){const d=DATA[cur];const opts=d&&d.si>=0?[...new Set(d.rows.map(r=>statusOf(r[d.si])[0]).filter(Boolean))]:[];
   $("fs").innerHTML='<option value="">सभी स्थिति</option>'+opts.map(o=>`<option>${esc(o)}</option>`).join("")}
 function drawList(){const d=DATA[cur];if(!d){$("lst").innerHTML='<tbody><tr><td class=msg>लोड हो रहा है…</td></tr></tbody>';return}
