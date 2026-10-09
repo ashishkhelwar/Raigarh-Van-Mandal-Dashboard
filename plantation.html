@@ -97,6 +97,14 @@ td.mcell.muted, td.pcell.muted { color:#bbb; }
     .tree-toggle.level1 .meta { margin-left:22px; text-align:left; width:100%; }
   }
 </style>
+<!-- KPI toggle: KPI cards hidden by default; button shows them (remembered per browser) -->
+<style>html:not(.show-kpi) .kpi-row{display:none!important}
+#kpiToggle{position:fixed;left:12px;bottom:12px;z-index:9999;font:600 12px system-ui,sans-serif;padding:6px 11px;border-radius:16px;border:1px solid #9aa;background:#fff;color:#234;opacity:.85;cursor:pointer}
+#kpiToggle:hover{opacity:1}@media print{#kpiToggle{display:none}}</style>
+<script>(function(){var k="showKpi",d=document.documentElement;try{if(localStorage.getItem(k)==="1")d.classList.add("show-kpi")}catch(e){}
+document.addEventListener("DOMContentLoaded",function(){var b=document.createElement("button");b.id="kpiToggle";
+var s=function(){b.textContent=d.classList.contains("show-kpi")?"KPI छिपाएँ":"KPI दिखाएँ"};s();
+b.onclick=function(){d.classList.toggle("show-kpi");try{localStorage.setItem(k,d.classList.contains("show-kpi")?"1":"0")}catch(e){}s()};document.body.appendChild(b)})})();</script>
 </head>
 <body>
 <div class="topbar">
