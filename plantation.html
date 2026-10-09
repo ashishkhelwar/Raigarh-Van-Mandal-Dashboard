@@ -53,9 +53,10 @@ td.mcell.muted, td.pcell.muted { color:#bbb; }
 .simple-table tr.row-mnrega td { background:#fdf3ea; }
 .filter-bar { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-bottom:12px; }
 .filter-label { font-size:12px; font-weight:600; color:#2c5f2e; margin-right:2px; }
-.range-pill { font-size:12px; font-weight:600; color:#2c5f2e; background:#eef3ec; border:1px solid #cfe0cf; border-radius:14px; padding:5px 12px; cursor:pointer; font-family:inherit; }
-.range-pill:hover { background:#e0ebe0; }
-.range-pill.active { background:#2c5f2e; color:#fff; border-color:#244c26; }
+.range-pill, .sp-pill { font-size:12px; font-weight:600; color:#2c5f2e; background:#eef3ec; border:1px solid #cfe0cf; border-radius:14px; padding:5px 12px; cursor:pointer; font-family:inherit; }
+.range-pill:hover, .sp-pill:hover { background:#e0ebe0; }
+.range-pill.active, .sp-pill.active { background:#2c5f2e; color:#fff; border-color:#244c26; }
+.filter-count { font-size:12px; color:#6b7c6d; margin-top:10px; }
 .kpi-row { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:16px; }
 .kpi-card { background:#f7faf6; border:1px solid #dbe7db; border-radius:8px; padding:14px 16px; }
 .kpi-label { font-size:12px; color:#5a6b5a; margin-bottom:5px; }
@@ -171,6 +172,7 @@ td.mcell.muted, td.pcell.muted { color:#bbb; }
       <p class="sub">Nursery-wise work details · tap a nursery to view its year-wise works</p>
       <div class="card">
         <div class="card-title">Nursery Works</div>
+        <div class="filter-bar"><span class="filter-label">Range:</span><button class="range-pill active" data-range="all" onclick="setRangeFilter('all')">All</button><button class="range-pill" data-range="रायगढ़" onclick="setRangeFilter('रायगढ़')">रायगढ़</button><button class="range-pill" data-range="खरसिया" onclick="setRangeFilter('खरसिया')">खरसिया</button><button class="range-pill" data-range="घरघोड़ा" onclick="setRangeFilter('घरघोड़ा')">घरघोड़ा</button><button class="range-pill" data-range="तमनार" onclick="setRangeFilter('तमनार')">तमनार</button></div>
         <div class="live-note">Figures load live from the linked Google Sheet. Expand a nursery to load its figures; edit the Sheet and refresh this page to see updates.</div>
         <div class="tree" id="nurseryTree"></div>
       </div>
@@ -181,6 +183,7 @@ td.mcell.muted, td.pcell.muted { color:#bbb; }
       <p class="sub">Nursery-wise species detail — लक्ष्य / प्राप्ति / प्रजातिवार संख्या</p>
       <div class="card">
         <div class="card-title">प्रजातिवार पौध उत्पादन विवरण</div>
+        <div class="filter-bar"><span class="filter-label">Range:</span><button class="sp-pill active" data-dim="range" data-val="all" onclick="setSpeciesFilter('range','all')">All</button><button class="sp-pill" data-dim="range" data-val="रायगढ़" onclick="setSpeciesFilter('range','रायगढ़')">रायगढ़</button><button class="sp-pill" data-dim="range" data-val="खरसिया" onclick="setSpeciesFilter('range','खरसिया')">खरसिया</button><button class="sp-pill" data-dim="range" data-val="घरघोड़ा" onclick="setSpeciesFilter('range','घरघोड़ा')">घरघोड़ा</button><button class="sp-pill" data-dim="range" data-val="तमनार" onclick="setSpeciesFilter('range','तमनार')">तमनार</button><span class="filter-label" style="margin-left:12px">मद:</span><button class="sp-pill active" data-dim="mad" data-val="all" onclick="setSpeciesFilter('mad','all')">All</button><button class="sp-pill" data-dim="mad" data-val="कैम्पा" onclick="setSpeciesFilter('mad','कैम्पा')">कैम्पा</button><button class="sp-pill" data-dim="mad" data-val="मनरेगा" onclick="setSpeciesFilter('mad','मनरेगा')">मनरेगा</button></div>
         <div class="live-note">Figures load live from the linked Google Sheet. Edit the Sheet and refresh this page to see updates.</div>
         <div id="plantSpeciesTable"></div>
       </div>
@@ -451,7 +454,7 @@ loadProgress();
 function renderNurseryList() {
   let html = '';
   nurseries.forEach((n,idx) => {
-    html += '<div class="tree-node">'
+    html += '<div class="tree-node" data-frange="'+(n.range||'')+'">'
       + '<div class="tree-toggle level1" onclick="openNursery(this,'+idx+')">'
       + '<div class="arrow collapsed"></div>'
       + '<span>'+(idx+1)+'. '+n.name+'</span>'
@@ -539,11 +542,39 @@ function parseSpecies(rows){
   if(!total) total={lakshya:null,prapti:null,species:new Array(48).fill(0),total:null};
   return {plants, total};
 }
+let speciesData=null, spRange='all', spMad='all';
+function recomputeSpeciesTotal(plants){
+  const t={lakshya:0,prapti:0,species:new Array(48).fill(0),total:0};
+  plants.forEach(r=>{
+    t.lakshya+=r.lakshya||0; t.prapti+=r.prapti||0; t.total+=r.total||0;
+    (r.species||[]).forEach((v,i)=>{ t.species[i]=(t.species[i]||0)+(v||0); });
+  });
+  return t;
+}
+function applySpeciesFilter(){
+  const el=document.getElementById('plantSpeciesTable');
+  if(!speciesData) return;
+  const filtered=(spRange!=='all'||spMad!=='all');
+  const fp = filtered
+    ? speciesData.plants.filter(r=>
+        (spRange==='all' || r.range===spRange) &&
+        (spMad==='all' || (r.mad||'').indexOf(spMad)>=0))
+    : speciesData.plants;
+  const tot = filtered ? recomputeSpeciesTotal(fp) : speciesData.total;
+  el.innerHTML = plantSpeciesTableHTML(fp, tot)
+    + '<div class="filter-count">Showing '+fp.length+' of '+speciesData.plants.length+' nurseries'
+    + (filtered?' · filtered — TOTAL row is the sum of the selection':'')+'.</div>';
+}
+function setSpeciesFilter(dim,val){
+  if(dim==='range') spRange=val; else spMad=val;
+  document.querySelectorAll('.sp-pill[data-dim="'+dim+'"]').forEach(p=>p.classList.toggle('active', p.dataset.val===val));
+  applySpeciesFilter();
+}
 function loadSpecies(){
   const el=document.getElementById('plantSpeciesTable');
   gvizFetch(SPECIES_SHEET, SPECIES_GID).then(rows=>{
-    const d=parseSpecies(rows);
-    el.innerHTML=plantSpeciesTableHTML(d.plants, d.total);
+    speciesData=parseSpecies(rows);
+    applySpeciesFilter();
   }).catch(()=>{ el.innerHTML='<div class="load-err">Could not load live species data — check internet and that the Sheet is shared (Anyone with link → Viewer), then refresh.</div>'; });
 }
 document.getElementById('plantSpeciesTable').innerHTML='<div class="live-note">Loading plant-species data live from the Google Sheet…</div>';

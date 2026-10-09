@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>न्यायालयीन प्रकरण डैशबोर्ड — रायगढ़ वनमंडल | Case Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --forest-deep:#1F3D2B;
+    --forest-mid:#3F6B44;
+    --sal-leaf:#7A9A4A;
+    --turmeric:#C97F1D;
+    --rust:#A13D2C;
+    --parchment:#F5F0E1;
+    --parchment-dark:#EBE1C4;
+    --card:#FBF8EF;
+    --charcoal:#2A2519;
+    --line:#D7C9A0;
+    --ink-soft:#6B6250;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--parchment); color:var(--charcoal); font-family:'Source Sans 3','Noto Sans Devanagari',sans-serif; -webkit-font-smoothing:antialiased;}
+  .devanagari{font-family:'Noto Sans Devanagari','Source Sans 3',sans-serif;}
+  .mono{font-family:'JetBrains Mono', monospace;}
+  .wrap{max-width:1080px; margin:0 auto; padding:0 26px 70px;}
+
+  header.masthead{border-bottom:3px solid var(--forest-deep); padding:32px 0 20px; margin-bottom:24px;}
+  .eyebrow{font-family:'JetBrains Mono',monospace; font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:var(--forest-mid); font-weight:700; display:flex; align-items:center; gap:9px; margin-bottom:10px;}
+  .eyebrow::before{content:""; width:20px; height:2px; background:var(--turmeric); display:inline-block;}
+  h1{font-family:'Fraunces',serif; font-weight:600; font-size:clamp(27px,3.8vw,36px); line-height:1.15; margin:0 0 6px; color:var(--forest-deep);}
+  h1 .hi{display:block; font-family:'Noto Sans Devanagari',serif; font-weight:700; font-size:.78em; color:var(--rust); margin-bottom:3px;}
+  .subtitle{color:var(--ink-soft); font-size:16px; max-width:640px;}
+
+  /* ===== TABS ===== */
+  .tabs{display:flex; gap:6px; margin-top:22px; border-bottom:1px solid var(--line);}
+  .tab-btn{
+    font-family:'JetBrains Mono',monospace; font-size:14px; letter-spacing:.03em;
+    padding:10px 16px; background:transparent; border:none; cursor:pointer;
+    color:var(--ink-soft); border-bottom:2px solid transparent; margin-bottom:-1px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .tab-btn .cnt{background:var(--parchment-dark); color:var(--charcoal); padding:1px 7px; border-radius:20px; font-size:13px;}
+  .tab-btn.active{color:var(--forest-deep); border-bottom-color:var(--forest-deep); font-weight:700;}
+  .tab-btn.active .cnt{background:var(--forest-deep); color:var(--parchment);}
+  .tab-btn:hover{color:var(--forest-deep);}
+
+  .subtabs{display:flex; gap:4px; border-bottom:1px solid var(--line);}
+  .subtab-btn{
+    font-family:'JetBrains Mono',monospace; font-size:13.5px; letter-spacing:.03em;
+    padding:8px 14px; background:transparent; border:none; cursor:pointer;
+    color:var(--ink-soft); border-bottom:2px solid transparent; margin-bottom:-1px;
+    display:flex; align-items:center; gap:7px;
+  }
+  .subtab-btn .cnt{background:var(--parchment-dark); color:var(--charcoal); padding:1px 7px; border-radius:20px; font-size:12px;}
+  .subtab-btn.active{color:var(--forest-deep); border-bottom-color:var(--forest-deep); font-weight:700;}
+  .subtab-btn.active .cnt{background:var(--forest-deep); color:var(--parchment);}
+  .subtab-btn:hover{color:var(--forest-deep);}
+
+  .order-subtab-btn.active{color:var(--turmeric); border-bottom-color:var(--turmeric);}
+  .order-subtab-btn.active .cnt{background:var(--turmeric); color:#fff;}
+  .order-subtab-btn:hover{color:var(--turmeric);}
+
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block; animation:fade .2s ease;}
+  @keyframes fade{from{opacity:0;} to{opacity:1;}}
+
+  /* ===== KPI STRIP (simple, 3-4 cards) ===== */
+  .kpi-strip{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); margin:26px 0;}
+  .kpi{background:var(--card); padding:16px 18px;}
+  .kpi .num{font-family:'Fraunces',serif; font-weight:700; font-size:31.5px; color:var(--forest-deep); line-height:1;}
+  .kpi.warn .num{color:var(--turmeric);}
+  .kpi .lbl{margin-top:6px; font-size:13.5px; color:var(--ink-soft); line-height:1.3;}
+
+  /* ===== SIMPLE BREAKDOWN ===== */
+
+  /* ===== FILTERS ===== */
+  .filter-bar{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:14px; padding:10px 14px; background:var(--parchment-dark); border:1px solid var(--line);}
+  .filter-group{display:flex; gap:6px; flex-wrap:wrap;}
+  .chip{font-family:'JetBrains Mono',monospace; font-size:12px; padding:5px 11px; border:1px solid var(--line); background:var(--card); color:var(--charcoal); cursor:pointer; border-radius:20px; user-select:none;}
+  .chip:hover{border-color:var(--forest-mid);}
+  .chip.active{background:var(--forest-deep); color:var(--parchment); border-color:var(--forest-deep);}
+  .filter-bar input[type="search"]{margin-left:auto; font-size:14.5px; padding:7px 12px; border:1px solid var(--line); background:var(--card); min-width:190px; border-radius:20px; color:var(--charcoal);}
+  .result-count{font-size:13px; color:var(--ink-soft); margin-bottom:10px;}
+
+  /* ===== TABLE / LEDGER ===== */
+  .ledger{border:1px solid var(--line); background:var(--card); margin-bottom:10px;}
+  .case-row{border-top:1px solid var(--line);}
+  .case-row:first-child{border-top:none;}
+  .row-main{display:grid; gap:8px; padding:12px 14px; align-items:center; cursor:pointer; transition:background .12s;}
+  .row-main:hover{background:var(--parchment-dark);}
+  .case-row.open .row-main{background:var(--parchment-dark);}
+  .case-row.reply-pending{border-left:3px solid var(--rust);}
+  .case-row.reply-pending .row-main{background:rgba(161,61,44,.06);}
+  .case-row.reply-pending .row-main:hover{background:rgba(161,61,44,.12);}
+  .case-row.reply-pending.open .row-main{background:rgba(161,61,44,.12);}
+  .case-no{font-family:'JetBrains Mono',monospace; font-weight:700; font-size:14px; color:var(--forest-deep);}
+  .sub-line{font-size:12px; color:var(--ink-soft); margin-top:2px;}
+  .party{font-size:14.5px; font-weight:600; color:var(--charcoal);}
+  .pill{font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.03em; text-transform:uppercase; padding:3px 9px; border-radius:20px; text-align:center; font-weight:700; white-space:nowrap; display:inline-block;}
+  .pill-green{background:rgba(63,107,68,.14); color:var(--forest-mid);}
+  .pill-amber{background:rgba(201,127,29,.16); color:var(--turmeric);}
+  .pill-rust{background:rgba(161,61,44,.13); color:var(--rust);}
+  .pill-grey{background:var(--parchment-dark); color:var(--ink-soft);}
+  .chevron{transition:transform .18s; color:var(--forest-mid); font-size:15px; text-align:center;}
+  .case-row.open .chevron{transform:rotate(90deg);}
+
+  .row-detail{max-height:0; overflow:hidden; transition:max-height .2s ease; background:#fff; border-top:1px dashed var(--line);}
+  .case-row.open .row-detail{max-height:320px;}
+  .row-detail-inner{padding:14px 22px 18px; display:grid; grid-template-columns:1fr 1fr; gap:14px 26px; font-size:14px;}
+  .detail-block.full{grid-column:1/-1;}
+  .dl{font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.07em; text-transform:uppercase; color:var(--turmeric); margin-bottom:4px;}
+  .dv{color:var(--charcoal); line-height:1.5;}
+
+  /* column templates per tab */
+  #wildlifeBody .row-main, #wildlifeHead{grid-template-columns:120px 1fr 95px 60px 120px 30px;}
+  #highcourtBody .row-main, #highcourtHead{grid-template-columns:135px 1fr 165px 150px 30px;}
+  #subcourtBody .row-main, #subcourtHead{grid-template-columns:125px 1fr 210px 30px;}
+  .ledger-head{display:grid; gap:8px; padding:9px 14px; background:var(--forest-deep); color:var(--parchment); font-family:'JetBrains Mono',monospace; font-size:11.5px; text-transform:uppercase; letter-spacing:.05em;}
+
+  footer{margin-top:40px; padding-top:16px; border-top:2px solid var(--forest-deep); display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; font-size:13px; color:var(--ink-soft);}
+
+  @media (max-width:760px){
+    #wildlifeBody .row-main, #wildlifeHead,
+    #highcourtBody .row-main, #highcourtHead,
+    #subcourtBody .row-main, #subcourtHead{grid-template-columns:1fr auto;}
+    .ledger-head{display:none;}
+    .row-detail-inner{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="eyebrow">रायगढ़ वनमंडल &middot; Raigarh Forest Division &middot; June 2026 report</div>
+    <h1><span class="hi">न्यायालयीन प्रकरण डैशबोर्ड</span>Case Dashboard</h1>
+    <p class="subtitle">All pending / registered cases involving Raigarh Van Mandal &mdash; wildlife offense (POR) prosecutions, and litigation before the High Court and subordinate courts. <b>Data updated: 17 Sep 2026.</b></p>
+
+    <nav class="tabs">
+      <button class="tab-btn active" data-tab="wildlife">Wildlife Offense (POR) <span class="cnt">23</span></button>
+      <button class="tab-btn" data-tab="highcourt">High Court, Bilaspur <span class="cnt">41</span></button>
+      <button class="tab-btn" data-tab="subcourt">Subordinate Courts <span class="cnt">6</span></button>
+    </nav>
+  </header>
+
+  <!-- ============ WILDLIFE TAB ============ -->
+  <section class="tab-panel active" id="panel-wildlife">
+    <div class="kpi-strip">
+      <div class="kpi"><div class="num">23</div><div class="lbl">Total POR cases</div></div>
+      <div class="kpi"><div class="num">14</div><div class="lbl">Challan filed in court</div></div>
+      <div class="kpi warn"><div class="num">4</div><div class="lbl">Investigation / challan pending</div></div>
+      <div class="kpi warn"><div class="num">5</div><div class="lbl">Record incomplete in register</div></div>
+    </div>
+    <p style="font-size:14.5px;color:var(--charcoal);margin:0 0 12px;line-height:1.7;">
+      <strong>By species:</strong> Wild Boar 13 &middot; Wild Elephant (dead) 4 &middot; Sambar 3 &middot; Bear 2 &middot; Kotri 1
+    </p>
+    <p style="font-size:14.5px;color:var(--charcoal);margin:0 0 20px;line-height:1.7;">
+      <strong>By range:</strong> Tamnar 7 &middot; Raigarh 6 &middot; Gharghoda 5 &middot; Unknown (officer not recorded) 5 &middot; Kharsia 0
+    </p>
+
+    <div class="filter-bar">
+      <div class="filter-group" id="wl-status-filters">
+        <span class="chip active" data-status="all">All</span>
+        <span class="chip" data-status="filed">Challan filed</span>
+        <span class="chip" data-status="pending">Pending</span>
+        <span class="chip" data-status="incomplete">Incomplete</span>
+      </div>
+      <div class="filter-group" id="wl-range-filters">
+        <span class="chip active" data-range="all">All ranges</span>
+        <span class="chip" data-range="Raigarh">Raigarh</span>
+        <span class="chip" data-range="Kharsia">Kharsia</span>
+        <span class="chip" data-range="Gharghoda">Gharghoda</span>
+        <span class="chip" data-range="Tamnar">Tamnar</span>
+        <span class="chip" data-range="Unknown">Unknown</span>
+      </div>
+      <input type="search" id="wl-search" placeholder="Search POR no., species, officer…">
+    </div>
+    <div class="result-count" id="wl-count"></div>
+    <div class="ledger">
+      <div class="ledger-head" id="wildlifeHead"><div>POR No.</div><div>Species</div><div>Range</div><div>Accused</div><div>Status</div><div></div></div>
+      <div id="wildlifeBody"></div>
+    </div>
+  </section>
+
+  <!-- ============ HIGH COURT TAB ============ -->
+  <section class="tab-panel" id="panel-highcourt">
+    <div class="kpi-strip">
+      <div class="kpi"><div class="num">41</div><div class="lbl">Cases in the PCCFMS register (all logged as "pending")</div></div>
+      <div class="kpi warn"><div class="num">14</div><div class="lbl">Actually already DISPOSED, per court portal check</div></div>
+      <div class="kpi"><div class="num">12</div><div class="lbl">Confirmed still pending, per court portal check</div></div>
+      <div class="kpi warn"><div class="num">2</div><div class="lbl">Case-number mismatches needing verification</div></div>
+    </div>
+    <p style="font-size:14px;color:var(--ink-soft);margin:-14px 0 16px;line-height:1.5;">28 of the 41 cases were checked directly against the High Court e-Courts portal (Aug 2026). The register's "लंबित" (pending) status is a snapshot from June and hasn't been refreshed — 14 of the checked cases have since been disposed. The remaining 13 cases have not yet been checked.</p>
+    <p style="font-size:14.5px;color:var(--charcoal);margin:0 0 20px;line-height:1.7;">
+      <strong>By subject:</strong> Service/establishment 18 &middot; SECL &amp; Jindal Power land use 6 &middot; Vehicle/property seizure 5 &middot; Transit-pass fee disputes 4 &middot; Environment &amp; land matters 3 &middot; Dues/recovery 3 &middot; Wildlife (elephant deaths PIL) 1 &middot; Other 1
+    </p>
+
+    <div class="subtabs" id="hc-reply-tabs" style="margin-top:0;margin-bottom:12px;">
+      <button class="subtab-btn active" data-reply="all">All <span class="cnt">41</span></button>
+      <button class="subtab-btn" data-reply="filed">Reply Filed <span class="cnt">36</span></button>
+      <button class="subtab-btn" data-reply="pending">Reply Pending <span class="cnt">5</span></button>
+    </div>
+
+    <div class="subtabs order-subtabs" id="hc-order-tabs" style="margin-top:0;margin-bottom:16px;">
+      <button class="subtab-btn order-subtab-btn active" data-order="all">All <span class="cnt">41</span></button>
+      <button class="subtab-btn order-subtab-btn" data-order="passed">Order Passed <span class="cnt">14</span></button>
+      <button class="subtab-btn order-subtab-btn" data-order="pending">Order Pending <span class="cnt">27</span></button>
+    </div>
+
+    <div class="filter-bar">
+      <div class="filter-group" id="hc-verified-filters">
+        <span class="chip active" data-verified="all">All</span>
+        <span class="chip" data-verified="disposed">Disposed (verified)</span>
+        <span class="chip" data-verified="pending">Pending (verified)</span>
+        <span class="chip" data-verified="mismatch">Needs verification</span>
+        <span class="chip" data-verified="unchecked">Not yet checked</span>
+      </div>
+      <div class="filter-group" id="hc-cat-filters">
+        <span class="chip active" data-cat="all">All subjects</span>
+        <span class="chip" data-cat="Service">Service</span>
+        <span class="chip" data-cat="SECL/JSPL">SECL/JSPL</span>
+        <span class="chip" data-cat="Vehicle">Vehicle</span>
+        <span class="chip" data-cat="TP Fee">TP Fee</span>
+        <span class="chip" data-cat="Environment/Land">Environment</span>
+        <span class="chip" data-cat="Dues">Dues</span>
+      </div>
+      <input type="search" id="hc-search" placeholder="Search case no., petitioner…">
+    </div>
+    <div class="result-count" id="hc-count"></div>
+    <div class="ledger">
+      <div class="ledger-head" id="highcourtHead"><div>Case No.</div><div>Petitioner</div><div>Subject</div><div>Status</div><div></div></div>
+      <div id="highcourtBody"></div>
+    </div>
+  </section>
+
+  <!-- ============ SUBORDINATE COURT TAB ============ -->
+  <section class="tab-panel" id="panel-subcourt">
+    <div class="kpi-strip">
+      <div class="kpi"><div class="num">6</div><div class="lbl">Cases pending, subordinate forums</div></div>
+      <div class="kpi"><div class="num">4</div><div class="lbl">In Civil Court Class-1, Raigarh</div></div>
+      <div class="kpi warn"><div class="num">1</div><div class="lbl">Now on appeal to High Court</div></div>
+    </div>
+    <div class="filter-bar">
+      <input type="search" id="sc-search" placeholder="Search case no., petitioner, forum…" style="margin-left:0;">
+    </div>
+    <div class="result-count" id="sc-count"></div>
+    <div class="ledger">
+      <div class="ledger-head" id="subcourtHead"><div>Case No.</div><div>Petitioner</div><div>Forum</div><div></div></div>
+      <div id="subcourtBody"></div>
+    </div>
+  </section>
+
+  <footer>
+    <span>Van Mandal Adhikari, Raigarh Van Mandal &middot; source: PCCFMS monthly report, June 2026 (forest.cg.gov.in)</span>
+    <span class="mono">Chhattisgarh Van Vibhag &middot; internal monitoring dashboard</span>
+  </footer>
+</div>
+
+<script>
+/* ================= DATA ================= */
+const wildlifeCases = [
+  {id:1, por:"7510/22", date:"05/04/2021", species:"Sambar", accused:"2", seized:"Not legibly recorded in source scan.", invBy:"—", challan:"—", status:"incomplete", range:"Unknown"},
+  {id:2, por:"4663/06", date:"08/08/2021", species:"Sambar", accused:"2", seized:"15 kg meat, 2 gutka, 1 katta, 1 torch, sharpening stone, 2 slipper chappals.", invBy:"—", challan:"—", status:"incomplete", range:"Unknown"},
+  {id:3, por:"4637/15", date:"27/09/2021", species:"Wild Boar", accused:"7", seized:"Leg hoof, hair-laden meat, jaw bone, blood-soaked soil, 2 axes, 2 parsul.", invBy:"Parikshetra Sahayak, Bangurasiya (West)", challan:"Filed 28/09/2021 by Van Parikshetra Adhikari, Raigarh", status:"filed", range:"Raigarh"},
+  {id:4, por:"4781/14", date:"04/11/2021", species:"Wild Boar", accused:"—", seized:"Iron katta, parsul, wood, motorcycle, raw meat.", invBy:"Parikshetra Sahayak, Khamharia", challan:"16/22, filed 11/01/2022", status:"filed", range:"Tamnar"},
+  {id:5, por:"4781/15", date:"11/11/2021", species:"Wild Boar", accused:"3", seized:"Skin with bone, liver (45 packets, 45 kg raw meat), head meat 5 kg, tail.", invBy:"Parikshetra Sahayak, Khamharia", challan:"21/22, filed 24/01/2022", status:"filed", range:"Tamnar"},
+  {id:6, por:"4797/09", date:"15/11/2021", species:"Wild Boar", accused:"1", seized:"Boar intestine, 3–4 kg cooked meat.", invBy:"Shri Vijay Kumar Minj, Parikshetra Sahayak Chimtapani", challan:"—", status:"pending", note:"Investigation pending; challan pending.", range:"Gharghoda"},
+  {id:7, por:"3387/23", date:"15/01/2022", species:"Wild Boar", accused:"5", seized:"Meat-making tools: gutka, kharda, axe.", invBy:"—", challan:"—", status:"incomplete", range:"Unknown"},
+  {id:8, por:"4959/01", date:"19/04/2022", species:"Sambar", accused:"7", seized:"11,000 kV electric wire, GI wire.", invBy:"—", challan:"—", status:"incomplete", range:"Unknown"},
+  {id:9, por:"4614/02", date:"16/09/2022", species:"Wild Boar", accused:"9", seized:"Plastic-wrapped hair-laden meat and liver, 8 kg.", invBy:"Van Parikshetra Adhikari, Tamnar", challan:"35/23, filed 06/01/2023", status:"filed", range:"Tamnar"},
+  {id:10, por:"4665/06", date:"29/09/2022", species:"Wild Boar", accused:"3", seized:"Raw meat 500 g, axe, kadhai.", invBy:"—", challan:"—", status:"incomplete", range:"Unknown"},
+  {id:11, por:"4914/03", date:"02/10/2022", species:"Wild Boar", accused:"13", seized:"Head, leg, liver, lungs, hair-laden meat totalling 50 kg; cutting tool, axe, parsul.", invBy:"Van Parikshetra Adhikari, Tamnar", challan:"29/23, filed 13/12/2022", status:"filed", range:"Tamnar"},
+  {id:12, por:"4784/14", date:"08/10/2022", species:"Wild Boar", accused:"2", seized:"1 kg meat, wooden gutka, axe.", invBy:"Parikshetra Sahayak, Urba", challan:"693/22, filed 07/12/2022", status:"filed", range:"Tamnar"},
+  {id:13, por:"4823/10", date:"20/11/2022", species:"Wild Elephant", accused:"6", seized:"Body of dead female wild elephant.", invBy:"Shri Vijay Kumar Bhagat, Parikshetra Sahayak Charchatangar", challan:"—", status:"pending", note:"Investigation pending.", range:"Gharghoda"},
+  {id:14, por:"4932/07", date:"09/12/2022", species:"Wild Elephant", accused:"1", seized:"Body of dead male wild elephant.", invBy:"Shri Bhogilal Gupta, then Parikshetra Sahayak, Kudumkela", challan:"Filed 20/10/2023 by Shri Hemlal Jaiswal, i/c Van Parikshetra Adhikari, Gharghoda", status:"filed", range:"Gharghoda"},
+  {id:15, por:"4765/19", date:"23/10/2023", species:"Wild Boar", accused:"3", seized:"5 kg meat, gunny/silver sack, 3 axes, parsul, 16 bamboo stakes, GI wire.", invBy:"Van Parikshetra Adhikari, Raigarh", challan:"Filed 26/10/2023", status:"filed", range:"Raigarh"},
+  {id:16, por:"4765/20", date:"28/10/2023", species:"Bear", accused:"1", seized:"Carcass of 1 male bear.", invBy:"Van Parikshetra Adhikari, Raigarh", challan:"Filed 30/10/2023", status:"filed", range:"Raigarh"},
+  {id:17, por:"4904/17", date:"06/12/2024", species:"Wild Boar", accused:"5", seized:"Skin with bone, liver, 50 kg raw meat, weighing scale, parsul, GI wire, towel.", invBy:"Van Parikshetra Adhikari, Tamnar", challan:"17/2025, filed 28/01/2025", status:"filed", range:"Tamnar"},
+  {id:18, por:"4781/17", date:"20/10/2025", species:"Wild Elephant", accused:"16", seized:"Skin with bone, liver, 50 kg raw meat, GI wire, towel.", invBy:"Parikshetra Sahayak, Urba", challan:"830/2025, filed 10/12/2025", status:"filed", range:"Tamnar"},
+  {id:19, por:"4673/13", date:"24/01/2026", species:"Bear", accused:"5", seized:"1 dead bear; paws recovered with claws (measurements recorded).", invBy:"Van Parikshetra Adhikari, Raigarh", challan:"Filed 21/01/2026", status:"filed", range:"Raigarh"},
+  {id:20, por:"4823/16", date:"11/03/2026", species:"Wild Elephant", accused:"2", seized:"Bodies of 2 dead elephants (M &amp; F), solar shock fencing set, hooking wire, irrigation pipe.", invBy:"Shri Vijay Kumar Bhagat, Parikshetra Sahayak Charchatangar", challan:"—", status:"pending", note:"Investigation pending.", range:"Gharghoda"},
+  {id:21, por:"7541/08", date:"16/04/2026", species:"Kotri", accused:"5", seized:"Cooked kotri meat, 4.8 kg total, and 1 cutting weapon.", invBy:"Parikshetra Sahayak, Raigarh-2", challan:"Filed 16/04/2026", status:"filed", range:"Raigarh"},
+  {id:22, por:"4679/10", date:"20/07/2026", species:"Wild Boar", accused:"5", seized:"Boar hunted and cut into pieces; meat in polythene sheet.", invBy:"Parikshetra Sahayak, Junwani", challan:"Filed 20/07/2026", status:"filed", range:"Raigarh"},
+  {id:23, por:"4968/14", date:"20/07/2026", species:"Wild Boar", accused:"2", seized:"Boar trapped in wire/rope snare; accused caught cutting legs.", invBy:"Parikshetra Sahayak, Charchatangar", challan:"—", status:"pending", note:"Investigation pending; challan not yet submitted.", range:"Gharghoda"},
+];
+
+const highCourtCases = [
+  {id:1, no:"WPS 3466", year:"2021", petitioner:"Ram Narayan Rajak", subject:"नियमितीकरण के सम्बध में (Regularization of service)", category:"Service", officer:"उप वनमंडलाधिकारी, रायगढ़", reply:true, replyDate:"28-07-2021", verified:"pending", vNote:"Stage: motion hearing. Last order 11-08-2025 — posted for final hearing."},
+  {id:2, no:"WP(CR) 333", year:"2019", petitioner:"Kalindar Rathiya vs. CCF &amp; others", subject:"वाहन जप्ती संबंधी (Vehicle seizure)", category:"Vehicle", officer:"उप.म.अ. रायगढ़", reply:true, replyDate:"18-06-2019", verified:"disposed", outcome:"Allowed (27-06-2023)", vNote:"Court held sand is not scheduled forest produce; ordered release of the seized tractor &amp; trolley to the petitioner."},
+  {id:3, no:"WPS 7011", year:"2018", petitioner:"Saligram Sai vs. CG Govt. &amp; others", subject:"देयसत्तवों के भुगतान से संबंधित (Payment of dues)", category:"Dues", officer:"उप.म.अ. रायगढ़", reply:true, replyDate:"31-10-2019", verified:"disposed", outcome:"Dismissed as infructuous (24-06-2024)", vNote:"Petitioner's counsel submitted the petition had become infructuous with efflux of time; not opposed by the State."},
+  {id:4, no:"WP(S) 5322", year:"2024", petitioner:"Ankit Kumar Gupta vs. CG Govt. &amp; 3 others", subject:"पदोन्नति के संबंध में (Promotion)", category:"Service", officer:"उप वनमण्डलाधिकारी, रायगढ़", reply:true, replyDate:"19/11/2024", verified:"pending", vNote:"One of ~18 linked promotion petitions (lead case WPS 5269/2024, Mangalu Ram Kudiyam vs. State). Still active; last heard 27-07-2026."},
+  {id:5, no:"WP(S) 5336", year:"2024", petitioner:"Palu Ram Sahu vs. CG Govt. &amp; others", subject:"पदोन्नति के संबंध में (Promotion)", category:"Service", officer:"उप वनमण्डलाधिकारी, रायगढ़", reply:true, replyDate:"19/11/2024", verified:"pending", vNote:"Same linked batch as WPS 5322/2024 (lead case WPS 5269/2024). Still active; last heard 27-07-2026."},
+  {id:6, no:"WPS 5720", year:"2022", petitioner:"Saligram Sai vs. CG Govt.", subject:"देय सत्तवों भुगतान संबंधी (Payment of dues)", category:"Dues", officer:"उप.म.अ. रायगढ़", reply:true, replyDate:"29-09-2022", verified:"disposed", outcome:"Disposed, uncontested (04-09-2025)", vNote:"Petition sought withheld gratuity &amp; pension arrears with interest."},
+  {id:7, no:"3706", year:"2014", petitioner:"Saroj Kumar Tiwari", subject:"नियमितिकरण (Regularization)", category:"Service", officer:"वन मंडलाधिकारी", reply:true, replyDate:"07-10-2014", verified:"disposed", outcome:"Disposed, contested (03-09-2024)", vNote:"Court examined seniority/regularization records; petitioner appointed 01.01.1997, found within zone of consideration."},
+  {id:8, no:"WPS 2990", year:"2015", petitioner:"Savitri Devi Dhiwar vs. Govt.", subject:"नियमितिकरण के संबंध में (Regularization)", category:"Service", officer:"व.म.अ. रायगढ़", reply:true, replyDate:"30-10-2015", verified:"disposed", outcome:"Disposed, contested (06-08-2024)", vNote:"Regularization claim examined under 05.03.2008 circular."},
+  {id:9, no:"WP 349", year:"2021", petitioner:"Bajrang Agrawal vs. CG Govt.", subject:"राजसात वाहन से संबंधी (Confiscated vehicle)", category:"Vehicle", officer:"उप.म.अ. घरघोड़ा", reply:true, replyDate:"30-07-2021", verified:"mismatch", vNote:"⚠ Portal lookup for reg. no. 349/2021 returned case type WPS (not WP): Shiv Kumar Sarthi vs. State — an unrelated teacher pay-scale matter under the Panchayat Dept. Likely a case-type mismatch; the correct WP 349/2021 record for Bajrang Agrawal needs to be located separately."},
+  {id:10, no:"WPS 4046", year:"2016", petitioner:"M.L. Shrivas vs. CG Govt. &amp; 3 others", subject:"चिकित्सा भत्ता संबधी (Medical allowance)", category:"Service", officer:"व.म.अ. रायगढ़", reply:true, replyDate:"06-02-2017", verified:"pending", vNote:"Stage: motion hearing. Last order 05-01-2022 — documents taken on record, listed for final hearing."},
+  {id:11, no:"WP(C) 582", year:"2025", petitioner:"Ravindra Prakash Gabel", subject:"शासकीय वन भूमि क्रमांक 1160 पी.एफ. बरगढ़ में निजी भूमि साफ-सफाई एवं मुरूम मिट्टी फिलिंग (Encroachment/land-filling on govt. forest land)", category:"Environment/Land", officer:"श्री नवीन कुमार, उप वनमण्डलाधिकारी, रायगढ़", reply:true, replyDate:"—", note:"Addl. govt. advocate Shri R.K. Gupta directed to appear (19/03/2025).", verified:"pending", vNote:"Fresh matters stage. Order 29-01-2025 — State counsel sought &amp; was given time to file reply."},
+  {id:12, no:"WPS 4973", year:"2021", petitioner:"Milan Singh Bhagat vs. CG Govt. &amp; 4 others", subject:"वसूली से संबंधित् (Recovery of dues)", category:"Dues", officer:"उप.म.अ. घरघोड़ा", reply:true, replyDate:"17-02-2021"},
+  {id:13, no:"WPCR 385", year:"2021", petitioner:"Bajrang Agrawal", subject:"राज सात वाहन के सम्बन्ध में (Confiscated vehicle)", category:"Vehicle", officer:"उप वनमंडल अधिकारी, घरघोड़ा", reply:true, replyDate:"06-08-2021", verified:"mismatch", vNote:"⚠ Portal lookup for reg. no. 385/2021 returned case type WPC (not WPCR): Shyamsunder Singh vs. SECL — an unrelated eviction/rehabilitation matter under the Public Premises Act. Likely a case-type mismatch; the correct WPCR 385/2021 record for Bajrang Agrawal needs to be located separately."},
+  {id:14, no:"WPC 1399", year:"2013", petitioner:"Jaiswal Nico Industries vs. Govt.", subject:"टी.पी. शुल्क संबंधी (Transit-pass fee)", category:"TP Fee", officer:"व.म.अ. रायगढ़", reply:true, replyDate:"12-02-2014", verified:"disposed", outcome:"Disposed (30-09-2019)", vNote:"Batched with ~9 other TP-fee/transit-rule challenges (Godawari Power, Balco, SECL x4, Monnet Ispat, SAIL Bhilai). Court tied outcome to a related matter pending before the Supreme Court; interim orders made absolute till the Apex Court rules."},
+  {id:15, no:"WPS 4059", year:"2018", petitioner:"Yogendra Gandecha vs. CG Govt. &amp; others", subject:"स्थानांतरण से संबंधित (Transfer)", category:"Service", officer:"व.म.अ. रायगढ़", reply:true, replyDate:"29-10-2018", verified:"disposed", outcome:"Dismissed, contested (11-06-2024)"},
+  {id:16, no:"WPS 7187", year:"2024", petitioner:"Naresh Chandra Satpathi", subject:"दैनिक वेतन भोगी की कार्यावधि, वरियता एवं देयसत्तों का भुगतान (Daily-wage seniority &amp; dues)", category:"Service", officer:"उप वनमण्डलाधिकारी, रायगढ़", reply:true, replyDate:"03/01/2025", verified:"pending", vNote:"Stage: motion hearing. Order 22-11-2024 — State given 2 weeks to file reply."},
+  {id:17, no:"WPC 912", year:"2009", petitioner:"VE Steel Ltd. vs. Govt.", subject:"टी.पी. शुल्क संबंधी (Transit-pass fee)", category:"TP Fee", officer:"व.म.अ. रायगढ़", reply:true, replyDate:"25-09-2010", verified:"disposed", outcome:"Withdrawn (31-03-2016)"},
+  {id:18, no:"WP(S) 5338", year:"2024", petitioner:"Shashi Kumar Banjare vs. CG Govt. &amp; others", subject:"पदोन्नति के संबंध में (Promotion)", category:"Service", officer:"—", reply:true, replyDate:"19/11/2024", verified:"pending", vNote:"Same linked promotion batch as WPS 5322/2024 &amp; 5336/2024 (lead case WPS 5269/2024). Still active; last heard 27-07-2026."},
+  {id:19, no:"WPS 2622", year:"2015", petitioner:"Shravan Kumar Yadav vs. Govt.", subject:"स्थांनतरण से संबंधित (Transfer)", category:"Service", officer:"उप.म.अ. रायगढ़", reply:true, replyDate:"21-07-2016", verified:"disposed", outcome:"Dismissed, contested (19-10-2023)", vNote:"Petitioner failed to prove continuous service since 1995 as claimed."},
+  {id:20, no:"WP 3206", year:"2021", petitioner:"Narmada Dhiwar vs. CG Govt.", subject:"नियमितिकरण के संबंध में (Regularization)", category:"Service", officer:"उप.म.अ. रायगढ़", reply:true, replyDate:"20-07-2021", verified:"pending", vNote:"Stage: motion hearing. Order 16-10-2025 — listed for final hearing in the week of 15 Dec 2025."},
+  {id:21, no:"WPS 5363", year:"2017", petitioner:"Shri Balwant Singh", subject:"सेवानिवृत्त संबंधी (Retirement)", category:"Service", officer:"उप.व.म.अ. बिलासपुर", reply:true, replyDate:"11-03-2023", verified:"pending", vNote:"Portal flags this case \"seems to be infructuous.\" Order 16-03-2026 — none appeared for petitioner even in the second round; listed again after a week."},
+  {id:22, no:"CRMP 1163", year:"2021", petitioner:"Balkrishna Yadav", subject:"राजसात प्रकरण के सम्बन्ध में (Confiscation case)", category:"Vehicle", officer:"मनमोहन लाल मिश्रा, उप वनमंडल अधिकारी, रायगढ़", reply:true, replyDate:"30-10-2021", verified:"disposed", outcome:"Dismissed for non-prosecution (21-06-2024)", vNote:"None appeared for the petitioner at hearing; case dismissed for want of prosecution."},
+  {id:23, no:"WP(S) 2840", year:"2012", petitioner:"Hemlal Jaiswal &amp; 9 others vs. Govt.", subject:"पदोन्नति नियम की धारा 5 को चुनौती (Challenge to Rule 5 of Promotion Rules — subject corrected from \"transfer\" per court record)", category:"Service", officer:"उप.म.अ. रायगढ़", reply:true, replyDate:"27-11-2012", verified:"disposed", outcome:"Allowed (29-11-2022)", vNote:"Rule 5 of the Chhattisgarh Civil Services Promotion Rules, 2003 quashed, following a Division Bench ruling in a connected batch (WA 409/2013 &amp; others)."},
+  {id:24, no:"WPC 776", year:"2025", petitioner:"Khushi Ram Sidar vs. CG Govt. &amp; others", subject:"SECL एवं जिंदल पावर लिमि. द्वारा गैरकानूनी कार्य के संबंध में (Alleged illegal work by SECL &amp; Jindal Power)", category:"SECL/JSPL", officer:"—", reply:false, note:"Under consideration; reply not yet filed.", verified:"pending", vNote:"Fresh matters stage, listed together with WPC 684/2025 (Pyare Lal Sidar). Confirms reply still not filed."},
+  {id:25, no:"WPS 5668", year:"2023", petitioner:"Bhanu Pratap Singh", subject:"वनरक्षक भर्ती के सम्बन्ध में (Forest Guard recruitment)", category:"Service", officer:"मनमोहन लाल मिश्रा, उप वनमंडल अधिकारी, रायगढ़", reply:true, replyDate:"06-09-2023", verified:"disposed", outcome:"Dismissed, contested (20-11-2025)", vNote:"Court found petitioner exceeded the upper age limit (45 yrs) by 30 days and did not appear for the physical test."},
+  {id:26, no:"WPS 4442", year:"2021", petitioner:"Shaukilal Ijaradar vs. CG Govt.", subject:"जन्म प्रमाणपत्र से संबंधित (Birth certificate)", category:"Other", officer:"उप.म.अ. रायगढ़", reply:true, replyDate:"08-09-2021", verified:"disposed", outcome:"Allowed (20-01-2026)"},
+  {id:27, no:"SA 262", year:"2022", petitioner:"Santosh Agrawal vs. CG Govt.", subject:"पर्यावरण पार्क भूमि संबंधी (Environmental-park land)", category:"Environment/Land", officer:"उप.म.अ. रायगढ़", reply:true, replyDate:"25-04-2022", verified:"pending", vNote:"This is a State Appeal (DFO is the appellant, Santosh Agrawal the respondent). Stage: orders on IAs. Order 29-07-2022 — delay in process-fee payment condoned."},
+  {id:28, no:"OA 39 (CZ)", year:"2017", petitioner:"Savita Rath vs. CG Govt. &amp; 5 others", subject:"पर्यावरण संबंधित (Environmental matter)", category:"Environment/Land", officer:"व.म.अ. रायगढ़", reply:true, replyDate:"—"},
+  {id:29, no:"1300", year:"2014", petitioner:"South Eastern Coalfields Ltd. vs. CG Govt.", subject:"टी.पी. शुल्क संबधी (Transit-pass fee)", category:"TP Fee", officer:"व.म.अ. रायगढ़", reply:true, replyDate:"10-11-2014", verified:"disposed", outcome:"Disposed off (30-09-2019)", vNote:"Part of the same transit-fee/Rule 5 batch judgment as WPC 1399/2013 (Jaiswal Nico, id 14) and WP(T) 68/2013 (SAIL Bhilai). Outcome tied to a related matter pending before the Supreme Court (Transfer Case (Civil) No. 14/2018); interim orders made absolute pending the Apex Court's ruling. Citation: 2019:CGHC:27338-DB."},
+  {id:30, no:"1083", year:"2015", petitioner:"Jaiswal Nico Industries", subject:"टी.पी. शुल्क सम्बन्धी (Transit-pass fee)", category:"TP Fee", officer:"वन मंडलाधिकारी", reply:true, replyDate:"17-08-2015", verified:"pending", vNote:"Portal flags this a \"Dormant Case.\" Last order 20-03-2025 — listed after 10 weeks, next hearing recorded as 19-06-2025. A separate track from the 30-09-2019 batch disposal that resolved WPC 1300/2014 (id 29) and WPC 1399/2013 (id 14) — same petitioner, different registration, still active."},
+  {id:31, no:"WPL 3980", year:"2025", petitioner:"Arvind Kumar Chauhan", subject:"प्रबंधक भर्ती के संबंध में (Manager recruitment)", category:"Service", officer:"उप प्रबंध संचालक, जिला वनोपज सह. यूनियन, रायगढ़", reply:true, replyDate:"20-06-2025"},
+  {id:32, no:"CR MP 214", year:"2013", petitioner:"Nitin Mittal vs. CG Govt.", subject:"वाहन जप्ती संबधी (Vehicle seizure)", category:"Vehicle", officer:"उप.म.अ. घरघोड़ा", reply:true, replyDate:"20-12-2013"},
+  {id:33, no:"WP(C) 781", year:"2025", petitioner:"Tikeshwari Patel vs. CG Govt. &amp; others", subject:"SECL एवं जिंदल पावर लिमि. द्वारा गैरकानूनी कार्य के संबंध में (Alleged illegal work by SECL &amp; Jindal Power)", category:"SECL/JSPL", officer:"श्री नवीन कुमार, उप वनमण्डलाधिकारी, रायगढ़", reply:false, note:"Addl. govt. advocate Shri R.K. Gupta directed to appear (19/03/2025)."},
+  {id:34, no:"2002", year:"2021", petitioner:"Satya Narayan Patel", subject:"प्रबंधक भर्ती के सम्बन्ध में (Manager recruitment)", category:"Service", officer:"उप प्रबंध संचालक, रायगढ़", reply:true, replyDate:"16-07-2021"},
+  {id:35, no:"WPC 714", year:"2025", petitioner:"Choila Ram Sidar vs. CG Govt. &amp; others", subject:"SECL एवं जिंदल पावर लिमि. द्वारा गैरकानूनी कार्य के संबंध में (Alleged illegal work by SECL &amp; Jindal Power)", category:"SECL/JSPL", officer:"—", reply:false, note:"Under consideration; reply not yet filed."},
+  {id:36, no:"WP(L) 97", year:"2025", petitioner:"Ramtej Dwivedi (deceased)", subject:"दैनिक वेतन भोगी काल के भुगतान के संबंध में (Daily-wage period payment)", category:"Service", officer:"उप वनमण्डलाधिकारी, रायगढ़", reply:true, replyDate:"13-06-2025"},
+  {id:37, no:"WPC 713", year:"2025", petitioner:"Sunny Ram Sidar vs. CG Govt. &amp; others", subject:"SECL एवं जिंदल पावर लिमि. द्वारा गैरकानूनी कार्य के संबंध में (Alleged illegal work by SECL &amp; Jindal Power)", category:"SECL/JSPL", officer:"—", reply:false, note:"Under consideration; reply not yet filed."},
+  {id:38, no:"WPC 684", year:"2025", petitioner:"Pyare Lal Sidar vs. CG Govt. &amp; others", subject:"SECL एवं जिंदल पावर लिमि. द्वारा गैरकानूनी कार्य के संबंध में (Alleged illegal work by SECL &amp; Jindal Power)", category:"SECL/JSPL", officer:"—", reply:false, note:"Under consideration; reply not yet filed."},
+  {id:39, no:"WP(C) 2361", year:"2025", petitioner:"Amrit Lal Bhagat", subject:"SECL एवं JSPL गैर कानूनी कार्य के संबंध (Alleged illegal work by SECL &amp; JSPL)", category:"SECL/JSPL", officer:"उप वनमण्डलाधिकारी, रायगढ़", reply:true, replyDate:"16-07-2025"},
+  {id:40, no:"WP(PIL) 89", year:"2024", petitioner:"Published in Times of India, Raipur", subject:"03 हाथियों की मृत्यु के संबंध में (Deaths of 3 elephants — PIL)", category:"Wildlife", officer:"वनमण्डलाधिकारी, रायगढ़", reply:true, replyDate:"04-11-2024"},
+  {id:41, no:"WP 3494", year:"2021", petitioner:"Vinod Ijaradar vs. CG Govt.", subject:"नियमितिकरण के संबंध में (Regularization)", category:"Service", officer:"उप.म.अ. रायगढ़", reply:true, replyDate:"28-07-2021"},
+];
+
+const subCourtCases = [
+  {id:1, no:"38", year:"2009", petitioner:"Paras Vanaspati Limited", officer:"व.म.अ. रायगढ़", forum:"Civil Court Class-1, Raigarh → now on appeal in High Court", note:"Civil Court Class-1 Raigarh ruled in favour of the state. Paras Vanaspati has appealed to the High Court; the department's reply is being prepared."},
+  {id:2, no:"अपंजीकृत (unregistered)", year:"2012", petitioner:"Shiv Prasad Gavel", officer:"व.म.अ. रायगढ़", forum:"Civil Court Class-1, Raigarh", note:"—"},
+  {id:3, no:"842", year:"—", petitioner:"Devi Prasad Tiwari", officer:"व.म.अ. रायगढ़", forum:"Civil Court Class-1, Raigarh", note:"—"},
+  {id:4, no:"50A", year:"2016", petitioner:"Pushpa Singhal", officer:"व.म.अ. रायगढ़", forum:"Civil Court Class-1, Raigarh", note:"—"},
+  {id:5, no:"71", year:"2015", petitioner:"Ramcharan Sarathi", officer:"परिक्षेत्र अधिकारी, खरसिया", forum:"Civil Court Class-1, Raigarh", note:"—"},
+  {id:6, no:"13/R/B/21/60/06", year:"2006", petitioner:"Baijnath", officer:"उप व.म.अ. रायगढ़", forum:"Revenue Board, Bilaspur", note:"—"},
+];
+
+/* ================= RENDER: WILDLIFE ================= */
+const statusMeta = {filed:{l:"Filed", c:"pill-green"}, pending:{l:"Pending", c:"pill-amber"}, incomplete:{l:"Incomplete", c:"pill-rust"}};
+let wlStatus="all", wlRange="all", wlQuery="";
+function renderWildlife(){
+  const q=wlQuery.trim().toLowerCase();
+  const filtered = wildlifeCases.filter(c=>{
+    if(wlStatus!=="all" && c.status!==wlStatus) return false;
+    if(wlRange!=="all" && c.range!==wlRange) return false;
+    if(q && !(c.por+" "+c.species+" "+c.invBy).toLowerCase().includes(q)) return false;
+    return true;
+  });
+  document.getElementById("wl-count").textContent = `Showing ${filtered.length} of ${wildlifeCases.length} cases`;
+  document.getElementById("wildlifeBody").innerHTML = filtered.map(c=>{
+    const sm=statusMeta[c.status];
+    const rangeUnknown = c.range==="Unknown";
+    return `<div class="case-row" data-id="${c.id}">
+      <div class="row-main" style="grid-template-columns:120px 1fr 95px 60px 120px 30px;">
+        <div><div class="case-no">POR ${c.por}</div><div class="sub-line">${c.date}</div></div>
+        <div class="party">${c.species}</div>
+        <div>${rangeUnknown?`<span class="pill pill-grey">Unknown</span>`:`<span class="pill pill-green">${c.range}</span>`}</div>
+        <div style="font-family:'JetBrains Mono',monospace; font-size:14px; text-align:center;">${c.accused}</div>
+        <div><span class="pill ${sm.c}">${sm.l}</span></div>
+        <div class="chevron">▸</div>
+      </div>
+      <div class="row-detail"><div class="row-detail-inner">
+        <div class="detail-block full"><div class="dl">Seized material</div><div class="dv">${c.seized}</div></div>
+        <div class="detail-block"><div class="dl">Investigated by</div><div class="dv">${c.invBy}</div></div>
+        <div class="detail-block"><div class="dl">Range</div><div class="dv">${c.range}${rangeUnknown?" — investigating officer not recorded in register":""}</div></div>
+        <div class="detail-block"><div class="dl">Challan</div><div class="dv">${c.challan}</div></div>
+        ${c.note?`<div class="detail-block full"><div class="dl">Note</div><div class="dv">${c.note}</div></div>`:""}
+      </div></div>
+    </div>`;
+  }).join("");
+  document.querySelectorAll("#wildlifeBody .case-row").forEach(r=>r.querySelector(".row-main").addEventListener("click",()=>r.classList.toggle("open")));
+}
+document.getElementById("wl-status-filters").addEventListener("click",e=>{
+  const chip=e.target.closest(".chip"); if(!chip) return;
+  document.querySelectorAll("#wl-status-filters .chip").forEach(c=>c.classList.remove("active"));
+  chip.classList.add("active"); wlStatus=chip.dataset.status; renderWildlife();
+});
+document.getElementById("wl-range-filters").addEventListener("click",e=>{
+  const chip=e.target.closest(".chip"); if(!chip) return;
+  document.querySelectorAll("#wl-range-filters .chip").forEach(c=>c.classList.remove("active"));
+  chip.classList.add("active"); wlRange=chip.dataset.range; renderWildlife();
+});
+document.getElementById("wl-search").addEventListener("input",e=>{wlQuery=e.target.value; renderWildlife();});
+
+/* ================= RENDER: HIGH COURT ================= */
+let hcCat="all", hcVerified="all", hcReply="all", hcOrder="all", hcQuery="";
+const hcStatusMeta = {
+  disposed:{l:"Disposed", c:"pill-green"},
+  pending:{l:"Pending (verified)", c:"pill-amber"},
+  mismatch:{l:"Needs verification", c:"pill-rust"},
+  unchecked:{l:"Not yet checked", c:"pill-grey"}
+};
+function renderHighCourt(){
+  const q=hcQuery.trim().toLowerCase();
+  const filtered = highCourtCases.filter(c=>{
+    const v = c.verified || "unchecked";
+    if(hcCat!=="all" && c.category!==hcCat) return false;
+    if(hcVerified!=="all" && v!==hcVerified) return false;
+    if(hcReply==="filed" && c.reply===false) return false;
+    if(hcReply==="pending" && c.reply!==false) return false;
+    if(hcOrder==="passed" && v!=="disposed") return false;
+    if(hcOrder==="pending" && v==="disposed") return false;
+    if(q && !(c.no+" "+c.petitioner+" "+c.subject).toLowerCase().includes(q)) return false;
+    return true;
+  });
+  document.getElementById("hc-count").textContent = `Showing ${filtered.length} of ${highCourtCases.length} cases`;
+  document.getElementById("highcourtBody").innerHTML = filtered.map(c=>{
+    const v = c.verified || "unchecked";
+    const sm = hcStatusMeta[v];
+    const statusPill = v==="disposed"
+      ? `<span class="pill ${sm.c}">${c.outcome || sm.l}</span>`
+      : `<span class="pill ${sm.c}">${sm.l}</span>`;
+    const replyPending = c.reply===false;
+    return `<div class="case-row${replyPending?" reply-pending":""}" data-id="${c.id}">
+      <div class="row-main" style="grid-template-columns:135px 1fr 165px 150px 30px;">
+        <div><div class="case-no">${c.no}</div><div class="sub-line">${c.year}</div></div>
+        <div class="party">${c.petitioner}</div>
+        <div><span class="pill pill-grey">${c.category}</span></div>
+        <div>${statusPill}${replyPending?` <span class="pill pill-rust">Reply pending</span>`:""}</div>
+        <div class="chevron">▸</div>
+      </div>
+      <div class="row-detail"><div class="row-detail-inner">
+        <div class="detail-block full"><div class="dl">Subject</div><div class="dv">${c.subject}</div></div>
+        <div class="detail-block"><div class="dl">Officer in charge</div><div class="dv">${c.officer}</div></div>
+        <div class="detail-block"><div class="dl">Reply filed by dept.</div><div class="dv">${c.reply===false?"Not filed":(c.replyDate&&c.replyDate!=="—"?"Filed · "+c.replyDate:"Filed")}</div></div>
+        ${c.vNote?`<div class="detail-block full"><div class="dl">Court portal check (Aug 2026)</div><div class="dv">${c.vNote}</div></div>`:`<div class="detail-block full"><div class="dl">Court portal check</div><div class="dv">Not yet checked against the e-Courts portal — register status ("pending") is unverified.</div></div>`}
+        ${c.note?`<div class="detail-block full"><div class="dl">Register remark</div><div class="dv">${c.note}</div></div>`:""}
+      </div></div>
+    </div>`;
+  }).join("");
+  document.querySelectorAll("#highcourtBody .case-row").forEach(r=>r.querySelector(".row-main").addEventListener("click",()=>r.classList.toggle("open")));
+}
+document.getElementById("hc-cat-filters").addEventListener("click",e=>{
+  const chip=e.target.closest(".chip"); if(!chip) return;
+  document.querySelectorAll("#hc-cat-filters .chip").forEach(c=>c.classList.remove("active"));
+  chip.classList.add("active"); hcCat=chip.dataset.cat; renderHighCourt();
+});
+document.getElementById("hc-verified-filters").addEventListener("click",e=>{
+  const chip=e.target.closest(".chip"); if(!chip) return;
+  document.querySelectorAll("#hc-verified-filters .chip").forEach(c=>c.classList.remove("active"));
+  chip.classList.add("active"); hcVerified=chip.dataset.verified; renderHighCourt();
+});
+document.getElementById("hc-reply-tabs").addEventListener("click",e=>{
+  const btn=e.target.closest(".subtab-btn"); if(!btn) return;
+  document.querySelectorAll("#hc-reply-tabs .subtab-btn").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active"); hcReply=btn.dataset.reply; renderHighCourt();
+});
+document.getElementById("hc-order-tabs").addEventListener("click",e=>{
+  const btn=e.target.closest(".subtab-btn"); if(!btn) return;
+  document.querySelectorAll("#hc-order-tabs .subtab-btn").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active"); hcOrder=btn.dataset.order; renderHighCourt();
+});
+document.getElementById("hc-search").addEventListener("input",e=>{hcQuery=e.target.value; renderHighCourt();});
+
+/* ================= RENDER: SUBORDINATE COURT ================= */
+let scQuery="";
+function renderSubCourt(){
+  const q=scQuery.trim().toLowerCase();
+  const filtered = subCourtCases.filter(c=> !q || (c.no+" "+c.petitioner+" "+c.forum).toLowerCase().includes(q));
+  document.getElementById("sc-count").textContent = `Showing ${filtered.length} of ${subCourtCases.length} cases`;
+  document.getElementById("subcourtBody").innerHTML = filtered.map(c=>{
+    return `<div class="case-row" data-id="${c.id}">
+      <div class="row-main" style="grid-template-columns:125px 1fr 210px 30px;">
+        <div><div class="case-no">${c.no}</div><div class="sub-line">${c.year}</div></div>
+        <div class="party">${c.petitioner}</div>
+        <div style="font-size:13.5px; color:var(--ink-soft);">${c.forum}</div>
+        <div class="chevron">▸</div>
+      </div>
+      <div class="row-detail"><div class="row-detail-inner">
+        <div class="detail-block"><div class="dl">Officer in charge</div><div class="dv">${c.officer}</div></div>
+        <div class="detail-block"><div class="dl">Forum</div><div class="dv">${c.forum}</div></div>
+        ${c.note && c.note!=="—" ? `<div class="detail-block full"><div class="dl">Note</div><div class="dv">${c.note}</div></div>`:""}
+      </div></div>
+    </div>`;
+  }).join("");
+  document.querySelectorAll("#subcourtBody .case-row").forEach(r=>r.querySelector(".row-main").addEventListener("click",()=>r.classList.toggle("open")));
+}
+document.getElementById("sc-search").addEventListener("input",e=>{scQuery=e.target.value; renderSubCourt();});
+
+/* ================= TABS ================= */
+document.querySelectorAll(".tab-btn").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".tab-panel").forEach(p=>p.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("panel-"+btn.dataset.tab).classList.add("active");
+  });
+});
+
+renderWildlife();
+renderHighCourt();
+renderSubCourt();
+</script>
+</body>
+</html>

@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>उत्पादन प्रभाग — मासिक निगरानी | रायगढ़ वनमंडल</title>
+<style>
+:root{
+  --bg:#f4fafb; --panel:#ffffff; --line:#d7e6ea; --line2:#eaf2f4;
+  --ink:#12333d; --dim:#4f727d; --mute:#7b98a1;
+  --teal:#0081A7; --turq:#00AFB9; --peach:#FED9B7; --coral:#F07167;
+  --peachtx:#8a4b25; --ok:#00874a;
+  --dev:"Noto Sans Devanagari","Nirmala UI","Mangal","Segoe UI",system-ui,sans-serif;
+  --num:"SF Mono",ui-monospace,"Cascadia Mono",Consolas,"DejaVu Sans Mono",monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--bg);color:var(--ink);font-family:var(--dev);
+  font-size:15px;line-height:1.5;padding:18px;
+}
+.wrap{max-width:1400px;margin:0 auto}
+
+/* ══ HEADER ══ */
+.hdr{
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:16px 20px;margin-bottom:14px;
+  border-top:4px solid var(--teal);
+  display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;justify-content:space-between;
+}
+.hdr-eyebrow{
+  font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--teal);font-weight:700;margin-bottom:5px;
+}
+.hdr-t{font-size:25px;font-weight:700;letter-spacing:-.01em;line-height:1.15}
+.hdr-s{font-size:14px;color:var(--dim);margin-top:4px}
+.hdr-r{text-align:right;font-size:13px;color:var(--dim);line-height:1.7}
+.hdr-r b{display:block;font-size:19px;color:var(--ink);font-weight:700}
+.btn{
+  font-family:var(--dev);font-size:13px;padding:7px 14px;margin-top:8px;
+  background:#fff;border:1px solid var(--line);border-radius:6px;
+  color:var(--teal);font-weight:600;cursor:pointer;
+}
+.btn:hover{background:#eef8fa;border-color:var(--turq)}
+.btn:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+
+/* ══ TABS ══ */
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.tab{
+  font-family:var(--dev);font-size:14.5px;font-weight:600;
+  padding:10px 17px;border:1px solid var(--line);border-radius:7px;
+  background:var(--panel);color:var(--dim);cursor:pointer;
+}
+.tab:hover{color:var(--teal);border-color:var(--turq)}
+.tab:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.tab.on{background:var(--teal);border-color:var(--teal);color:#fff}
+.pane{display:none}
+.pane.on{display:block}
+
+/* ══ PANEL ══ */
+.panel{
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:16px 18px;margin-bottom:14px;
+}
+.ph{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px;margin-bottom:12px}
+.ph h2{font-size:17px;font-weight:700}
+.ph .src{
+  font-size:11.5px;color:var(--teal);font-weight:700;font-family:var(--num);
+  background:#e9f6f8;border:1px solid #cbe8ec;border-radius:4px;padding:2px 7px;
+}
+.ph .note{font-size:12.5px;color:var(--mute);margin-left:auto}
+
+/* ══ PIPELINE (signature) ══ */
+.pipe{display:flex;flex-wrap:wrap;align-items:stretch;gap:0}
+.pstep{flex:1;min-width:150px;position:relative;padding:14px 16px 14px 22px;
+  background:linear-gradient(90deg,#f7fcfd,#fff);border:1px solid var(--line);
+  border-right:none;}
+.pstep:first-child{border-radius:8px 0 0 8px;padding-left:16px}
+.pstep:last-child{border-right:1px solid var(--line);border-radius:0 8px 8px 0}
+.pstep::before{content:"";position:absolute;left:-1px;top:0;bottom:0;width:3px;background:var(--turq)}
+.pstep:first-child::before{background:var(--teal)}
+.pstep-n{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);font-weight:700}
+.pstep-v{font-family:var(--num);font-size:23px;font-weight:700;margin:5px 0 1px;letter-spacing:-.02em}
+.pstep-u{font-size:12px;color:var(--dim)}
+.pstep-f{font-size:12.5px;margin-top:6px;font-weight:600}
+.f-ok{color:var(--ok)} .f-bad{color:var(--coral)} .f-warn{color:var(--peachtx)}
+
+/* ══ KPI ══ */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:11px}
+.kpi{border:1px solid var(--line);border-radius:8px;padding:13px 15px;background:#fbfeff}
+.kpi.t{border-left:4px solid var(--teal)}
+.kpi.q{border-left:4px solid var(--turq)}
+.kpi.c{border-left:4px solid var(--coral)}
+.kpi.p{border-left:4px solid #f0b47c}
+.kpi-l{font-size:12.5px;color:var(--dim);font-weight:600;line-height:1.35;min-height:34px}
+.kpi-v{font-family:var(--num);font-size:26px;font-weight:700;letter-spacing:-.025em;margin-top:6px}
+.kpi-u{font-size:12px;color:var(--mute);font-weight:600;margin-left:3px;font-family:var(--dev)}
+.kpi-s{font-size:12.5px;color:var(--dim);margin-top:4px}
+
+/* ══ TABLE ══ */
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:9px 11px;text-align:right;border-bottom:1px solid var(--line2);white-space:nowrap}
+th{
+  background:#eff8fa;color:var(--teal);font-weight:700;font-size:12.5px;
+  border-bottom:2px solid var(--turq);text-align:right;position:sticky;top:0;
+}
+th.l,td.l{text-align:left}
+td.n{font-family:var(--num);font-variant-numeric:tabular-nums}
+tbody tr:hover{background:#f6fcfd}
+tr.tot{background:var(--peach)}
+tr.tot td{font-weight:700;color:var(--peachtx);border-bottom:none;font-family:var(--num)}
+tr.tot td.l{font-family:var(--dev)}
+tr.grp td{background:#f2f9fa;font-weight:700;color:var(--teal);font-size:13px}
+td.flag{color:var(--coral);font-weight:700}
+.sub{font-size:12px;color:var(--mute);font-weight:400}
+
+/* ══ PILLS ══ */
+.pill{
+  display:inline-block;font-family:var(--num);font-size:12.5px;font-weight:700;
+  padding:2px 8px;border-radius:11px;min-width:56px;text-align:center;
+}
+.p-ok{background:#dff3e8;color:#00693c}
+.p-mid{background:#fdeedd;color:var(--peachtx)}
+.p-low{background:#fde6e3;color:#b6392e}
+.p-nil{background:#eef2f3;color:var(--mute)}
+
+/* ══ FILTER BAR ══ */
+.fbar{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-bottom:12px;
+  padding-bottom:12px;border-bottom:1px solid var(--line2)}
+.fgrp{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.flab{font-size:11px;color:var(--mute);font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;margin-right:3px}
+.chip{font-family:var(--dev);font-size:13px;font-weight:600;padding:5px 12px;
+  border:1px solid var(--line);border-radius:14px;background:#fff;color:var(--dim);cursor:pointer}
+.chip:hover{border-color:var(--turq);color:var(--teal)}
+.chip:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.chip.on{background:var(--teal);border-color:var(--teal);color:#fff}
+
+/* ══ REGISTER ══ */
+.reg th{font-size:11.5px;padding:7px 9px;line-height:1.3;white-space:normal;min-width:66px;vertical-align:bottom}
+.reg td{padding:7px 9px;font-size:13px}
+.reg tr.gh th{background:#e3f2f5;color:var(--teal);border-bottom:1px solid #cbe8ec;
+  font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;text-align:center;
+  border-right:2px solid #fff;min-width:auto}
+td.pend{color:#c7d6da;font-weight:400;font-family:var(--dev)}
+.srcpill{display:inline-block;font-size:11.5px;font-weight:700;padding:2px 7px;
+  border-radius:4px;font-family:var(--num);white-space:nowrap}
+.s-SCI{background:#dceef4;color:#0a5f7a}
+.s-IWC{background:#dff0e9;color:#0a6641}
+.s-BAM{background:#fdeedd;color:var(--peachtx)}
+.s-FCA{background:#e8e4f5;color:#4c3d8f}
+.s-NON{background:#fde6e3;color:#b6392e}
+.kmlink{color:var(--teal);font-weight:700;text-decoration:none;font-size:13px}
+.kmlink:hover{text-decoration:underline}
+
+/* ══ ALERTS ══ */
+.alist{display:grid;gap:8px}
+.al{
+  display:flex;gap:12px;align-items:flex-start;
+  border:1px solid var(--line);border-left:4px solid var(--coral);
+  border-radius:7px;padding:11px 14px;background:#fffaf9;
+}
+.al.warn{border-left-color:#f0b47c;background:#fffdf8}
+.al.good{border-left-color:var(--ok);background:#f8fdfa}
+.al-tag{
+  font-family:var(--num);font-size:11px;font-weight:700;letter-spacing:.06em;
+  padding:3px 8px;border-radius:4px;background:var(--coral);color:#fff;flex-shrink:0;margin-top:1px;
+}
+.al.warn .al-tag{background:#e09a52}
+.al.good .al-tag{background:var(--ok)}
+.al-b{font-size:14px;line-height:1.45}
+.al-b b{font-weight:700}
+.al-b span{display:block;font-size:12.5px;color:var(--dim);margin-top:2px}
+
+/* ══ MINI GRID ══ */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.mini{border:1px solid var(--line);border-radius:8px;padding:13px 15px}
+.mini-h{font-size:14px;font-weight:700;color:var(--teal);margin-bottom:9px;
+  padding-bottom:7px;border-bottom:1px solid var(--line2)}
+.mrow{display:flex;justify-content:space-between;gap:10px;padding:5px 0;font-size:13.5px}
+.mrow span{color:var(--dim)}
+.mrow b{font-family:var(--num);font-weight:700}
+.mrow.hi b{color:var(--coral)}
+
+.foot{font-size:12.5px;color:var(--mute);padding:6px 2px 18px;line-height:1.65}
+
+@media(max-width:900px){
+  body{padding:11px;font-size:14.5px}
+  .g2{grid-template-columns:1fr}
+  .hdr{flex-direction:column;align-items:flex-start}
+  .hdr-r{text-align:left}
+  .hdr-t{font-size:21px}
+  .pstep{border-right:1px solid var(--line);border-radius:8px!important;min-width:100%}
+}
+@media print{
+  body{background:#fff;padding:0;font-size:11px}
+  .tabs,.btn{display:none}
+  .pane{display:block!important;page-break-before:always}
+  .pane:first-of-type{page-break-before:auto}
+  .panel{break-inside:avoid;border-color:#999}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hdr">
+  <div>
+    <div class="hdr-eyebrow">उत्पादन प्रभाग · मासिक निगरानी</div>
+    <div class="hdr-t">रायगढ़ वनमंडल — उत्पादन डैशबोर्ड</div>
+    <div class="hdr-s">बिलासपुर वृत्त · वनमंडल स्तरीय प्रतिवेदन · प्रपत्र 18–27 एवं BD-001/002/004 · <b>Data updated: 17 Sep 2026</b></div>
+  </div>
+  <div class="hdr-r">
+    <b>जून 2026</b>
+    प्रतिवेदन माह
+    <button class="btn" onclick="window.print()">प्रिंट / PDF</button>
+  </div>
+</div>
+
+<div class="tabs" role="tablist">
+  <button class="tab on" onclick="go(0,this)">सारांश</button>
+  <button class="tab" onclick="go(1,this)">कूप रजिस्टर</button>
+  <button class="tab" onclick="go(2,this)">काष्ठ विदोहन</button>
+  <button class="tab" onclick="go(3,this)">बांस विदोहन</button>
+  <button class="tab" onclick="go(4,this)">डिपो व नीलामी</button>
+  <button class="tab" onclick="go(5,this)">निस्तार प्रदाय</button>
+  <button class="tab" onclick="go(6,this)">राजस्व व बकाया</button>
+</div>
+
+<!-- ═══════════ 0 · सारांश ═══════════ -->
+<div class="pane on" id="p0">
+
+  <div class="panel">
+    <div class="ph"><h2>उपज प्रवाह — कूप से राजस्व तक</h2>
+      <span class="note">प्रत्येक चरण पर रुकी हुई मात्रा ही निगरानी का बिंदु है</span></div>
+    <div class="pipe" id="pipe"></div>
+  </div>
+
+  <div class="panel">
+    <div class="ph"><h2>मुख्य आँकड़े</h2></div>
+    <div class="kpis" id="kpi"></div>
+  </div>
+
+  <div class="panel">
+    <div class="ph"><h2>ध्यान देने योग्य बिंदु</h2>
+      <span class="note">प्रतिवेदन से स्वतः चिन्हित</span></div>
+    <div class="alist" id="alerts"></div>
+  </div>
+
+</div>
+
+<!-- ═══════════ 1 · कूप रजिस्टर ═══════════ -->
+<div class="pane" id="pReg">
+
+  <div class="panel">
+    <div class="ph"><h2>स्रोतवार उत्पादन — लक्ष्य के विरुद्ध</h2>
+      <span class="note">प्रत्येक स्रोत का अपना मापदंड — एक संयुक्त प्रतिशत नहीं</span></div>
+    <div class="kpis" id="srcKpi"></div>
+  </div>
+
+  <div class="panel">
+    <div class="ph"><h2>कूप रजिस्टर</h2><span class="src">वनमंडल प्रारूप</span>
+      <span class="note" id="regCount"></span></div>
+    <div class="fbar">
+      <div class="fgrp"><span class="flab">स्रोत</span><span id="fSrc"></span></div>
+      <div class="fgrp"><span class="flab">परिक्षेत्र</span><span id="fRange"></span></div>
+      <div class="fgrp" style="margin-left:auto"><span class="flab">दृश्य</span><span id="fView"></span></div>
+    </div>
+    <div class="tw"><table class="reg">
+      <thead id="regHead"></thead>
+      <tbody id="regBody"></tbody>
+    </table></div>
+    <div class="foot" id="regFoot"></div>
+  </div>
+
+  <div class="panel">
+    <div class="ph"><h2>प्रविष्टि की पूर्णता</h2>
+      <span class="note">रिक्त खाने भरते ही स्वतः अद्यतन</span></div>
+    <div class="tw"><table>
+      <thead><tr><th class="l">रजिस्टर का खाना</th><th>भरे कूप</th><th>शेष</th><th>पूर्णता</th></tr></thead>
+      <tbody id="tGaps"></tbody>
+    </table></div>
+    <div class="foot">FCA उत्पादन की एक भी प्रविष्टि नहीं है। स्टेज-II स्वीकृत प्रकरणों की गणनाशुदा वृक्ष संख्या मिलते ही वे पंक्तियाँ इसी रजिस्टर में <span style="font-family:var(--num)">src:"FCA"</span> से जुड़ेंगी।</div>
+  </div>
+
+</div>
+
+<!-- ═══════════ 2 · काष्ठ ═══════════ -->
+<div class="pane" id="p1">
+
+  <div class="panel">
+    <div class="ph"><h2>कूपवार काष्ठ विदोहन</h2><span class="src">प्रपत्र-18 · PD-052</span>
+      <span class="note">परिवहन शेष सभी कूपों में शून्य — काष्ठ पूर्णतः डिपो पहुँचा</span></div>
+    <div class="tw"><table>
+      <thead><tr>
+        <th class="l">कूप क्र.</th><th>रकबा (हे.)</th><th>मार्कशुदा वृक्ष</th><th>विदोहित वृक्ष</th>
+        <th>अविदोहित</th><th>अनुमानित उत्पादन (वल्ली/ठेगरी सहित)</th><th>इमारती (घ.मी.)</th>
+        <th>कुल उत्पादन (सम्मिलित)</th><th>उपलब्धि</th><th>वल्ली (नग)</th><th>ठेगरी (नग)</th><th>जलाऊ (चट्टा)</th>
+      </tr></thead>
+      <tbody id="tTimber"></tbody>
+    </table></div>
+  </div>
+
+  <div class="g2">
+    <div class="panel">
+      <div class="ph"><h2>प्रजातिवार उत्पादन</h2><span class="src">प्रपत्र-24 · PD-052</span></div>
+      <div class="tw"><table>
+        <thead><tr><th class="l">प्रजाति</th><th>कुल उत्पादित (घ.मी.)</th><th>हिस्सा</th></tr></thead>
+        <tbody id="tSpecies"></tbody>
+      </table></div>
+      <div class="foot">विदोहन वर्ष 1 अक्टूबर – 30 सितम्बर। चालू माह में शून्य उत्पादन — विदोहन सत्र समाप्त, समस्त मात्रा प्रारंभिक शेष से।</div>
+    </div>
+
+    <div class="panel">
+      <div class="ph"><h2>काष्ठागार में अतिरिक्त आवक</h2><span class="src">PD-056</span></div>
+      <div class="tw"><table>
+        <thead><tr><th class="l">स्रोत</th><th>वृक्ष संख्या</th><th>इमारती काष्ठ (घ.मी.)</th><th>जलाऊ (नग)</th></tr></thead>
+        <tbody id="tExtra"></tbody>
+      </table></div>
+      <div class="mini" style="margin-top:12px">
+        <div class="mini-h">मिलान जाँच</div>
+        <div class="mrow"><span>कूप उत्पादन (इमारती)</span><b>943.320</b></div>
+        <div class="mrow"><span>+ वल्ली 41.130 · ठेगरी 1.260</span><b>42.390</b></div>
+        <div class="mrow"><span>प्रजातिवार योग (प्रपत्र-24)</span><b>985.702</b></div>
+        <div class="foot" style="padding:6px 0 0">अंतर 0.008 घ.मी. — पूर्णांकन मात्र। दोनों प्रपत्र मेल खाते हैं।</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════ 2 · बांस ═══════════ -->
+<div class="pane" id="p2">
+
+  <div class="panel">
+    <div class="ph"><h2>कूपवार बांस विदोहन एवं परिवहन</h2><span class="src">प्रपत्र-19 · PD-053</span>
+      <span class="note">मात्रा वि.ई. (वंश इकाई) में</span></div>
+    <div class="tw"><table>
+      <thead><tr>
+        <th class="l">कूप क्र.</th><th>क्षेत्रफल (हे.)</th>
+        <th>व्या. अनुमानित</th><th>व्या. विदोहित</th><th>व्या. परिवहित</th><th>व्या. शेष</th>
+        <th>औद्यो. अनुमानित</th><th>औद्यो. विदोहित</th><th>औद्यो. परिवहित</th><th>औद्यो. शेष</th>
+      </tr></thead>
+      <tbody id="tBamboo"></tbody>
+    </table></div>
+    <div class="foot">व्या. = व्यापारिक बांस · औद्यो. = औद्योगिक बांस। शेष = विदोहित मात्रा जो कूप से डिपो तक नहीं पहुँची।</div>
+  </div>
+
+  <div class="g2">
+    <div class="panel">
+      <div class="ph"><h2>विदोहन उपलब्धि</h2></div>
+      <div class="mrow"><span>व्यापारिक — अनुमानित 295.750</span><b>200.322 वि.ई.</b></div>
+      <div class="mrow"><span>व्यापारिक उपलब्धि</span><b>67.7%</b></div>
+      <div class="mrow"><span>औद्योगिक — अनुमानित 256.857</span><b>235.125 वि.ई.</b></div>
+      <div class="mrow"><span>औद्योगिक उपलब्धि</span><b>91.5%</b></div>
+      <div class="mrow"><span>विदोहित बांस संख्या (व्यापारिक)</span><b>88,630 नग</b></div>
+    </div>
+    <div class="panel">
+      <div class="ph"><h2>परिवहन शेष</h2></div>
+      <div class="mrow hi"><span>व्यापारिक शेष — कूप 783</span><b>49.991 वि.ई.</b></div>
+      <div class="mrow hi"><span>औद्योगिक शेष — कूप 783</span><b>14.070 वि.ई.</b></div>
+      <div class="mrow hi"><span>औद्योगिक शेष — कूप 906</span><b>5.290 वि.ई.</b></div>
+      <div class="mrow hi"><span>औद्योगिक शेष — कूप 904</span><b>1.830 वि.ई.</b></div>
+      <div class="mrow"><span>कुल कूप शेष</span><b>71.181 वि.ई.</b></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════ 3 · डिपो व नीलामी ═══════════ -->
+<div class="pane" id="p3">
+
+  <div class="panel">
+    <div class="ph"><h2>काष्ठ नीलामी — उर्दना काष्ठागार, रायगढ़</h2><span class="src">प्रपत्र-25 · PD-053</span></div>
+    <div class="tw"><table>
+      <thead><tr><th class="l">विवरण</th><th>पूर्व माह तक</th><th>माह में</th><th>माह अंत तक</th></tr></thead>
+      <tbody id="tAucT"></tbody>
+    </table></div>
+    <div class="kpis" style="margin-top:13px">
+      <div class="kpi c"><div class="kpi-l">डिपो में अबिक्री काष्ठ</div>
+        <div class="kpi-v">1,088.98<span class="kpi-u">घ.मी.</span></div>
+        <div class="kpi-s">प्रस्तावित का 75.0%</div></div>
+      <div class="kpi q"><div class="kpi-l">माह अंत तक विक्रय</div>
+        <div class="kpi-v">362.70<span class="kpi-u">घ.मी.</span></div>
+        <div class="kpi-s">प्रस्तावित का 25.0%</div></div>
+      <div class="kpi t"><div class="kpi-l">माह में प्राप्त राजस्व</div>
+        <div class="kpi-v">₹65.00<span class="kpi-u">लाख</span></div>
+        <div class="kpi-s">माह अंत तक ₹1.10 करोड़</div></div>
+      <div class="kpi p"><div class="kpi-l">विक्रय मूल्य के विरुद्ध अवसूल</div>
+        <div class="kpi-v">₹10.77<span class="kpi-u">लाख</span></div>
+        <div class="kpi-s">कीमत ₹1.21 करोड़ − वसूली ₹1.10 करोड़</div></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="ph"><h2>बांस नीलामी — उर्दना काष्ठागार, रायगढ़</h2><span class="src">प्रपत्र-27 · PD-055</span></div>
+    <div class="tw"><table>
+      <thead><tr><th class="l">विवरण</th><th>व्यापारिक बांस</th><th>औद्योगिक बांस</th><th>योग</th></tr></thead>
+      <tbody id="tAucB"></tbody>
+    </table></div>
+    <div class="alist" style="margin-top:12px">
+      <div class="al"><span class="al-tag">वसूली</span>
+        <div class="al-b"><b>औद्योगिक बांस — ₹22,28,950 की बिक्री पर राजस्व प्राप्ति शून्य</b>
+        <span>पूरी राशि अवसूल है। व्यापारिक बांस में ₹21,03,700 के विरुद्ध ₹20,66,864 प्राप्त (98.2%)।</span></div></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════ 4 · निस्तार ═══════════ -->
+<div class="pane" id="p4">
+
+  <div class="panel">
+    <div class="ph"><h2>निस्तारियों / उपभोक्ताओं को वनोपज प्रदाय</h2><span class="src">प्रपत्र-20, 22 · PD-048, PD-050</span>
+      <span class="note">कुल डिपो — बांस 7 · बल्ली/जलाऊ 7</span></div>
+    <div class="tw"><table>
+      <thead><tr>
+        <th class="l">वनोपज</th><th>वर्ष का लक्ष्य</th><th>डिपो में उपलब्ध</th>
+        <th>माहान्त तक प्रदाय</th><th>अवशेष</th><th>लक्ष्य पूर्ति</th>
+      </tr></thead>
+      <tbody id="tNistar"></tbody>
+    </table></div>
+    <div class="foot">वित्तीय वर्ष के तीन माह (अप्रैल–जून) बीत चुके हैं — समानुपातिक अपेक्षा लगभग 25%। तीनों मदों में प्रदाय इससे बहुत कम है।</div>
+  </div>
+
+  <div class="g2">
+    <div class="panel">
+      <div class="ph"><h2>बंसोड़ों को बांस प्रदाय</h2><span class="src">प्रपत्र-21 · PD-049</span></div>
+      <div class="mrow"><span>कुल डिपो</span><b>4</b></div>
+      <div class="mrow"><span>बंसोड़ों की संख्या</span><b>13</b></div>
+      <div class="mrow"><span>प्राप्त कुल बांस</span><b>313 नग</b></div>
+      <div class="mrow"><span>प्रदाय किया गया</span><b>313 नग</b></div>
+      <div class="mrow"><span>अवशेष</span><b>0</b></div>
+      <div class="foot" style="padding-top:8px;color:var(--ok);font-weight:600">प्राप्त समस्त बांस का प्रदाय — शत-प्रतिशत।</div>
+    </div>
+    <div class="panel">
+      <div class="ph"><h2>मालिक मकबूजा काष्ठ भुगतान</h2><span class="src">प्रपत्र-23 · PD-051</span></div>
+      <div class="mrow"><span>गत माह अंत तक लंबित प्रकरण</span><b>0</b></div>
+      <div class="mrow"><span>माह में प्राप्त स्वीकृत प्रकरण</span><b>0</b></div>
+      <div class="mrow"><span>माह में भुगतान प्रकरण / राशि</span><b>0 / ₹0</b></div>
+      <div class="mrow"><span>माह अंत में शेष प्रकरण</span><b>0</b></div>
+      <div class="foot" style="padding-top:8px">कोई प्रकरण लंबित नहीं। तथापि PD-056 अनुसार मालिक मकबूजा प्रकरणों से 111 वृक्ष / 17.017 घ.मी. काष्ठ काष्ठागार पहुँचा — भुगतान प्रविष्टि का मिलान अपेक्षित।</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════ 5 · राजस्व ═══════════ -->
+<div class="pane" id="p5">
+
+  <div class="panel">
+    <div class="ph"><h2>वन राजस्व — मुख्य शीर्ष 0406</h2><span class="src">BD-002 · REVENUE</span>
+      <span class="note">राशि रुपये में</span></div>
+    <div class="tw"><table>
+      <thead><tr>
+        <th class="l">बजट मद</th><th>वर्ष का लक्ष्य</th><th>गत माह तक</th>
+        <th>चालू माह में</th><th>कुल प्राप्त</th><th>उपलब्धि</th>
+      </tr></thead>
+      <tbody id="tRev"></tbody>
+    </table></div>
+    <div class="foot">वित्तीय वर्ष के 25% समय में 27.8% राजस्व प्राप्त — समग्र गति संतोषजनक। किन्तु शीर्ष (203) इमारती लकड़ी राजकीय व्यापार मात्र 10.2% पर है, जो कुल लक्ष्य का सबसे बड़ा एकल घटक (₹11.91 करोड़) है।</div>
+  </div>
+
+  <div class="g2">
+    <div class="panel">
+      <div class="ph"><h2>बकाया वन राजस्व वसूली</h2><span class="src">BD-001</span></div>
+      <div class="mrow"><span>वसूली हेतु कुल राशि</span><b>₹4,57,895</b></div>
+      <div class="mrow hi"><span>माह में वसूली</span><b>₹0</b></div>
+      <div class="mrow hi"><span>वसूली हेतु शेष राशि</span><b>₹4,57,895</b></div>
+      <div class="mrow hi"><span>वसूली प्रतिशत</span><b>0.00%</b></div>
+    </div>
+    <div class="panel">
+      <div class="ph"><h2>हानि प्रकरण — बिलासपुर वृत्त</h2><span class="src">BD-004 · त्रैमासिक</span></div>
+      <div class="mrow"><span>पिछले त्रैमास अंत में लंबित</span><b>8 / ₹3,47,395</b></div>
+      <div class="mrow"><span>त्रैमास में प्राप्त नए प्रकरण</span><b>0</b></div>
+      <div class="mrow hi"><span>त्रैमास में निराकृत</span><b>0 / ₹0</b></div>
+      <div class="mrow hi"><span>त्रैमास अंत तक शेष लंबित</span><b>8 / ₹3,47,395</b></div>
+      <div class="foot" style="padding-top:8px">पूरे त्रैमास में एक भी प्रकरण का निराकरण नहीं।</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="foot">
+  स्रोत — वनमंडल स्तरीय प्रतिवेदन, माह जून वर्ष 2026, रायगढ़ वनमंडल · हस्ताक्षरकर्ता: वनमंडलाधिकारी, रायगढ़ वनमंडल<br>
+  अगले माह के लिए केवल फ़ाइल के <span style="font-family:var(--num)">&lt;script&gt;</span> खंड में <span style="font-family:var(--num)">DATA</span> ऑब्जेक्ट के अंक बदलें — तालिकाएँ, प्रतिशत और चेतावनियाँ स्वतः पुनर्गणित होंगी।
+</div>
+
+</div>
+
+<script>
+/* ══════════════ DATA — हर माह केवल यही खंड बदलें ══════════════ */
+const DATA = {
+
+/* प्रपत्र-18 · काष्ठ विदोहन */
+timber:[
+ {coupe:"832 RF", area:141.53, marked:1239, felled:1239, estT:672.45, prodT:723.238, valli:694, valliC:14.98, thegri:0,   thegriC:0,    fuel:500},
+ {coupe:"920 RF", area:159.54, marked:319,  felled:283,  estT:82.77,  prodT:108.065, valli:57,  valliC:1.53,  thegri:7,   thegriC:0.12, fuel:60},
+ {coupe:"904 RF", area:164.76, marked:416,  felled:416,  estT:67.04,  prodT:60.585,  valli:203, valliC:3.67,  thegri:113, thegriC:1.14, fuel:100},
+ {coupe:"1318 RF",area:95.89,  marked:90,   felled:90,   estT:41.55,  prodT:38.421,  valli:51,  valliC:1.73,  thegri:0,   thegriC:0,    fuel:20},
+ {coupe:"968 RF", area:68.35,  marked:910,  felled:910,  estT:7.03,   prodT:0,       valli:25,  valliC:0.40,  thegri:0,   thegriC:0,    fuel:40},
+ {coupe:"1284 RF",area:135.26, marked:1300, felled:1300, estT:22.11,  prodT:1.895,   valli:145, valliC:4.17,  thegri:0,   thegriC:0,    fuel:110},
+ {coupe:"836 RF", area:169.14, marked:596,  felled:596,  estT:31.08,  prodT:11.116,  valli:685, valliC:14.65, thegri:0,   thegriC:0,    fuel:70}
+],
+
+/* ══ कूप रजिस्टर — वनमंडल प्रारूप ══
+   null = प्रविष्टि शेष। भरने पर सभी अनुपात व प्रतिशत स्वतः गणना होंगे।
+   src: "SCI" | "IWC" | "बांस WC" | "FCA" | null (अवर्गीकृत)              */
+coupeReg:[
+ /* — काष्ठ कूप · प्रपत्र-18 से · पातन श्रेणी अभी अवर्गीकृत — */
+ {sn:1, src:null, range:null, coupe:"832",  block:null, areaWP:141.53, areaKML:null, areaWork:null,
+  planStatus:null, siteQ:null, enumTotal:null, enumExp:null, marked:1239, felled:1239,
+  tgtWP:null, tgtFP:672.45, prodTimber:723.238, prodValliC:14.98, prodThegriC:0,    prodFuel:500,
+  prodComm:null, prodInd:null, transported:738.218, balance:0, kml:null},
+ {sn:2, src:null, range:null, coupe:"920",  block:null, areaWP:159.54, areaKML:null, areaWork:null,
+  planStatus:null, siteQ:null, enumTotal:null, enumExp:null, marked:319,  felled:283,
+  tgtWP:null, tgtFP:82.77,  prodTimber:108.065, prodValliC:1.53, prodThegriC:0.12, prodFuel:60,
+  prodComm:null, prodInd:null, transported:109.715, balance:0, kml:null},
+ {sn:3, src:null, range:null, coupe:"904",  block:null, areaWP:164.76, areaKML:null, areaWork:null,
+  planStatus:null, siteQ:null, enumTotal:null, enumExp:null, marked:416,  felled:416,
+  tgtWP:null, tgtFP:67.04,  prodTimber:60.585, prodValliC:3.67, prodThegriC:1.14, prodFuel:100,
+  prodComm:null, prodInd:null, transported:65.395, balance:0, kml:null},
+ {sn:4, src:null, range:null, coupe:"1318", block:null, areaWP:95.89,  areaKML:null, areaWork:null,
+  planStatus:null, siteQ:null, enumTotal:null, enumExp:null, marked:90,   felled:90,
+  tgtWP:null, tgtFP:41.55,  prodTimber:38.421, prodValliC:1.73, prodThegriC:0,    prodFuel:20,
+  prodComm:null, prodInd:null, transported:40.151, balance:0, kml:null},
+ {sn:5, src:null, range:null, coupe:"968",  block:null, areaWP:68.35,  areaKML:null, areaWork:null,
+  planStatus:null, siteQ:null, enumTotal:null, enumExp:null, marked:910,  felled:910,
+  tgtWP:null, tgtFP:7.03,   prodTimber:0,      prodValliC:0.40, prodThegriC:0,    prodFuel:40,
+  prodComm:null, prodInd:null, transported:0.400, balance:0, kml:null},
+ {sn:6, src:null, range:null, coupe:"1284", block:null, areaWP:135.26, areaKML:null, areaWork:null,
+  planStatus:null, siteQ:null, enumTotal:null, enumExp:null, marked:1300, felled:1300,
+  tgtWP:null, tgtFP:22.11,  prodTimber:1.895,  prodValliC:4.17, prodThegriC:0,    prodFuel:110,
+  prodComm:null, prodInd:null, transported:6.065, balance:0, kml:null},
+ {sn:7, src:null, range:null, coupe:"836",  block:null, areaWP:169.14, areaKML:null, areaWork:null,
+  planStatus:null, siteQ:null, enumTotal:null, enumExp:null, marked:596,  felled:596,
+  tgtWP:null, tgtFP:31.08,  prodTimber:11.116, prodValliC:14.65, prodThegriC:0,   prodFuel:70,
+  prodComm:null, prodInd:null, transported:25.766, balance:0, kml:null},
+
+ /* — बांस कूप · प्रपत्र-19 से · स्रोत ज्ञात — */
+ {sn:8, src:"बांस WC", range:null, coupe:"904",  block:null, areaWP:286.78, areaKML:null, areaWork:null,
+  planStatus:null, siteQ:null, enumTotal:null, enumExp:null, marked:null, felled:null,
+  tgtWP:null, tgtFP:53.050,  prodTimber:null, prodValliC:null, prodThegriC:null, prodFuel:null,
+  prodComm:8.342,  prodInd:20.315, transported:26.823, balance:1.830, kml:null},
+ {sn:9, src:"बांस WC", range:null, coupe:"906",  block:null, areaWP:304.76, areaKML:null, areaWork:null,
+  planStatus:null, siteQ:null, enumTotal:null, enumExp:null, marked:null, felled:null,
+  tgtWP:null, tgtFP:112.700, prodTimber:null, prodValliC:null, prodThegriC:null, prodFuel:null,
+  prodComm:5.064,  prodInd:5.290,  transported:5.064, balance:5.290, kml:null},
+ {sn:10,src:"बांस WC", range:null, coupe:"921",  block:null, areaWP:184.33, areaKML:null, areaWork:null,
+  planStatus:null, siteQ:null, enumTotal:null, enumExp:null, marked:null, felled:null,
+  tgtWP:null, tgtFP:1.955,   prodTimber:null, prodValliC:null, prodThegriC:null, prodFuel:null,
+  prodComm:0.785,  prodInd:1.183,  transported:1.968, balance:0, kml:null},
+ {sn:11,src:"बांस WC", range:null, coupe:"918",  block:null, areaWP:207.34, areaKML:null, areaWork:null,
+  planStatus:null, siteQ:null, enumTotal:null, enumExp:null, marked:null, felled:null,
+  tgtWP:null, tgtFP:19.956,  prodTimber:null, prodValliC:null, prodThegriC:null, prodFuel:null,
+  prodComm:8.336,  prodInd:17.391, transported:25.727, balance:0, kml:null},
+ {sn:12,src:"बांस WC", range:null, coupe:"897",  block:null, areaWP:393.47, areaKML:null, areaWork:null,
+  planStatus:null, siteQ:null, enumTotal:null, enumExp:null, marked:null, felled:null,
+  tgtWP:null, tgtFP:18.200,  prodTimber:null, prodValliC:null, prodThegriC:null, prodFuel:null,
+  prodComm:5.923,  prodInd:11.590, transported:17.513, balance:0, kml:null},
+ {sn:13,src:"बांस WC", range:null, coupe:"781",  block:null, areaWP:217.29, areaKML:null, areaWork:null,
+  planStatus:null, siteQ:null, enumTotal:null, enumExp:null, marked:null, felled:null,
+  tgtWP:null, tgtFP:102.554, prodTimber:null, prodValliC:null, prodThegriC:null, prodFuel:null,
+  prodComm:55.506, prodInd:47.233, transported:102.739, balance:0, kml:null},
+ {sn:14,src:"बांस WC", range:null, coupe:"783",  block:null, areaWP:241.77, areaKML:null, areaWork:null,
+  planStatus:null, siteQ:null, enumTotal:null, enumExp:null, marked:null, felled:null,
+  tgtWP:null, tgtFP:144.391, prodTimber:null, prodValliC:null, prodThegriC:null, prodFuel:null,
+  prodComm:86.048, prodInd:62.600, transported:84.590, balance:64.061, kml:null},
+ {sn:15,src:"बांस WC", range:null, coupe:"759",  block:null, areaWP:175.69, areaKML:null, areaWork:null,
+  planStatus:null, siteQ:null, enumTotal:null, enumExp:null, marked:null, felled:null,
+  tgtWP:null, tgtFP:99.801,  prodTimber:null, prodValliC:null, prodThegriC:null, prodFuel:null,
+  prodComm:30.318, prodInd:69.523, transported:99.841, balance:0, kml:null}
+],
+ranges:["रायगढ़","खरसिया","घरघोड़ा","तमनार"],
+
+/* प्रपत्र-19 · बांस विदोहन */
+bamboo:[
+ {coupe:"904", area:286.78, cEst:21.22,  cHar:8.342,  cTra:8.342,  iEst:31.83, iHar:20.315, iTra:18.481},
+ {coupe:"906", area:304.76, cEst:45.10,  cHar:5.064,  cTra:5.064,  iEst:67.60, iHar:5.290,  iTra:0},
+ {coupe:"921", area:184.33, cEst:0.782,  cHar:0.785,  cTra:0.785,  iEst:1.173, iHar:1.183,  iTra:1.183},
+ {coupe:"918", area:207.34, cEst:7.983,  cHar:8.336,  cTra:8.336,  iEst:11.973,iHar:17.391, iTra:17.391},
+ {coupe:"897", area:393.47, cEst:7.280,  cHar:5.923,  cTra:5.923,  iEst:10.920,iHar:11.590, iTra:11.590},
+ {coupe:"781", area:217.29, cEst:58.046, cHar:55.506, cTra:55.506, iEst:44.508,iHar:47.233, iTra:47.233},
+ {coupe:"783", area:241.77, cEst:83.956, cHar:86.048, cTra:36.057, iEst:60.435,iHar:62.600, iTra:48.533},
+ {coupe:"759", area:175.69, cEst:71.383, cHar:30.318, cTra:30.318, iEst:28.418,iHar:69.523, iTra:69.523}
+],
+bambooCulms:88630,
+
+/* प्रपत्र-24 · प्रजातिवार */
+species:[
+ {n:"साल",        v:923.936},
+ {n:"अन्य",        v:38.030},
+ {n:"साजा",       v:13.070},
+ {n:"बीजा",       v:8.099},
+ {n:"धावड़ा",      v:2.419},
+ {n:"हल्दी / मुंडी", v:0.148}
+],
+
+/* PD-056 · काष्ठागार अतिरिक्त आवक */
+extra:[
+ {src:"मालिक मकबूजा प्रकरणों से", trees:111, timber:17.017, fuel:3},
+ {src:"POR प्रकरणों से",          trees:59,  timber:8.161,  fuel:2}
+],
+
+/* प्रपत्र-25 · काष्ठ नीलामी */
+aucT:[
+ {l:"नीलामी हेतु प्रस्तावित काष्ठ (घ.मी.)", p:1301.721, m:149.962, t:1451.683},
+ {l:"नीलामी में विक्रय काष्ठ (घ.मी.)",      p:167.015,  m:195.686, t:362.701},
+ {l:"विक्रय काष्ठ की कीमत (₹)",             p:5826350,  m:6261950, t:12088300, rs:1},
+ {l:"बिक्री से प्राप्त राजस्व (₹)",          p:4511055,  m:6500280, t:11011335, rs:1}
+],
+unsoldT:1088.982,
+
+/* प्रपत्र-27 · बांस नीलामी */
+aucB:[
+ {l:"नीलामी हेतु प्रस्तावित बांस (वि.ई.)", c:129.572, i:177.753},
+ {l:"नीलामी में विक्रय बांस (वि.ई.)",      c:113.006, i:176.332},
+ {l:"डिपो में अबिक्री बांस (वि.ई.)",       c:16.556,  i:1.421},
+ {l:"विक्रय बांस की कीमत (₹)",             c:2103700, i:2228950, rs:1},
+ {l:"बिक्री से प्राप्त राजस्व (₹)",         c:2066864, i:0,       rs:1}
+],
+
+/* प्रपत्र-20 / 22 · निस्तार */
+nistar:[
+ {n:"निस्तार बांस (नग)",      tgt:22000, avail:2227, sup:1543, bal:684},
+ {n:"निस्तार बल्ली (नग)",     tgt:1300,  avail:1085, sup:0,    bal:1085},
+ {n:"निस्तार जलाऊ (चट्टा)",   tgt:1100,  avail:325,  sup:45,   bal:280},
+ {n:"इमारती काष्ठ (घ.मी.)",   tgt:null,  avail:0,    sup:0,    bal:0}
+],
+
+/* BD-002 · राजस्व */
+revenue:[
+ {code:"101", n:"इमारती लकड़ी व अन्य वन उत्पादों की बिक्री", tgt:7000000,   p:224807,    m:174561},
+ {code:"202", n:"छोटी वनोपज का राजकीय व्यापार",             tgt:1000,      p:0,         m:0},
+ {code:"203", n:"इमारती लकड़ी का राजकीय व्यापार",            tgt:119115000, p:5363505,   m:6747643},
+ {code:"204", n:"बांस का राजकीय व्यापार",                   tgt:7000000,   p:2244527,   m:2066864},
+ {code:"800", n:"अन्य प्राप्तियाँ (अर्थदंड, विविध)",          tgt:594384000, p:119911471, m:65585933}
+],
+revTotal:{tgt:727500000, p:127744310, m:74575001, t:202319311}
+};
+
+/* ══════════════ HELPERS ══════════════ */
+const n3=v=>v==null?"—":v.toLocaleString('en-IN',{minimumFractionDigits:3,maximumFractionDigits:3});
+const n2=v=>v==null?"—":v.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const n0=v=>v==null?"—":v.toLocaleString('en-IN');
+const rup=v=>"₹"+Math.round(v).toLocaleString('en-IN');
+function cr(v){
+  if(v>=10000000) return "₹"+(v/10000000).toFixed(2)+" करोड़";
+  if(v>=100000)   return "₹"+(v/100000).toFixed(2)+" लाख";
+  return rup(v);
+}
+function pill(pct){
+  if(pct==null) return '<span class="pill p-nil">—</span>';
+  const c = pct>=90?"p-ok" : pct>=50?"p-mid" : "p-low";
+  return '<span class="pill '+c+'">'+pct.toFixed(1)+'%</span>';
+}
+const sum=(a,f)=>a.reduce((s,r)=>s+(f(r)||0),0);
+const $=id=>document.getElementById(id);
+
+/* ══════════════ RENDER ══════════════ */
+const T=DATA.timber, B=DATA.bamboo;
+const tot={
+  area:sum(T,r=>r.area), marked:sum(T,r=>r.marked), felled:sum(T,r=>r.felled),
+  estT:sum(T,r=>r.estT), prodT:sum(T,r=>r.prodT),
+  valli:sum(T,r=>r.valli), thegri:sum(T,r=>r.thegri), fuel:sum(T,r=>r.fuel)
+};
+const bt={
+  area:sum(B,r=>r.area), cEst:sum(B,r=>r.cEst), cHar:sum(B,r=>r.cHar), cTra:sum(B,r=>r.cTra),
+  iEst:sum(B,r=>r.iEst), iHar:sum(B,r=>r.iHar), iTra:sum(B,r=>r.iTra)
+};
+bt.cBal=bt.cHar-bt.cTra; bt.iBal=bt.iHar-bt.iTra;
+/* कुल उत्पादन = इमारती + वल्ली + ठेगरी — प्रपत्र-18 का लक्ष्य भी इसी आधार पर है */
+const inc=r=>r.prodT+r.valliC+r.thegriC;
+tot.incl=sum(T,inc);
+
+/* — pipeline — */
+$('pipe').innerHTML=[
+ {n:"विदोहन — कूप",   v:n2(tot.incl), u:"घ.मी. (वल्ली/ठेगरी सहित)",
+  f:'अनुमान '+n2(tot.estT)+' के विरुद्ध '+((tot.incl/tot.estT)*100).toFixed(1)+'%', c:'f-ok'},
+ {n:"परिवहन — काष्ठ", v:"0.00", u:"घ.मी. कूप में शेष",
+  f:'समस्त काष्ठ काष्ठागार पहुँचा', c:'f-ok'},
+ {n:"परिवहन — बांस",  v:n2(bt.cBal+bt.iBal), u:"वि.ई. कूप में शेष",
+  f:'कूप 783, 906, 904 में रुका', c:'f-bad'},
+ {n:"डिपो — नीलामी",  v:n2(DATA.unsoldT), u:"घ.मी. अबिक्री काष्ठ",
+  f:'प्रस्तावित का 75.0% अबिक्री', c:'f-bad'},
+ {n:"राजस्व — 0406",  v:cr(DATA.revTotal.t).replace('₹',''), u:"कुल प्राप्त (लक्ष्य ₹72.75 करोड़)",
+  f:'उपलब्धि '+((DATA.revTotal.t/DATA.revTotal.tgt)*100).toFixed(1)+'%', c:'f-warn'}
+].map(s=>'<div class="pstep"><div class="pstep-n">'+s.n+'</div><div class="pstep-v">'+s.v+
+  '</div><div class="pstep-u">'+s.u+'</div><div class="pstep-f '+s.c+'">'+s.f+'</div></div>').join('');
+
+/* — KPI — */
+$('kpi').innerHTML=[
+ {c:'t',l:'काष्ठ उत्पादन (वल्ली/ठेगरी सहित)',v:n2(tot.incl),u:'घ.मी.',
+  s:'अनुमान '+n2(tot.estT)+' · उपलब्धि '+((tot.incl/tot.estT)*100).toFixed(1)+'% · इमारती '+n2(tot.prodT)},
+ {c:'t',l:'जलाऊ काष्ठ उत्पादन',v:n0(tot.fuel),u:'चट्टा',s:'अनुमान 806 · उपलब्धि 111.7%'},
+ {c:'t',l:'विदोहित वृक्ष',v:n0(tot.felled),u:'वृक्ष',s:'मार्कशुदा '+n0(tot.marked)+' · अविदोहित '+(tot.marked-tot.felled)},
+ {c:'q',l:'बांस विदोहन (व्या. + औद्यो.)',v:n2(bt.cHar+bt.iHar),u:'वि.ई.',s:n0(DATA.bambooCulms)+' नग व्यापारिक बांस'},
+ {c:'c',l:'बांस परिवहन शेष',v:n2(bt.cBal+bt.iBal),u:'वि.ई.',s:'4 कूपों में रुका हुआ'},
+ {c:'c',l:'डिपो में अबिक्री काष्ठ',v:n2(DATA.unsoldT),u:'घ.मी.',s:'उर्दना काष्ठागार, रायगढ़'},
+ {c:'p',l:'माह में प्राप्त राजस्व',v:cr(DATA.revTotal.m).replace('₹','').replace(' करोड़',''),u:'करोड़',s:'कुल प्राप्त '+cr(DATA.revTotal.t)},
+ {c:'c',l:'बकाया वसूली शेष',v:'4.58',u:'लाख',s:'माह में वसूली शून्य'}
+].map(k=>'<div class="kpi '+k.c+'"><div class="kpi-l">'+k.l+'</div><div class="kpi-v">'+k.v+
+  '<span class="kpi-u">'+k.u+'</span></div><div class="kpi-s">'+k.s+'</div></div>').join('');
+
+/* — alerts — */
+const under=T.filter(r=>inc(r)/r.estT<0.5);
+$('alerts').innerHTML=[
+ {t:'वसूली',s:'',b:'औद्योगिक बांस की ₹22,28,950 बिक्री पर राजस्व प्राप्ति शून्य',
+  d:'प्रपत्र-27 — व्यापारिक बांस में 98.2% वसूली हुई, औद्योगिक में शून्य। क्रेता से राशि जमा कराई जाए।'},
+ {t:'परिवहन',s:'',b:'कूप 783 से 64.061 वि.ई. बांस अब भी कूप में',
+  d:'व्यापारिक 49.991 + औद्योगिक 14.070 वि.ई.। वर्षाकाल प्रारंभ — मार्ग अवरुद्ध होने से पूर्व निकासी आवश्यक।'},
+ {t:'विदोहन',s:'warn',b:under.length+' कूपों में उत्पादन अनुमान के 50% से भी कम',
+  d:under.map(r=>'कूप '+r.coupe+' — '+((inc(r)/r.estT)*100).toFixed(1)+'%').join(' · ')+
+    '। वनमंडल का कुल आँकड़ा '+((tot.incl/tot.estT)*100).toFixed(1)+
+    '% है, जो मुख्यतः कूप 832 के अधिक उत्पादन से बना है।'},
+ {t:'रजिस्टर',s:'warn',b:'7 काष्ठ कूपों की पातन श्रेणी (SCI / IWC) अभी अंकित नहीं',
+  d:'जब तक श्रेणी नहीं भरती, IWC कूपों को घ.मी. के पैमाने पर आँका जाता रहेगा — जो उनका सही मापदंड नहीं है। '+
+    'FCA उत्पादन की एक भी प्रविष्टि नहीं है। विवरण कूप रजिस्टर टैब में।'},
+ {t:'निस्तार',s:'',b:'निस्तार बल्ली का प्रदाय शून्य — लक्ष्य 1,300 नग',
+  d:'डिपो में 1,085 बल्ली उपलब्ध हैं फिर भी एक भी प्रदाय नहीं। जलाऊ प्रदाय भी 45/1,100 (4.1%)।'},
+ {t:'नीलामी',s:'warn',b:'काष्ठागार में 1,088.982 घ.मी. काष्ठ अबिक्री',
+  d:'नीलामी हेतु प्रस्तावित 1,451.683 घ.मी. का 75%। माह में 195.686 घ.मी. बिका — इस गति पर निपटान में 5+ माह।'},
+ {t:'बकाया',s:'',b:'बकाया राजस्व ₹4,57,895 — माह में वसूली शून्य (BD-001)',
+  d:'साथ ही 8 हानि प्रकरण / ₹3,47,395 पूरे त्रैमास से लंबित, एक भी निराकृत नहीं (BD-004)।'},
+ {t:'ठीक',s:'good',b:'समस्त काष्ठ, वल्ली, ठेगरी व जलाऊ का परिवहन पूर्ण — कूप शेष शून्य',
+  d:'943.320 घ.मी. इमारती, 1,860 वल्ली, 120 ठेगरी और 900 चट्टा जलाऊ — सब काष्ठागार पहुँचा।'}
+].map(a=>'<div class="al '+(a.s||'')+'"><span class="al-tag">'+a.t+'</span><div class="al-b"><b>'+
+  a.b+'</b><span>'+a.d+'</span></div></div>').join('');
+
+/* — timber table — */
+$('tTimber').innerHTML=T.map(r=>{
+  const iv=inc(r), pc=r.estT?(iv/r.estT)*100:null, un=r.marked-r.felled;
+  return '<tr><td class="l"><b>'+r.coupe+'</b></td><td class="n">'+n2(r.area)+'</td><td class="n">'+n0(r.marked)+
+  '</td><td class="n">'+n0(r.felled)+'</td><td class="n'+(un?' flag':'')+'">'+n0(un)+
+  '</td><td class="n">'+n2(r.estT)+'</td><td class="n">'+n3(r.prodT)+'</td><td class="n"><b>'+n3(iv)+
+  '</b></td><td>'+pill(pc)+
+  '</td><td class="n">'+n0(r.valli)+'</td><td class="n">'+n0(r.thegri)+'</td><td class="n">'+n0(r.fuel)+'</td></tr>';
+}).join('')+
+'<tr class="tot"><td class="l">वनमंडल योग</td><td>'+n2(tot.area)+'</td><td>'+n0(tot.marked)+'</td><td>'+
+n0(tot.felled)+'</td><td>'+n0(tot.marked-tot.felled)+'</td><td>'+n2(tot.estT)+'</td><td>'+n3(tot.prodT)+
+'</td><td>'+n3(tot.incl)+'</td><td>'+((tot.incl/tot.estT)*100).toFixed(1)+'%</td><td>'+n0(tot.valli)+
+'</td><td>'+n0(tot.thegri)+'</td><td>'+n0(tot.fuel)+'</td></tr>';
+
+/* — species — */
+const spT=sum(DATA.species,r=>r.v);
+$('tSpecies').innerHTML=DATA.species.map(s=>
+ '<tr><td class="l">'+s.n+'</td><td class="n">'+n3(s.v)+'</td><td class="n">'+((s.v/spT)*100).toFixed(1)+'%</td></tr>'
+).join('')+'<tr class="tot"><td class="l">योग</td><td>'+n3(spT)+'</td><td>100.0%</td></tr>';
+
+/* — extra intake — */
+$('tExtra').innerHTML=DATA.extra.map(e=>
+ '<tr><td class="l">'+e.src+'</td><td class="n">'+n0(e.trees)+'</td><td class="n">'+n3(e.timber)+
+ '</td><td class="n">'+n0(e.fuel)+'</td></tr>').join('')+
+ '<tr class="tot"><td class="l">योग</td><td>'+n0(sum(DATA.extra,e=>e.trees))+'</td><td>'+
+ n3(sum(DATA.extra,e=>e.timber))+'</td><td>'+n0(sum(DATA.extra,e=>e.fuel))+'</td></tr>';
+
+/* — bamboo table — */
+$('tBamboo').innerHTML=B.map(r=>{
+  const cb=+(r.cHar-r.cTra).toFixed(3), ib=+(r.iHar-r.iTra).toFixed(3);
+  return '<tr><td class="l"><b>'+r.coupe+'</b></td><td class="n">'+n2(r.area)+
+  '</td><td class="n">'+n3(r.cEst)+'</td><td class="n"><b>'+n3(r.cHar)+'</b></td><td class="n">'+n3(r.cTra)+
+  '</td><td class="n'+(cb>0?' flag':'')+'">'+n3(cb)+
+  '</td><td class="n">'+n3(r.iEst)+'</td><td class="n"><b>'+n3(r.iHar)+'</b></td><td class="n">'+n3(r.iTra)+
+  '</td><td class="n'+(ib>0?' flag':'')+'">'+n3(ib)+'</td></tr>';
+}).join('')+
+'<tr class="tot"><td class="l">वनमंडल योग</td><td>'+n2(bt.area)+'</td><td>'+n3(bt.cEst)+'</td><td>'+
+n3(bt.cHar)+'</td><td>'+n3(bt.cTra)+'</td><td>'+n3(bt.cBal)+'</td><td>'+n3(bt.iEst)+'</td><td>'+
+n3(bt.iHar)+'</td><td>'+n3(bt.iTra)+'</td><td>'+n3(bt.iBal)+'</td></tr>';
+
+/* — timber auction — */
+$('tAucT').innerHTML=DATA.aucT.map(r=>{
+  const f=r.rs?n0:n3;
+  return '<tr><td class="l">'+r.l+'</td><td class="n">'+f(r.p)+'</td><td class="n"><b>'+f(r.m)+
+  '</b></td><td class="n">'+f(r.t)+'</td></tr>';
+}).join('')+
+'<tr class="tot"><td class="l">माह अंत में डिपो में अबिक्री काष्ठ (घ.मी.)</td><td>—</td><td>—</td><td>'+
+n3(DATA.unsoldT)+'</td></tr>';
+
+/* — bamboo auction — */
+$('tAucB').innerHTML=DATA.aucB.map(r=>{
+  const f=r.rs?n0:n3, zero=r.rs&&r.i===0;
+  return '<tr><td class="l">'+r.l+'</td><td class="n">'+f(r.c)+'</td><td class="n'+(zero?' flag':'')+'">'+
+  f(r.i)+'</td><td class="n">'+f(r.c+r.i)+'</td></tr>';
+}).join('');
+
+/* — nistar — */
+$('tNistar').innerHTML=DATA.nistar.map(r=>{
+  const pc=r.tgt?(r.sup/r.tgt)*100:null;
+  return '<tr><td class="l">'+r.n+'</td><td class="n">'+n0(r.tgt)+'</td><td class="n">'+n0(r.avail)+
+  '</td><td class="n"><b>'+n0(r.sup)+'</b></td><td class="n">'+n0(r.bal)+'</td><td>'+pill(pc)+'</td></tr>';
+}).join('');
+
+/* — revenue — */
+$('tRev').innerHTML=DATA.revenue.map(r=>{
+  const t=r.p+r.m, pc=r.tgt?(t/r.tgt)*100:null;
+  return '<tr><td class="l"><span class="sub">('+r.code+')</span> '+r.n+'</td><td class="n">'+n0(r.tgt)+
+  '</td><td class="n">'+n0(r.p)+'</td><td class="n"><b>'+n0(r.m)+'</b></td><td class="n">'+n0(t)+
+  '</td><td>'+pill(pc)+'</td></tr>';
+}).join('')+
+'<tr class="tot"><td class="l">योग मुख्य शीर्ष 0406</td><td>'+n0(DATA.revTotal.tgt)+'</td><td>'+
+n0(DATA.revTotal.p)+'</td><td>'+n0(DATA.revTotal.m)+'</td><td>'+n0(DATA.revTotal.t)+'</td><td>'+
+((DATA.revTotal.t/DATA.revTotal.tgt)*100).toFixed(1)+'%</td></tr>';
+
+/* ══════════════ कूप रजिस्टर ══════════════ */
+const RC=[
+ {g:"पहचान",         k:"sn",         h:"SN",                        t:"i",   b:1},
+ {g:"पहचान",         k:"src",        h:"पातन श्रेणी",                t:"src", b:1},
+ {g:"पहचान",         k:"range",      h:"परिक्षेत्र",                  t:"txt", b:1},
+ {g:"पहचान",         k:"coupe",      h:"कूप क्रमांक",                t:"txt", b:1},
+ {g:"पहचान",         k:"block",      h:"कक्ष क्र.",                  t:"txt", b:1},
+ {g:"क्षेत्र (हे.)",    k:"areaWP",     h:"कुल रकबा — कार्य योजना",     t:"f2",  b:1},
+ {g:"क्षेत्र (हे.)",    k:"areaKML",    h:"कुल रकबा — KML / GIS",       t:"f2",  b:0},
+ {g:"क्षेत्र (हे.)",    k:"areaWork",   h:"कार्य योग्य क्षेत्र",         t:"f2",  b:0},
+ {g:"योजना व स्थल",   k:"planStatus", h:"विदोहन योजना की स्थिति",     t:"txt", b:0},
+ {g:"योजना व स्थल",   k:"siteQ",      h:"Site Quality",              t:"txt", b:0},
+ {g:"वृक्ष",          k:"enumTotal",  h:"Tree Enumeration — कुल",     t:"i",   b:0},
+ {g:"वृक्ष",          k:"enumExp",    h:"विदोहन योग्य वर्ग",          t:"i",   b:0},
+ {g:"वृक्ष",          k:"marked",     h:"मार्क्ड वृक्ष",               t:"i",   b:1},
+ {g:"वृक्ष",          k:"felled",     h:"विदोहित वृक्ष",              t:"i",   b:1},
+ {g:"उत्पादन लक्ष्य",  k:"tgtWP",      h:"कार्य योजना अनुसार",         t:"f3",  b:1},
+ {g:"उत्पादन लक्ष्य",  k:"tgtFP",      h:"विदोहन योजना अनुसार",        t:"f3",  b:1},
+ {g:"वास्तविक उत्पादन",k:"prodMain",   h:"कुल उत्पादन",                t:"f3",  b:1, c:1},
+ {g:"वास्तविक उत्पादन",k:"prodTimber", h:"इमारती (घ.मी.)",             t:"f3",  b:0},
+ {g:"वास्तविक उत्पादन",k:"prodValliC", h:"वल्ली (घ.मी.)",              t:"f2",  b:0},
+ {g:"वास्तविक उत्पादन",k:"prodThegriC",h:"ठेगरी (घ.मी.)",              t:"f2",  b:0},
+ {g:"वास्तविक उत्पादन",k:"prodFuel",   h:"जलाऊ (चट्टा)",               t:"i",   b:0},
+ {g:"वास्तविक उत्पादन",k:"prodComm",   h:"व्यापारिक बांस (वि.ई.)",      t:"f3",  b:0},
+ {g:"वास्तविक उत्पादन",k:"prodInd",    h:"औद्योगिक बांस (वि.ई.)",      t:"f3",  b:0},
+ {g:"निकासी",        k:"transported",h:"परिवहित",                   t:"f3",  b:1},
+ {g:"निकासी",        k:"balance",    h:"कूप शेष",                    t:"f3",  b:1, fl:1},
+ {g:"प्रति इकाई",     k:"perHaAvail", h:"प्रति हे. वृक्ष उपलब्धता",     t:"f2",  b:0, c:1},
+ {g:"प्रति इकाई",     k:"perHaMarked",h:"प्रति हे. मार्क्ड वृक्ष",       t:"f2",  b:0, c:1},
+ {g:"प्रति इकाई",     k:"perHaProd",  h:"प्रति हे. उत्पादन",           t:"f3",  b:1, c:1},
+ {g:"प्रति इकाई",     k:"perTree",    h:"प्रति पेड़ उत्पादन",          t:"f4",  b:1, c:1},
+ {g:"उपलब्धि",       k:"ach",        h:"उपलब्धि",                   t:"pill",b:1, c:1},
+ {g:"स्थल",          k:"kml",        h:"KML",                       t:"kml", b:1}
+];
+const n4=v=>v==null?"—":v.toLocaleString('en-IN',{minimumFractionDigits:4,maximumFractionDigits:4});
+const SRCK={"SCI":"SCI","IWC":"IWC","बांस WC":"BAM","FCA":"FCA"};
+
+function derive(r){
+  const o=Object.assign({},r), A=r.areaWork||r.areaWP;
+  if(r.src==="बांस WC"||r.prodComm!=null||r.prodInd!=null){
+    o.prodMain=(r.prodComm==null&&r.prodInd==null)?null:(r.prodComm||0)+(r.prodInd||0);
+  }else{
+    const p=[r.prodTimber,r.prodValliC,r.prodThegriC];
+    o.prodMain=p.every(x=>x==null)?null:p.reduce((s,x)=>s+(x||0),0);
+  }
+  o.perHaAvail =(r.enumTotal!=null&&A)?r.enumTotal/A:null;
+  o.perHaMarked=(r.marked!=null&&A)?r.marked/A:null;
+  o.perHaProd  =(o.prodMain!=null&&A)?o.prodMain/A:null;
+  o.perTree    =(o.prodMain!=null&&r.felled)?o.prodMain/r.felled:null;
+  o.ach        =(o.prodMain!=null&&r.tgtFP)?o.prodMain/r.tgtFP*100:null;
+  return o;
+}
+const REG=DATA.coupeReg.map(derive);
+
+let fSrc="सभी", fRange="सभी", fView="brief";
+function chips(host,opts,cur,cb){
+  $(host).innerHTML=opts.map(o=>'<button class="chip'+(o===cur?' on':'')+'" data-v="'+o+'">'+o+'</button>').join('');
+  $(host).querySelectorAll('.chip').forEach(b=>b.onclick=()=>cb(b.dataset.v));
+}
+function fmt(v,t){
+  if(v==null||v==="") return null;
+  if(t==="i")  return n0(v);
+  if(t==="f2") return n2(v);
+  if(t==="f3") return n3(v);
+  if(t==="f4") return n4(v);
+  return v;
+}
+function cell(r,c){
+  const v=r[c.k];
+  if(c.t==="src"){
+    if(!v) return '<td class="l"><span class="srcpill s-NON">अवर्गीकृत</span></td>';
+    return '<td class="l"><span class="srcpill s-'+(SRCK[v]||"NON")+'">'+v+'</span></td>';
+  }
+  if(c.t==="pill") return '<td>'+pill(v)+'</td>';
+  if(c.t==="kml") return v?'<td class="l"><a class="kmlink" href="'+v+'" target="_blank" rel="noopener">देखें</a></td>'
+                          :'<td class="l pend">—</td>';
+  if(c.t==="txt") return v?'<td class="l">'+v+'</td>':'<td class="l pend">शेष</td>';
+  const s=fmt(v,c.t);
+  if(s===null) return '<td class="pend">शेष</td>';
+  const bad=c.fl&&v>0;
+  return '<td class="n'+(bad?' flag':'')+'">'+s+'</td>';
+}
+function renderReg(){
+  const cols=RC.filter(c=>fView==="full"||c.b);
+  const rows=REG.filter(r=>
+    (fSrc==="सभी"||(fSrc==="अवर्गीकृत"?!r.src:r.src===fSrc)) &&
+    (fRange==="सभी"||r.range===fRange));
+
+  /* grouped header */
+  let g1="",prev=null,span=0,out=[];
+  cols.forEach(c=>{ if(c.g!==prev){ if(prev!==null)out.push([prev,span]); prev=c.g; span=1;} else span++; });
+  out.push([prev,span]);
+  g1='<tr class="gh">'+out.map(x=>'<th colspan="'+x[1]+'">'+x[0]+'</th>').join('')+'</tr>';
+  const g2='<tr>'+cols.map(c=>'<th'+(["src","txt","kml"].includes(c.t)?' class="l"':'')+'>'+c.h+
+    (c.c?'<br><span class="sub">गणित</span>':'')+'</th>').join('')+'</tr>';
+  $('regHead').innerHTML=g1+g2;
+
+  $('regBody').innerHTML = rows.length
+    ? rows.map(r=>'<tr>'+cols.map(c=>cell(r,c)).join('')+'</tr>').join('')
+    : '<tr><td class="l pend" colspan="'+cols.length+'">इस छाँट में कोई कूप नहीं</td></tr>';
+
+  const done=REG.filter(r=>r.src).length;
+  $('regCount').textContent=rows.length+' / '+REG.length+' कूप दिख रहे · '+done+' वर्गीकृत, '+(REG.length-done)+' शेष';
+  $('regFoot').innerHTML='रिक्त खाने <b>शेष</b> दिखते हैं। <b>गणित</b> चिह्नित खाने अपने आप निकलते हैं — उनमें कुछ भरना नहीं है। '+
+    'कुल उत्पादन = इमारती + वल्ली + ठेगरी (घ.मी.), बांस पंक्तियों में व्यापारिक + औद्योगिक (वि.ई.)। '+
+    'उपलब्धि विदोहन योजना के लक्ष्य पर निकाली गई है; कार्य योजना का लक्ष्य भरते ही दोनों का अंतर भी दिखने लगेगा।<br>'+
+    '<b>संकेत:</b> प्रति पेड़ उत्पादन काष्ठ कूपों को दो साफ़ समूहों में बाँट रहा है — कूप 832, 920, 1318 (0.39–0.60 घ.मी./वृक्ष) '+
+    'और कूप 968, 1284, 836 (0.0004–0.043 घ.मी./वृक्ष), बीच में कूप 904 (0.157)। पातन श्रेणी भरते समय यह जाँचने योग्य है।';
+}
+
+/* — स्रोतवार KPI — */
+function srcKpis(){
+  const groups=[
+    {n:"SCI",     k:"SCI",     m:"घ.मी. लक्ष्य के विरुद्ध"},
+    {n:"IWC",     k:"IWC",     m:"क्षेत्र उपचारित + वल्ली/ठेगरी/जलाऊ"},
+    {n:"बांस WC", k:"बांस WC", m:"वि.ई. लक्ष्य के विरुद्ध"},
+    {n:"FCA",     k:"FCA",     m:"गणनाशुदा वृक्षों में से विदोहित"}
+  ];
+  let html=groups.map(g=>{
+    const rs=REG.filter(r=>r.src===g.k);
+    if(!rs.length) return '<div class="kpi p"><div class="kpi-l">'+g.n+'</div>'+
+      '<div class="kpi-v" style="color:var(--mute)">—</div><div class="kpi-s">प्रविष्टि शेष · '+g.m+'</div></div>';
+    const t=sum(rs,r=>r.tgtFP), p=sum(rs,r=>r.prodMain), b=sum(rs,r=>r.balance),
+          u=g.k==="बांस WC"?"वि.ई.":"घ.मी.", pc=t?p/t*100:null;
+    return '<div class="kpi '+(pc>=90?'t':pc>=50?'p':'c')+'"><div class="kpi-l">'+g.n+' — '+rs.length+
+      ' कूप · '+n2(sum(rs,r=>r.areaWP))+' हे.</div><div class="kpi-v">'+(pc==null?'—':pc.toFixed(1)+'%')+
+      '</div><div class="kpi-s">'+n3(p)+' / '+n3(t)+' '+u+(b>0?' · शेष '+n3(b):'')+'</div></div>';
+  }).join('');
+  const un=REG.filter(r=>!r.src);
+  if(un.length){
+    const t=sum(un,r=>r.tgtFP), p=sum(un,r=>r.prodMain);
+    html+='<div class="kpi c"><div class="kpi-l">अवर्गीकृत काष्ठ कूप — '+un.length+' कूप · '+
+      n2(sum(un,r=>r.areaWP))+' हे.</div><div class="kpi-v">'+(p/t*100).toFixed(1)+
+      '%</div><div class="kpi-s">'+n3(p)+' / '+n3(t)+' घ.मी. · SCI/IWC विभाजन शेष</div></div>';
+  }
+  $('srcKpi').innerHTML=html;
+}
+
+/* — प्रविष्टि की पूर्णता — */
+function gaps(){
+  const F=[["पातन श्रेणी","src"],["परिक्षेत्र","range"],["कक्ष क्रमांक","block"],
+   ["कुल रकबा — KML/GIS","areaKML"],["कार्य योग्य क्षेत्र","areaWork"],
+   ["विदोहन योजना की स्थिति","planStatus"],["Site Quality","siteQ"],
+   ["Tree Enumeration","enumTotal"],["विदोहन योग्य वर्ग","enumExp"],
+   ["कार्य योजना अनुसार लक्ष्य","tgtWP"],["KML फ़ाइल","kml"]];
+  const N=REG.length;
+  $('tGaps').innerHTML=F.map(f=>{
+    const d=REG.filter(r=>r[f[1]]!=null&&r[f[1]]!=="").length, pc=d/N*100;
+    return '<tr><td class="l">'+f[0]+'</td><td class="n">'+d+'</td><td class="n'+(d<N?' flag':'')+'">'+
+      (N-d)+'</td><td>'+pill(pc)+'</td></tr>';
+  }).join('');
+}
+
+function refreshChips(){
+  chips('fSrc',["सभी","SCI","IWC","बांस WC","FCA","अवर्गीकृत"],fSrc,v=>{fSrc=v;refreshChips();renderReg();});
+  chips('fRange',["सभी"].concat(DATA.ranges),fRange,v=>{fRange=v;refreshChips();renderReg();});
+  chips('fView',["संक्षिप्त","पूर्ण रजिस्टर"],fView==="full"?"पूर्ण रजिस्टर":"संक्षिप्त",
+    v=>{fView=v==="पूर्ण रजिस्टर"?"full":"brief";refreshChips();renderReg();});
+}
+refreshChips(); renderReg(); srcKpis(); gaps();
+
+/* — tabs — */
+function go(i,el){
+  document.querySelectorAll('.pane').forEach((p,k)=>p.classList.toggle('on',k===i));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
