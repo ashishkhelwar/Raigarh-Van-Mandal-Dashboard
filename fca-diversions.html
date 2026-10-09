@@ -2045,7 +2045,7 @@ function renderFull(secs,c){
   let k=0;
   const cards=cond.map(sec=>`<div class="cond-section"><div class="cond-section-head">${sec.head}</div><div class="cond-items">${sec.items.map(i=>`<div class="cond-item"><span class="cond-num">(${toRoman(++k)})</span><span class="cond-text">${i}</span></div>`).join('')}</div></div>`).join('');
   // with an order PDF: every condition from the orders (filled from the verbatim transcription); else the digest cards
-  const kc = c&&c.pdf ? `<div class="kc-all" data-case="${c.id}"><div class="note-pending">शर्तें लोड हो रही हैं…</div></div>` : (cards?`<div class="cond-sections-grid fullrec-grid">${cards}</div>`:'');
+  const kc = c&&c.pdf ? '' : (cards?`<div class="cond-sections-grid fullrec-grid">${cards}</div>`:'');   // order cases show all conditions in the main panel
   return `${kv.length?`<div class="det-meta full-kv">${kv.join('')}</div>`:''}${kc}`;
 }
 function buildTable() {
@@ -2109,9 +2109,9 @@ function buildTable() {
                 <div class="detail-kv"><div class="k">Stage-II — ${c.s2||'—'}</div><div class="v">${d.s2by}</div></div>
               </div>
             </div>
-            <div class="cond-sections-grid">${sectionsHtml}</div>
+            ${c.pdf?`<div class="kc-all" data-case="${c.id}"><div class="note-pending">शर्तें लोड हो रही हैं…</div></div>`:`<div class="cond-sections-grid">${sectionsHtml}</div>`}
             ${c.pdf?`<p style="margin:10px 0 0"><a class="pdf-link" href="${encodeURI(c.pdf)}" target="_blank" rel="noopener">📄 मूल स्वीकृति आदेश (PDF) खोलें</a></p>`:''}
-            ${FULL[c.batch]?`<details class="fullrec"><summary>📑 पूर्ण अनुपालन अभिलेख (Full compliance record — ${c.batch})</summary>${renderFull(FULL[c.batch],c)}</details>`:''}
+            ${FULL[c.batch]?`<details class="fullrec"><summary>📑 अन्य विवरण — CA, NPV, समयरेखा आदि (${c.batch})</summary>${renderFull(FULL[c.batch],c)}</details>`:''}
           </td>
         </tr>`;
       }
