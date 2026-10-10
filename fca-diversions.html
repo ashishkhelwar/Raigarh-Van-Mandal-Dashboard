@@ -175,7 +175,7 @@
   .cond-text{font-size:13px}
   /* Key Conditions: full text, 10% larger than 13px */
   .kc-grid .cond-text{font-size:14.3px}.kc-grid .cond-num{font-size:12.87px}
-  .kc-grid .cond-text br+br{display:none}
+  .kc-sub{display:flex;gap:6px;margin:4px 0 0 4px;text-align:justify}.kc-sub-no{flex:0 0 auto;font-weight:600;color:#9a3412}
 </style>
 <!-- KPI toggle: KPI cards hidden by default; button shows them (remembered per browser) -->
 <style>html:not(.show-kpi) .stats-row{display:none!important}
@@ -2155,7 +2155,7 @@ fetch('fca-orders/conditions-verbatim.json').then(r=>r.json()).then(V=>{
     const title=l=>l.kind==='Stage-I'?'KEY CONDITIONS — प्रथम चरण (Stage-I)':l.kind==='Stage-II'?'KEY CONDITIONS — अंतिम चरण (Stage-II)':l.kind==='Forwarding'?'राज्य शासन का अग्रेषण पत्र (Forwarding)':'अन्य पत्र (Other)';
     let k=0;
     box.innerHTML=`<div class="kc-jump">${L.map((l,i)=>`<button type="button" onclick="event.stopPropagation();this.closest('.kc-all').querySelectorAll('.kc-grid>.cond-section')[${i}].scrollIntoView({behavior:'smooth',block:'start'})">${title(l).replace('KEY CONDITIONS — ','')} · ${esc(l.date)} · ${(l.conditions||[]).length}</button>`).join('')}</div><div class="cond-sections-grid fullrec-grid kc-grid">${L.map(l=>`<div class="cond-section"><div class="cond-section-head">${title(l)} · ${esc(l.date)} · ${(l.conditions||[]).length} ${/Stage/.test(l.kind)?'शर्तें':'बिंदु'}</div><div class="cond-items">${(l.conditions||[]).map(x=>{
-        const full=esc(x.text).replace(/\n/g,'<br>')+((x.sub||[]).length?'<br>'+x.sub.map(s=>`(${esc(s.no)}) ${esc(s.text)}`).join('<br>'):'');
+        const full=(x.text?esc(x.text).replace(/\n/g,'<br>'):'')+(x.sub||[]).map(s=>`<div class="kc-sub"><span class="kc-sub-no">(${esc(s.no)})</span> ${esc(s.text).replace(/\n/g,'<br>')}</div>`).join('');
         const short=esc(one(x.text||(x.sub&&x.sub[0]?x.sub[0].text:'')));
         const long=full.replace(/<br>/g,' ').length>short.length+5;
         return `<div class="cond-item"><span class="cond-num">(${esc(x.no)})</span><span class="cond-text">${full}</span></div>`;}).join('')}</div></div>`).join('')}</div>`;
