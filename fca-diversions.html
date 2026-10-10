@@ -173,6 +173,9 @@
   /* justified paragraphs: conditions, record details, notes */
   .cond-text,.kc-d,.full-kv .v,.fullrec-body p,.fullrec-body li,.fullrec-body blockquote,.warn-note,.fix-note,.note-pending{text-align:justify;hyphens:auto}
   .cond-text{font-size:13px}
+  /* Key Conditions: full text, 10% larger than 13px */
+  .kc-grid .cond-text{font-size:14.3px}.kc-grid .cond-num{font-size:12.87px}
+  .kc-grid .cond-text br+br{display:none}
 </style>
 <!-- KPI toggle: KPI cards hidden by default; button shows them (remembered per browser) -->
 <style>html:not(.show-kpi) .stats-row{display:none!important}
@@ -2155,7 +2158,7 @@ fetch('fca-orders/conditions-verbatim.json').then(r=>r.json()).then(V=>{
         const full=esc(x.text).replace(/\n/g,'<br>')+((x.sub||[]).length?'<br>'+x.sub.map(s=>`(${esc(s.no)}) ${esc(s.text)}`).join('<br>'):'');
         const short=esc(one(x.text||(x.sub&&x.sub[0]?x.sub[0].text:'')));
         const long=full.replace(/<br>/g,' ').length>short.length+5;
-        return `<div class="cond-item"><span class="cond-num">(${esc(x.no)})</span><span class="cond-text">${long?`<details class="kc-d"><summary>${short}</summary>${full}</details>`:full}</span></div>`;}).join('')}</div></div>`).join('')}</div>`;
+        return `<div class="cond-item"><span class="cond-num">(${esc(x.no)})</span><span class="cond-text">${full}</span></div>`;}).join('')}</div></div>`).join('')}</div>`;
   });
 }).catch(()=>document.querySelectorAll('.kc-all').forEach(b=>b.innerHTML='<div class="note-pending">शर्तें लोड नहीं हो सकीं — PDF देखें।</div>'));
 document.getElementById('analysis-body').innerHTML = ANALYSIS;
