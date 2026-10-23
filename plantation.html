@@ -152,7 +152,7 @@ addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});<
     <div class="panel active" id="p1">
       <h1>1. Monitoring of Plantation Activities</h1>
         <a class="sheet-link" href="https://docs.google.com/spreadsheets/d/13A00JXXQWG5nTSbIQR_RaULVtVyRVEX12JLGv5nM2Sw/edit#gid=361700575" target="_blank" rel="noopener">Open in Google Sheets ↗</a>
-      <p class="sub">Site-wise physical progress · all 28 plantation sites · <b>Data updated: 17 Sep 2026</b></p>
+      <p class="sub">Site-wise physical progress · all 28 plantation sites · <b>Data updated: 23 Oct 2026</b></p>
       <div class="card">
         <div class="card-title">Plantation Site Details</div>
         <div class="filter-bar"><span class="filter-label">Range:</span><button class="range-pill active" data-range="all" onclick="setRangeFilter('all')">All</button><button class="range-pill" data-range="रायगढ़" onclick="setRangeFilter('रायगढ़')">रायगढ़</button><button class="range-pill" data-range="खरसिया" onclick="setRangeFilter('खरसिया')">खरसिया</button><button class="range-pill" data-range="घरघोड़ा" onclick="setRangeFilter('घरघोड़ा')">घरघोड़ा</button><button class="range-pill" data-range="तमनार" onclick="setRangeFilter('तमनार')">तमनार</button></div>
@@ -206,7 +206,7 @@ addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});<
     </div>
     <div class="panel" id="p7">
       <h1>5. Detail of Plants in Nursery</h1>
-        <a class="sheet-link" href="https://docs.google.com/spreadsheets/d/1rLIDWKhjqccWEgsp3FXac0aaj1570_N5IY3tcRqsFvM/edit" target="_blank" rel="noopener">Open in Google Sheets ↗</a>
+        <a class="sheet-link" href="https://docs.google.com/spreadsheets/d/1rLIDWKhjqccWEgsp3FXac0aaj1570_N5IY3tcRqsFvM/edit#gid=636247146" target="_blank" rel="noopener">Open in Google Sheets ↗</a>
       <p class="sub">Nursery-wise species detail — लक्ष्य / प्राप्ति / प्रजातिवार संख्या</p>
       <div class="card">
         <div class="card-title">प्रजातिवार पौध उत्पादन विवरण</div>
@@ -239,7 +239,7 @@ const NURSERY_SHEET='1FN4XWDabblJBzdDvLWqDnkkLS1eZL3WFfAsD9005IHg';
 const PLANT_GID={1:'1450327897',2:'1841112141',3:'2125942696',4:'858742049',5:'515272553',6:'2121886730',7:'1436466310',8:'446047009',9:'862897545',10:'842997499',11:'1910867892',12:'1549994903',13:'494816009',14:'1171803140',15:'872467183',16:'1540128175',17:'1293660831',18:'935260182',19:'781588543',20:'240897510',21:'830816263',22:'1072647800',23:'2067698800',24:'386132818',25:'806508315',26:'229913322',27:'98188241',28:'602436704'};
 const NURSERY_GID=['81839430','2143642251','1251396066','147929367'];
 const SPECIES_SHEET='1rLIDWKhjqccWEgsp3FXac0aaj1570_N5IY3tcRqsFvM';
-const SPECIES_GID='166857448';
+const SPECIES_GID='636247146';
 const MONITOR_SHEET='13A00JXXQWG5nTSbIQR_RaULVtVyRVEX12JLGv5nM2Sw';
 const CANCELLED = new Set([16,17]); // sites where plantation is cancelled
 let gvizSeq=0;
@@ -562,7 +562,7 @@ function parseSpecies(rows){
     const c=r.c||[]; const g=i=>(c[i]&&c[i].v!=null)?c[i].v:'';
     const no=cellNum(c[0]);
     const sp=[]; for(let i=6;i<54;i++) sp.push(cellNum(c[i])||0);
-    const rec={no:no, name:(g(1)||'').toString(), range:(g(2)||'').toString(), mad:(g(3)||'').toString(), lakshya:cellNum(c[4]), prapti:cellNum(c[5]), species:sp, total:cellNum(c[54])};
+    const rec={no:no, name:(g(1)||'').toString(), range:(g(2)||'').toString(), mad:(g(3)||'').toString(), lakshya:cellNum(c[4]), prapti:cellNum(c[5]), species:sp, total:sp.reduce((a,v)=>a+v,0)};   // row total = sum of species (sheet's Total cell can be blank)
     if(no===null && rec.name===''){ if(rec.lakshya!==null||rec.total!==null) total=rec; }
     else if(rec.name!=='' || no!==null){ plants.push(rec); }
   });
@@ -587,10 +587,10 @@ function applySpeciesFilter(){
         (spRange==='all' || r.range===spRange) &&
         (spMad==='all' || (r.mad||'').indexOf(spMad)>=0))
     : speciesData.plants;
-  const tot = filtered ? recomputeSpeciesTotal(fp) : speciesData.total;
+  const tot = recomputeSpeciesTotal(fp);   // always sum the rows — the sheet's TOTAL row is typed, not a formula
   el.innerHTML = plantSpeciesTableHTML(fp, tot)
     + '<div class="filter-count">Showing '+fp.length+' of '+speciesData.plants.length+' nurseries'
-    + (filtered?' · filtered — TOTAL row is the sum of the selection':'')+'.</div>';
+    + ' · TOTAL row = sum of the rows shown.</div>';
 }
 function setSpeciesFilter(dim,val){
   if(dim==='range') spRange=val; else spMad=val;
