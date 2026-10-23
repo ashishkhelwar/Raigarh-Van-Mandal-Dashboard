@@ -71,6 +71,10 @@ body{font-family:Arial,'Nirmala UI','Noto Sans Devanagari','Kohinoor Devanagari'
 .card-title .range-filter select{font-size:11px;padding:3px 6px;border:1px solid var(--border);border-radius:3px;margin-left:8px;}
 .table-wrap{overflow-x:auto;}
 table.dtbl{width:100%;border-collapse:collapse;min-width:600px;}
+.ms-note{font-size:12px;color:#555;margin:4px 0 8px}
+.ms-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.ms-badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11.5px;font-weight:700;white-space:nowrap;color:#fff}
+.ms-p{background:#1e7b45}.ms-t{background:#6b3fa0}.ms-both{background:linear-gradient(90deg,#1e7b45 50%,#6b3fa0 50%)}.ms-n{background:#e5e7eb;color:#374151}
 table.dtbl thead tr.hdr1 th{background:var(--navy);color:#fff;padding:6px 8px;font-size:10px;text-align:center;white-space:nowrap;}
 table.dtbl thead tr.hdr2 th{background:var(--lBlue);color:var(--navy);padding:5px 7px;font-size:10px;text-align:center;white-space:nowrap;font-weight:600;}
 table.dtbl thead tr.hdr3 th{background:#DEEAF1;color:var(--navy);padding:4px 6px;font-size:10px;text-align:center;white-space:nowrap;}
@@ -182,7 +186,7 @@ addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});<
 <!-- MAIN -->
 <div id="main">
   <div class="topbar">
-    <h1>📦 Material Purchase Dashboard — 2025-26 &amp; 2026-27 <small style="font-size:12px;font-weight:400;opacity:.8">· Data updated: 10 Oct 2026</small></h1>
+    <h1>📦 Material Purchase Dashboard — 2025-26 &amp; 2026-27 <small style="font-size:12px;font-weight:400;opacity:.8">· Data updated: 24 Oct 2026</small></h1>
     <div style="display:flex;gap:8px;align-items:center;">
       <span class="meta" id="lastUpdated">Loading...</span>
       <button id="refreshBtn" onclick="loadAll()">↻ Refresh</button>
@@ -213,6 +217,20 @@ addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});<
         <tbody id="ov-body">
           <tr><td colspan="7" class="loading"><span class="spinner"></span>Loading summary...</td></tr>
         </tbody>
+      </table>
+    </div>
+    <div class="section-hdr" style="margin-top:22px">
+      <h2>सामग्री स्थिति — क्रय / निविदा / कोई कार्यवाही नहीं</h2>
+    </div>
+    <div class="ms-note">स्रोत: <b>GeM पंजी (23 Oct 2026)</b> — अनुबंध = क्रय, चालू बोली = निविदा। Google Sheet के <b>"Material Status"</b> टैब में स्थिति भरने पर वही मान्य होगी (स्रोत: शीट)।</div>
+    <div class="ms-chips" id="ms-chips"></div>
+    <div class="summary-tbl">
+      <table>
+        <thead><tr>
+          <th>#</th><th>सामग्री</th><th>किन खंडों में</th><th>स्थिति</th>
+          <th style="text-align:right">GeM अनुबंध</th><th style="text-align:right">अनुबंध राशि (₹)</th><th>अंतिम क्रय</th><th>चालू बोली (GEM/2026/B/…)</th><th>टिप्पणी</th><th>स्रोत</th>
+        </tr></thead>
+        <tbody id="ms-body"></tbody>
       </table>
     </div>
   </div>
@@ -908,6 +926,46 @@ function loadCSV(sheet,range,cb){
     }).catch(()=>cb([]));
 }
 
+
+// ── सामग्री स्थिति (Overview) ─────────────────────────────────
+// GeM Ledger snapshot, 23 Oct 2026: n = contracts (cancelled/declined excluded), amt = contract value,
+// bids = active GeM bids with no contract yet. The "Material Status" sheet tab overrides when filled.
+const MS_GEM={"vermi":{"n":3,"amt":4102427,"last":"16.07.2026"},"dap":{"n":1,"amt":40625,"last":"16.07.2026"},"bio":{"n":1,"amt":500000,"last":"18.08.2026"},"neem":{"n":2,"amt":1129275,"last":"16.07.2026"},"chlor":{"n":1,"amt":499200,"last":"14.05.2026"},"npk":{"n":2,"amt":281250,"last":"16.07.2026"},"bone":{"n":3,"amt":351550,"last":"16.07.2026"},"bag":{"n":2,"amt":252198,"last":"20.10.2026"},"pest":{"n":1,"amt":16500,"last":"16.07.2026"},"sand":{"n":5,"amt":1624506,"last":"05.10.2026"},"cement":{"n":6,"amt":1795468,"last":"19.10.2026","bids":["7965331","8007315","8127116","8135492"]},"agg20":{"n":3,"amt":1340120,"last":"16.10.2026","bids":["8136200"]},"agg40":{"n":2,"amt":1228010,"last":"16.10.2026","bids":["8136200"]},"tmt8":{"n":4,"amt":1982849,"last":"07.10.2026","bids":["8111735","8133131"]},"tmt10":{"n":2,"amt":832333,"last":"13.08.2026","bids":["8111735","8133131"]},"tmt12":{"n":3,"amt":1770486,"last":"12.08.2026","bids":["8111735","8133131"]},"tmt16":{"n":2,"amt":369995,"last":"07.10.2026"},"brick":{"n":5,"amt":1338442,"last":"19.10.2026","bids":["8132725"]},"pole":{"n":2,"amt":854645,"last":"15.07.2026","bids":["8081989","8136420"]},"chain":{"n":5,"amt":4094866,"last":"07.08.2026","bids":["8174189"]},"barbed":{"n":3,"amt":629700,"last":"05.08.2026","bids":["8152441"]}};
+const MS_ITEMS=[
+ ['soil','उपजाऊ मिट्टी / मृदा','1.1, 1.2, 3.1, 3.2, 5'],['vermi','वर्मीकम्पोस्ट / FYM','1.1, 1.2, 3.1, 3.2, 5'],['compost','कम्पोस्ट / गोबर खाद','5'],
+ ['dap','DAP','1.1, 1.2, 5'],['bio','Biofertilizer / Hormones','1.1, 1.2, 5'],['neem','नीम खली','1.1, 1.2, 3.1, 3.2, 5'],['bone','बोन मिल खाद','3.1, 3.2, 5'],
+ ['chlor','क्लोरोपायरीफ़ॉस','1.1, 1.2, 5'],['npk','एन.पी.के.','1.1, 1.2, 5'],['bag','पॉलीबैग / पॉलीपॉट 15×25','3.1, 3.2'],['seed','बीज','3.1, 3.2'],
+ ['pest','कीटनाशक','3.1, 3.2'],['nutr','पोषक तत्व','3.1, 3.2'],['pole','Prestressed / RCC Pole','2.1, 2.2, 4'],['chain','Chainlink','2.1, 2.2'],
+ ['barbed','Barbed Wire (कांटेदार तार)','4'],['cement','Cement','2.1, 2.2, 4, 6, 8'],['sand','Sand / रेत','2.1, 2.2, 3.1, 3.2, 4, 6, 8'],
+ ['agg20','Aggregate 20mm','2.1, 2.2, 4, 6, 8'],['agg40','Aggregate 40mm','2.2, 6'],['tmt8','TMT 8mm','6, 8'],['tmt10','TMT 10mm','6'],['tmt12','TMT 12mm','6, 8'],
+ ['tmt16','TMT 16mm','6'],['brick','Brick (ईंट)','6, 8'],['ms','MS Steel','8'],
+ ['jcb','JCB (घंटे)','7'],['tractor','Tractor (घंटे)','7'],['roller','Roller (घंटे)','7'],['mixer','Concrete Mixer (घंटे)','7'],['tanker','Water Tanker (ट्रिप)','7'],['hyva','Hyva (ट्रिप)','7']];
+const MS_ST={both:['क्रय + नई निविदा','ms-both'],bought:['क्रय हुआ','ms-p'],tender:['निविदा जारी','ms-t'],none:['कोई कार्यवाही नहीं','ms-n']};
+let MS_SHEET={};   // सामग्री name → {st, note} from the "Material Status" tab
+function msFromText(t){ t=String(t||''); const p=/क्रय|purchas/i.test(t), d=/निविदा|tender/i.test(t);
+  return p&&d?'both':p?'bought':d?'tender':/कोई|नहीं|none/i.test(t)?'none':''; }
+function renderMaterialStatus(){
+  const cnt={both:0,bought:0,tender:0,none:0};
+  document.getElementById('ms-body').innerHTML=MS_ITEMS.map(([k,name,tabs],i)=>{
+    const g=MS_GEM[k]||{}, s=MS_SHEET[name]||{};
+    const auto=g.n&&g.bids?'both':g.n?'bought':g.bids?'tender':'none';
+    const st=msFromText(s.st)||auto; cnt[st]++;
+    const [lbl,cls]=MS_ST[st];
+    return `<tr><td>${i+1}</td><td><b>${name}</b></td><td style="color:#666">${tabs}</td><td><span class="ms-badge ${cls}">${lbl}</span></td>
+      <td style="text-align:right">${g.n||'—'}</td><td style="text-align:right">${g.amt?fmtCurr(g.amt):'—'}</td><td>${g.last||'—'}</td>
+      <td style="font-size:11px">${(g.bids||[]).join(', ')||'—'}</td><td style="font-size:11px">${s.note||''}</td><td style="font-size:11px;color:#666">${msFromText(s.st)?'शीट':'GeM पंजी'}</td></tr>`;
+  }).join('');
+  document.getElementById('ms-chips').innerHTML=Object.entries(MS_ST).map(([k,[l,c]])=>`<span class="ms-badge ${c}">${l}: ${cnt[k]}</span>`).join('');
+}
+function loadMaterialStatus(){
+  renderMaterialStatus();
+  loadCSV('Material Status','A2:D80',rows=>{
+    const names=new Set(MS_ITEMS.map(x=>x[1]));
+    MS_SHEET={}; rows.forEach(r=>{ if(r&&names.has(String(r[1]||'').trim())) MS_SHEET[String(r[1]).trim()]={st:r[2]||'',note:r[3]||''}; });
+    renderMaterialStatus();
+  });
+}
+
 // ── LOAD ALL ─────────────────────────────────────────────────
 function loadSection(sid){
   const cfg=TABS[sid];
@@ -929,6 +987,7 @@ function loadSection(sid){
 function loadAll(){
   document.getElementById('lastUpdated').textContent='Loading...';
   Object.keys(TABS).forEach(sid=>loadSection(sid));
+  loadMaterialStatus();
   setTimeout(()=>{
     document.getElementById('lastUpdated').textContent=
       'Updated: '+new Date().toLocaleTimeString('en-IN');
