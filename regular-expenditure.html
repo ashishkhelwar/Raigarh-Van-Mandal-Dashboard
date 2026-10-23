@@ -131,6 +131,7 @@ body{
   transition:transform .22s,box-shadow .22s;
 }
 .gcard{cursor:pointer}
+tr.go-row{cursor:pointer}
 .gcard:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);background:var(--card-hover)}
 .gcard-title{font-size:15.5px;font-weight:700;line-height:1.45;margin-bottom:14px;
   color:var(--ink);word-wrap:break-word;overflow-wrap:break-word}
@@ -734,7 +735,7 @@ function renderAgg(key, cardsId, tbodyId, tfootId, cardsToo){
   tbody.innerHTML = arr.map(([name,d])=>{
     const p=pct(d.spent,d.sanctioned);
     tB+=d.sanctioned; tS+=d.spent; tC+=d.count;
-    return `<tr>
+    return `<tr class="go-row" data-n="${esc(name).replace(/"/g,'&quot;')}" title="क्लिक करें — कार्यवार विवरण देखें">
       <td class="l" style="font-weight:600">${esc(name)}</td>
       <td class="ctr">${d.count}</td>
       <td class="num">${fmtN(d.sanctioned)}</td>
@@ -743,6 +744,8 @@ function renderAgg(key, cardsId, tbodyId, tfootId, cardsToo){
       <td class="ctr">${badge(p)}</td>
     </tr>`;
   }).join('') || `<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">कोई डेटा नहीं</td></tr>`;
+
+  tbody.querySelectorAll('tr.go-row').forEach(tr=>tr.onclick=()=>openWorks(key,tr.dataset.n));
 
   document.getElementById(tfootId).innerHTML = `<tr>
     <td>महायोग</td><td class="num">${tC}</td>
