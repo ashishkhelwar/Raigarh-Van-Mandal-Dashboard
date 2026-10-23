@@ -71,6 +71,12 @@ body{font-family:Arial,'Nirmala UI','Noto Sans Devanagari','Kohinoor Devanagari'
 .card-title .range-filter select{font-size:11px;padding:3px 6px;border:1px solid var(--border);border-radius:3px;margin-left:8px;}
 .table-wrap{overflow-x:auto;}
 table.dtbl{width:100%;border-collapse:collapse;min-width:600px;}
+table.dtbl thead tr.hdr1 th.gem-p{background:#1e7b45}
+table.dtbl thead tr.hdr1 th.gem-t{background:#6b3fa0}
+table.dtbl thead tr.hdr1 th.gem-both{background:linear-gradient(90deg,#1e7b45 50%,#6b3fa0 50%)}
+.gem-legend{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:11px;margin:4px 0 8px}
+.gem-legend span[class]{color:#fff;padding:2px 9px;border-radius:10px;font-weight:600}
+.gem-legend .gem-p{background:#1e7b45}.gem-legend .gem-t{background:#6b3fa0}.gem-legend .gem-both{background:linear-gradient(90deg,#1e7b45 50%,#6b3fa0 50%)}
 table.dtbl thead tr.hdr1 th{background:var(--navy);color:#fff;padding:6px 8px;font-size:10px;text-align:center;white-space:nowrap;}
 table.dtbl thead tr.hdr2 th{background:var(--lBlue);color:var(--navy);padding:5px 7px;font-size:10px;text-align:center;white-space:nowrap;font-weight:600;}
 table.dtbl thead tr.hdr3 th{background:#DEEAF1;color:var(--navy);padding:4px 6px;font-size:10px;text-align:center;white-space:nowrap;}
@@ -182,7 +188,7 @@ addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});<
 <!-- MAIN -->
 <div id="main">
   <div class="topbar">
-    <h1>📦 Material Purchase Dashboard — 2025-26 &amp; 2026-27 <small style="font-size:12px;font-weight:400;opacity:.8">· Data updated: 10 Oct 2026</small></h1>
+    <h1>📦 Material Purchase Dashboard — 2025-26 &amp; 2026-27 <small style="font-size:12px;font-weight:400;opacity:.8">· Data updated: 23 Oct 2026</small></h1>
     <div style="display:flex;gap:8px;align-items:center;">
       <span class="meta" id="lastUpdated">Loading...</span>
       <button id="refreshBtn" onclick="loadAll()">↻ Refresh</button>
@@ -681,11 +687,11 @@ function renderMaterialTable(sectionId, rows, cfg, filterRange){
   renderKPI(sectionId,totAmt,totExp);
 
   // Table
-  let html=`<table class="dtbl"><thead>`;
+  let html=GEM_LEGEND+`<table class="dtbl"><thead>`;
   // Header row 1: meta + material names (colspan 3 each)
   html+=`<tr class="hdr1">`;
   meta.forEach((m,i)=>html+=`<th rowspan="2" class="meta-col">${m}</th>`);
-  mats.forEach(m=>html+=`<th colspan="3">${m.n}${m.u?`<br><small>(${m.u})</small>`:''}</th>`);
+  mats.forEach(m=>{const g=gemTag(m.n);html+=`<th colspan="3" class="${g.cls}" title="${g.tip}">${m.n}${m.u?`<br><small>(${m.u})</small>`:''}</th>`});
   html+=`</tr>`;
   // Header row 2: Qty/Amt/Exp
   html+=`<tr class="hdr2">`;
@@ -722,6 +728,23 @@ function renderMaterialTable(sectionId, rows, cfg, filterRange){
   if(panel&&panel.classList.contains('open')) renderSummaryTable(sectionId);
 }
 
+
+// ── GeM status per material (from GeM Ledger, 23 Oct 2026) ──
+// P = purchased: count of GeM contracts (cancelled/declined excluded) + latest date
+// T = floated under tender: active GeM bids with no contract yet
+const GEM_P={"vermi":{"n":3,"last":"16/07/26"},"dap":{"n":1,"last":"16/07/26"},"bio":{"n":1,"last":"18/08/26"},"neem":{"n":2,"last":"16/07/26"},"chlor":{"n":1,"last":"14/05/26"},"npk":{"n":2,"last":"16/07/26"},"bone":{"n":3,"last":"16/07/26"},"bag":{"n":2,"last":"20/10/26"},"pest":{"n":2,"last":"16/07/26"},"sand":{"n":5,"last":"05/10/26"},"cement":{"n":6,"last":"19/10/26"},"agg20":{"n":3,"last":"16/10/26"},"agg40":{"n":2,"last":"16/10/26"},"tmt8":{"n":4,"last":"07/10/26"},"tmt10":{"n":2,"last":"13/08/26"},"tmt12":{"n":3,"last":"12/08/26"},"tmt16":{"n":2,"last":"07/10/26"},"brick":{"n":5,"last":"19/10/26"},"pole":{"n":2,"last":"15/07/26"},"chain":{"n":5,"last":"07/08/26"},"barbed":{"n":3,"last":"05/08/26"}};
+const GEM_T={"cement":["7965331","8007315","8127116","8135492"],"agg20":["8136200"],"agg40":["8136200"],"pole":["8081989","8136420"],"brick":["8132725"],"tmt8":["8111735","8133131"],"tmt10":["8111735","8133131"],"tmt12":["8111735","8133131"],"barbed":["8152441"],"chain":["8174189"]};
+const GEM_KEYS=[[/वर्मि|वर्मी/,'vermi'],[/^DAP/,'dap'],[/Biofertilizer/i,'bio'],[/नीम ?खली/,'neem'],[/क्लोरोपायरीफ़ॉस/,'chlor'],[/एन\.पी\.के/,'npk'],[/बोन मिल/,'bone'],[/पॉली(पॉट|बेग)/,'bag'],[/कीटनाशक/,'pest'],
+  [/^(Sand|रेत)/,'sand'],[/^Cement/,'cement'],[/Aggregate 20/,'agg20'],[/Aggregate 40/,'agg40'],[/TMT 8/,'tmt8'],[/TMT 10/,'tmt10'],[/TMT 12/,'tmt12'],[/TMT 16/,'tmt16'],[/Brick/,'brick'],[/Prestressed|RCC Pole/,'pole'],[/Chainlink/,'chain'],[/Barbed/,'barbed']];
+function gemTag(name){
+  const k=(GEM_KEYS.find(([re])=>re.test(name))||[])[1]; if(!k) return {cls:'',tip:''};
+  const p=GEM_P[k], t=GEM_T[k], tip=[];
+  if(p) tip.push(`क्रय: GeM पर ${p.n} अनुबंध (नवीनतम ${p.last})`);
+  if(t) tip.push(`निविदा में: GEM/2026/B/${t.join(', ')}`);
+  return {cls:p&&t?'gem-both':p?'gem-p':t?'gem-t':'', tip:tip.join(' · ')};
+}
+const GEM_LEGEND=`<div class="gem-legend"><span class="gem-p">क्रय हो चुका</span><span class="gem-t">निविदा में</span><span class="gem-both">क्रय + नई निविदा</span><span style="color:#666">GeM पंजी (23 Oct 2026) के अनुसार · शीर्षक पर माउस रखें</span></div>`;
+
 // ── RENDER SIMPLE TABLE (no Qty/Amount/Expend) ──────────────
 function renderSimpleTable(sectionId, rows, cfg){
   const {meta,mats,metaN,noQAE}=cfg;
@@ -735,8 +758,8 @@ function renderSimpleTable(sectionId, rows, cfg){
   });
   renderKPI(sectionId,totAmt,0,true);
 
-  let html=`<table class="dtbl"><thead><tr class="hdr1">`;
-  allCols.forEach((c,i)=>html+=`<th class="${i<metaN?'meta-col':''}">${c}</th>`);
+  let html=(noQAE?'':GEM_LEGEND)+`<table class="dtbl"><thead><tr class="hdr1">`;
+  allCols.forEach((c,i)=>{const g=i<metaN?{cls:'',tip:''}:gemTag(c);html+=`<th class="${i<metaN?'meta-col':g.cls}" title="${g.tip}">${c}</th>`});
   html+=`</tr></thead><tbody>`;
   if(dataRows.length===0){
     html+=`<tr><td colspan="${allCols.length}" class="no-data">No data entered yet — fill in the Google Sheet.</td></tr>`;
