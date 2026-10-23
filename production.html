@@ -200,6 +200,7 @@ td.pend{color:#c7d6da;font-weight:400;font-family:var(--dev)}
   .pane:first-of-type{page-break-before:auto}
   .panel{break-inside:avoid;border-color:#999}
 }
+.pstep{cursor:pointer}.pstep:hover{filter:brightness(.97);box-shadow:0 4px 12px rgba(0,0,0,.1)}
 </style>
 <!-- KPI toggle: KPI cards hidden by default; button shows them (remembered per browser) -->
 <style>html:not(.show-kpi) .panel:has(> #kpi){display:none!important}
@@ -703,17 +704,17 @@ tot.incl=sum(T,inc);
 
 /* — pipeline — */
 $('pipe').innerHTML=[
- {n:"विदोहन — कूप",   v:n2(tot.incl), u:"घ.मी. (वल्ली/ठेगरी सहित)",
+ {g:1,n:"विदोहन — कूप",   v:n2(tot.incl), u:"घ.मी. (वल्ली/ठेगरी सहित)",
   f:'अनुमान '+n2(tot.estT)+' के विरुद्ध '+((tot.incl/tot.estT)*100).toFixed(1)+'%', c:'f-ok'},
- {n:"परिवहन — काष्ठ", v:"0.00", u:"घ.मी. कूप में शेष",
+ {g:2,n:"परिवहन — काष्ठ", v:"0.00", u:"घ.मी. कूप में शेष",
   f:'समस्त काष्ठ काष्ठागार पहुँचा', c:'f-ok'},
- {n:"परिवहन — बांस",  v:n2(bt.cBal+bt.iBal), u:"वि.ई. कूप में शेष",
+ {g:3,n:"परिवहन — बांस",  v:n2(bt.cBal+bt.iBal), u:"वि.ई. कूप में शेष",
   f:'कूप 783, 906, 904 में रुका', c:'f-bad'},
- {n:"डिपो — नीलामी",  v:n2(DATA.unsoldT), u:"घ.मी. अबिक्री काष्ठ",
+ {g:4,n:"डिपो — नीलामी",  v:n2(DATA.unsoldT), u:"घ.मी. अबिक्री काष्ठ",
   f:'प्रस्तावित का 75.0% अबिक्री', c:'f-bad'},
- {n:"राजस्व — 0406",  v:cr(DATA.revTotal.t).replace('₹',''), u:"कुल प्राप्त (लक्ष्य ₹72.75 करोड़)",
+ {g:6,n:"राजस्व — 0406",  v:cr(DATA.revTotal.t).replace('₹',''), u:"कुल प्राप्त (लक्ष्य ₹72.75 करोड़)",
   f:'उपलब्धि '+((DATA.revTotal.t/DATA.revTotal.tgt)*100).toFixed(1)+'%', c:'f-warn'}
-].map(s=>'<div class="pstep"><div class="pstep-n">'+s.n+'</div><div class="pstep-v">'+s.v+
+].map(s=>'<div class="pstep" title="क्लिक करें — विवरण देखें" onclick="go('+s.g+',document.querySelectorAll(\'.tab\')['+s.g+'])"><div class="pstep-n">'+s.n+'</div><div class="pstep-v">'+s.v+
   '</div><div class="pstep-u">'+s.u+'</div><div class="pstep-f '+s.c+'">'+s.f+'</div></div>').join('');
 
 /* — KPI — */

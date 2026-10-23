@@ -871,7 +871,7 @@ function buildOverview(){
     }
     totAmt+=amt; totExp+=exp;
     const bal=amt-exp;
-    rows+=`<tr>
+    rows+=`<tr style="cursor:pointer" title="क्लिक करें — विवरण देखें" onclick="show('${c.id}')">
       <td>${c.sheetNum}</td>
       <td class="cat"><a href="#" onclick="show('${c.id}');return false;">${c.label}</a></td>
       <td>${TABS[c.id].mats.length||'…'} items</td>
