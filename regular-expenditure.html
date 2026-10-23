@@ -130,6 +130,7 @@ body{
   padding:20px 22px;box-shadow:var(--shadow);position:relative;overflow:hidden;
   transition:transform .22s,box-shadow .22s;
 }
+.gcard{cursor:pointer}
 .gcard:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);background:var(--card-hover)}
 .gcard-title{font-size:15.5px;font-weight:700;line-height:1.45;margin-bottom:14px;
   color:var(--ink);word-wrap:break-word;overflow-wrap:break-word}
@@ -720,7 +721,12 @@ function renderAgg(key, cardsId, tbodyId, tfootId, cardsToo){
   if(cardsToo){
     const cdiv=document.getElementById(cardsId);
     cdiv.innerHTML='';
-    arr.forEach(([name,d])=>cdiv.appendChild(makeCard(name,d,pct(d.spent,d.sanctioned))));
+    arr.forEach(([name,d])=>{
+      const c=makeCard(name,d,pct(d.spent,d.sanctioned));
+      c.title='क्लिक करें — कार्यवार विवरण देखें';
+      c.onclick=()=>openWorks(key,name);
+      cdiv.appendChild(c);
+    });
   }
 
   let tB=0,tS=0,tC=0;
@@ -743,6 +749,14 @@ function renderAgg(key, cardsId, tbodyId, tfootId, cardsToo){
     <td class="num">${fmtN(tB)}</td><td class="num">${fmtN(tS)}</td>
     <td class="num">${fmtN(tB-tS)}</td><td class="ctr">${pct(tS,tB)}%</td>
   </tr>`;
+}
+
+// Card click → कार्यवार विवरण tab, filtered to that card's scheme/range/year
+function openWorks(key,name){
+  document.getElementById('f-'+key).value=name;
+  applyFilters();
+  showTab('works',document.querySelector(".tab[onclick*=\"'works'\"]"));
+  document.getElementById('filterBar').scrollIntoView({behavior:'smooth'});
 }
 
 function renderSchemes(){
