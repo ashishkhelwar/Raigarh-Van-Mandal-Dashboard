@@ -614,6 +614,7 @@ document.querySelectorAll('nav.tabs button').forEach(btn=>{
     window.scrollTo({top:0, behavior:'smooth'});
   });
 });
+{const t=document.querySelector(`nav.tabs button[data-tab="${location.hash.slice(1)}"]`); if(t) t.click();}
 document.querySelectorAll('.fund-card').forEach(card=>{
   card.addEventListener('click', ()=>{
     document.querySelector(`nav.tabs button[data-tab="${card.dataset.goto}"]`).click();

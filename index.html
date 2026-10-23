@@ -31,7 +31,7 @@ body{
     radial-gradient(circle at 12% 8%, rgba(46,125,91,.05), transparent 42%),
     radial-gradient(circle at 88% 4%, rgba(184,134,11,.05), transparent 40%);
 }
-.wrap{max-width:1120px; margin:0 auto; padding:22px 20px 60px}
+.wrap{max-width:1480px; margin:0 auto; padding:22px 24px 60px}
 a{color:var(--forest); text-decoration:none}
 a:hover{text-decoration:underline}
 .deva{font-family:var(--deva)}
@@ -135,7 +135,14 @@ a:hover{text-decoration:underline}
 .sec-h .hint{margin-left:auto; font-family:var(--sans); font-size:12px; font-weight:400; color:var(--ink-faint)}
 
 /* ---------- Register cards ---------- */
-.cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:var(--gap)}
+.cards{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:var(--gap)}
+@media (max-width:1180px){ .cards{grid-template-columns:repeat(3,minmax(0,1fr))} }
+@media (max-width:880px){ .cards{grid-template-columns:repeat(2,minmax(0,1fr))} }
+.card-body{padding:14px 16px 12px 18px}
+.card h3{font-size:16.5px}
+.card h3 .hi{font-size:12.5px}
+.card-foot{padding:10px 14px 12px 18px}
+.open{font-size:13px; padding:9px 10px}
 .card{
   background:var(--surface); border:1px solid var(--rule);
   border-radius:var(--radius); display:flex; flex-direction:column;
@@ -503,6 +510,17 @@ addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});<
       <div class="card-foot"><a class="open" data-open="vyay3" target="_blank" rel="noopener"><span class="deva">व्यय-III समेकित निधि</span> <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
     </article>
 
+    <!-- 10A · JFM committee budget -->
+    <article class="card" data-kind="static" data-reg="jfmbal"
+      data-search="jfm समिति बजट वन प्रबंधन समिति खाता शेष राशि balance budget लाभांश सुरक्षा कार्य ब्याज committee account 276 समितियाँ वर्गवार 10 लाख 20 लाख 30 लाख">
+      <div class="spine"></div>
+      <div class="card-body">
+        <div class="folio"><span class="no">Folio X-A</span><span class="badge static">Static register</span></div>
+        <h3 class="deva">वन प्रबंधन समिति बजट<span class="hi">276 समितियाँ · खाते में उपलब्ध राशि · वर्गवार (अक्टूबर 2026)</span></h3>
+      </div>
+      <div class="card-foot"><a class="open" data-open="jfmbal" target="_blank" rel="noopener"><span class="deva">समिति बजट</span> <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+    </article>
+
     <!-- 11 · Nursery management & monitoring -->
     <article class="card" data-kind="static" data-reg="nursery"
       data-search="nursery रोपणी निगरानी प्रबंधन campa कैम्पा vb-g ram g वी.बी.-जी राम जी मनरेगा plant stock पौधा स्टॉक भंडार store muster मस्टर मजदूरी inspection निरीक्षण gem सामग्री क्रय स्थिति material purchase bhelwatikra भेलवाटिकरा kuru कुरू chuhkimar चुहकीमार">
@@ -652,6 +670,7 @@ const REGISTER_LINKS = {
   production: "./production.html",
   shikayat:   "./shikayat.html",
   vyay3:      "./expenditure-iii.html",
+  jfmbal:     "./expenditure-iii.html#jfmbal",
   nursery:    "./nursery-monitoring.html",
   project:    ""   /* Project Preparation — not built yet */
 };
@@ -660,7 +679,7 @@ const REGISTER_LINKS = {
 const REG_NAMES = {
   fca:"FCA Diversion Cases", campa25:"CAMPA APO 2025-26", campa26:"CAMPA APO 2026-27", campa26w:"CAMPA APO 2026-27 – प्रथम वर्ष कार्य",
   regular:"Regular Head व्यय", plantation:"Plantation & Nursery",
-  material:"Material Purchase", court:"Court Cases", production:"Production", shikayat:"शिकायत पंजी", vyay3:"व्यय-III समेकित निधि", nursery:"रोपणी निगरानी", project:"Project Preparation"
+  material:"Material Purchase", court:"Court Cases", production:"Production", shikayat:"शिकायत पंजी", vyay3:"व्यय-III समेकित निधि", jfmbal:"वन प्रबंधन समिति बजट", nursery:"रोपणी निगरानी", project:"Project Preparation"
 };
 
 (function(){
