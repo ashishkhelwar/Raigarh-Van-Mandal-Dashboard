@@ -417,6 +417,7 @@ const clean = s => (s||'').toString().trim();
 
 // ── Tab switching ──
 function showTab(name, el){
+  if(name!=='works') worksFrom=null;
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.content').forEach(c=>c.classList.remove('active'));
   el.classList.add('active');
@@ -610,6 +611,11 @@ function resetFilters(){
   document.getElementById('f-range').value='';
   document.getElementById('f-year').value='';
   applyFilters();
+  if(worksFrom && document.getElementById('tab-works').classList.contains('active')){
+    showTab(worksFrom.getAttribute('onclick').match(/'(\w+)'/)[1], worksFrom);
+    document.getElementById('filterBar').scrollIntoView({behavior:'smooth'});
+  }
+  worksFrom=null;
 }
 
 // ── Apply filters + re-render everything ──
@@ -755,7 +761,9 @@ function renderAgg(key, cardsId, tbodyId, tfootId, cardsToo){
 }
 
 // Card click → कार्यवार विवरण tab, filtered to that card's scheme/range/year
+let worksFrom=null;   // tab the user came from via card/row click; फ़िल्टर हटाएं returns there
 function openWorks(key,name){
+  worksFrom=document.querySelector('.tab.active');
   document.getElementById('f-'+key).value=name;
   applyFilters();
   showTab('works',document.querySelector(".tab[onclick*=\"'works'\"]"));
