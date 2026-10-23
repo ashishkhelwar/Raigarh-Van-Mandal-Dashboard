@@ -437,7 +437,10 @@ const gX={grid:{display:false},ticks:{font:{size:12}}};
 const gY={grid:{color:"#EDF1F3"},ticks:{font:{size:12}}};
 const LEG={position:"bottom",labels:{boxWidth:11,font:{size:12},padding:9}};
 function mk(id,type,data,opts){ if(CH[id])CH[id].destroy();
-  const el=$(id); if(!el) return; CH[id]=new Chart(el.getContext("2d"),{type,data,options:opts}); }
+  const el=$(id); if(!el) return; CH[id]=new Chart(el.getContext("2d"),{type,data,options:{...opts,
+    onClick:(e,els)=>{ if(els.length && CLICK[id]){ const s=CLICK[id](els[0].index,els[0].datasetIndex); setTimeout(()=>drill(s)); } },
+    onHover:(e,els)=>{ e.native.target.style.cursor=els.length&&CLICK[id]?"pointer":"default"; }}}); }
+const CLICK={};   // chart id → (barIndex, datasetIndex) => filter values for drill()
 
 function charts(){
   const d=filt();
@@ -476,6 +479,11 @@ function charts(){
       y:{grid:{display:false},ticks:{font:{size:10}}}},
      plugins:{legend:LEG,tooltip:{callbacks:{title:c=>top[c[0].dataIndex].h,
        label:c=>c.dataset.label+": \u20B9"+c.parsed.x.toFixed(2)+" L"}}}});
+  // Bar click → Work-wise Detail filtered to that bar
+  const on=(id,fn)=>{ CLICK[id]=fn; };
+  on("c1",i=>({fr:rs[i]}));
+  on("c3",(i,ds)=>({ft:ts[i],fr:rs[ds]}));
+  on("c6",i=>({fh:top[i].h}));
 }
 
 function rowHTML(r){
@@ -533,6 +541,12 @@ function render(){
   if(S.view==="graph"){ try{ charts(); }catch(e){ console.error("chart render failed:",e); } }
   table();
 }
+let fromGraph=false;   // set by a bar click; Reset then returns to Graph View
+function drill(sel){
+  fromGraph=true; setView("list");
+  Object.entries(sel).forEach(([id,v])=>{ if(v!=null && $(id)){ $(id).value=v; $(id).dispatchEvent(new Event("change")); } });
+  $("tList").scrollIntoView({behavior:"smooth"});
+}
 function setView(v){
   S.view=v;
   $("vList").classList.toggle("hide", v!=="list");
@@ -542,7 +556,8 @@ function setView(v){
   if(v==="graph"){ try{ charts(); }catch(e){ console.error(e); } }
 }
 $("tList").onclick=()=>setView("list");
-$("tGraph").onclick=()=>setView("graph");
+$("tGraph").onclick=()=>{fromGraph=false;setView("graph")};
+$("tList").addEventListener("click",()=>{fromGraph=false});
 
 function initFilters(){
   $("fr").innerHTML='<option value="">All ranges</option>';
@@ -564,7 +579,7 @@ let tm; $("fq").oninput=e=>{clearTimeout(tm);tm=setTimeout(()=>{S.q=e.target.val
 $("rs").onclick=()=>{ const v=S.view;
   S={r:"",t:"",h:"",w:"",st:"",q:"",sk:"fpr",sd:-1,grp:true,pg:0,view:v};
   $("fr").value="";$("ft").value="";$("fh").value="";$("fwk").value="";$("fs2").value="";$("fq").value="";
-  $("gp").checked=true;render()};
+  $("gp").checked=true;render(); if(fromGraph){fromGraph=false;setView("graph");} };
 
 document.querySelectorAll("#tb thead th").forEach(th=>{
   th.onclick=()=>{ const k=th.dataset.k; S.sd=(S.sk===k)?-S.sd:-1; S.sk=k; S.pg=0;
