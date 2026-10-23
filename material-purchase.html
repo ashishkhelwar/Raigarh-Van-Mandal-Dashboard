@@ -205,20 +205,6 @@ addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});<
       <div class="kpi orange"><label>Balance (₹)</label><div class="val" id="ov-balance">—</div></div>
       <div class="kpi"><label>Categories Active</label><div class="val">13</div></div>
     </div>
-    <div class="summary-tbl">
-      <table>
-        <thead><tr>
-          <th>#</th><th>Category</th><th>Materials</th>
-          <th style="text-align:right">Budget (₹)</th>
-          <th style="text-align:right">Expenditure (₹)</th>
-          <th style="text-align:right">Balance (₹)</th>
-          <th style="text-align:right">Utilisation</th>
-        </tr></thead>
-        <tbody id="ov-body">
-          <tr><td colspan="7" class="loading"><span class="spinner"></span>Loading summary...</td></tr>
-        </tbody>
-      </table>
-    </div>
     <div class="section-hdr" style="margin-top:22px">
       <h2>सामग्री स्थिति — क्रय / निविदा / कोई कार्यवाही नहीं</h2>
     </div>
@@ -899,7 +885,7 @@ function buildOverview(){
       <td class="num">${pct(exp,amt)}</td>
     </tr>`;
   });
-  document.getElementById('ov-body').innerHTML=rows;
+  const ob=document.getElementById('ov-body'); if(ob) ob.innerHTML=rows;
   document.getElementById('ov-budget').textContent=fmtCurr(totAmt)||'₹0';
   document.getElementById('ov-expend').textContent=fmtCurr(totExp)||'₹0';
   document.getElementById('ov-balance').textContent=fmtCurr(totAmt-totExp)||'₹0';
