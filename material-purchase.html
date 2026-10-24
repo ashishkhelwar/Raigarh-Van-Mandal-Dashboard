@@ -48,8 +48,13 @@ body{font-family:Arial,'Nirmala UI','Noto Sans Devanagari','Kohinoor Devanagari'
 .kpi.green{border-top-color:#375623;}
 .kpi.orange{border-top-color:#C55A11;}
 .kpi.red{border-top-color:#C00000;}
-.kpi.purple{border-top-color:#6b3fa0;}.kpi.purple .val{color:#6b3fa0;}
-html:not(.show-kpi) .kpi-row.kpi-keep{display:flex!important}
+.ms-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:14px;margin-bottom:14px}
+.ms-kpis .k{background:#fff;border-radius:10px;padding:13px 16px;box-shadow:0 1px 3px rgba(0,0,0,.07);border-left:4px solid #1F4E5F}
+.ms-kpis .k .lab{font-size:10px;color:#6B7C84;text-transform:uppercase;letter-spacing:.7px;font-weight:700}
+.ms-kpis .k .val{font-size:23px;font-weight:800;margin-top:5px;letter-spacing:-.4px;font-variant-numeric:tabular-nums;color:#0F2E3A}
+.ms-kpis .k .sm{font-size:11px;color:#6B7C84;margin-top:2px}
+.ms-kpis .k.g{border-left-color:#1B7F3B}.ms-kpis .k.p{border-left-color:#6b3fa0}.ms-kpis .k.b{border-left-color:#C0392B}.ms-kpis .k.a{border-left-color:#C55A11}
+@media(max-width:640px){.ms-kpis{grid-template-columns:repeat(2,1fr)}.ms-kpis .k .val{font-size:19px}}
 .kpi label{font-size:10px;color:var(--muted);display:block;margin-bottom:3px;}
 .kpi .val{font-size:16px;font-weight:bold;color:var(--navy);}
 .kpi.green .val{color:#375623;}
@@ -201,17 +206,11 @@ addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});<
       <h2>§1  Overview — All Categories</h2>
       <a class="btn-sheet" href="https://docs.google.com/spreadsheets/d/1UMBZVxUoVgGa5bHUj55OoIG_0RbBVNvIaSL60ttsF8w/edit" target="_blank">Open Sheet ↗</a>
     </div>
-    <div class="kpi-row kpi-keep">
-      <div class="kpi"><label>Total Budget Allocated (₹)</label><div class="val" id="ov-budget">—</div></div>
-      <div class="kpi green"><label>Total Expenditure (₹)</label><div class="val" id="ov-expend">—</div></div>
-      <div class="kpi orange"><label>Balance (₹)</label><div class="val" id="ov-balance">—</div></div>
-      <div class="kpi"><label>Categories Active</label><div class="val">13</div></div>
-    </div>
     <div class="section-hdr" style="margin-top:22px">
       <h2>सामग्री स्थिति — क्रय / निविदा / कोई कार्यवाही नहीं</h2>
     </div>
     <div class="ms-note">स्रोत: <b>GeM पंजी (23 Oct 2026)</b> — अनुबंध = क्रय, चालू बोली = निविदा। Google Sheet के <b>"Material Status"</b> टैब में स्थिति भरने पर वही मान्य होगी (स्रोत: शीट)।</div>
-    <div class="kpi-row kpi-keep" id="ms-kpi"></div>
+    <section class="ms-kpis" id="ms-kpi"></section>
     <div class="summary-tbl">
       <table>
         <thead><tr>
@@ -888,9 +887,9 @@ function buildOverview(){
     </tr>`;
   });
   const ob=document.getElementById('ov-body'); if(ob) ob.innerHTML=rows;
-  document.getElementById('ov-budget').textContent=fmtCurr(totAmt)||'₹0';
-  document.getElementById('ov-expend').textContent=fmtCurr(totExp)||'₹0';
-  document.getElementById('ov-balance').textContent=fmtCurr(totAmt-totExp)||'₹0';
+  (document.getElementById('ov-budget')||{}).textContent=fmtCurr(totAmt)||'₹0';
+  (document.getElementById('ov-expend')||{}).textContent=fmtCurr(totExp)||'₹0';
+  (document.getElementById('ov-balance')||{}).textContent=fmtCurr(totAmt-totExp)||'₹0';
 }
 
 // ── FILTER ────────────────────────────────────────────────────
@@ -944,13 +943,15 @@ function renderMaterialStatus(){
       <td style="font-size:11px">${(g.bids||[]).join('<br>')||'—'}</td><td style="font-size:11px">${s.note||''}</td><td style="font-size:11px;color:#666">${msFromText(s.st)?'शीट':'GeM पंजी'}</td></tr>`;
   }).join('');
   const gt=MS_ITEMS.reduce((s,[k])=>s+((MS_GEM[k]||{}).amt||0),0), gn=MS_ITEMS.reduce((s,[k])=>s+((MS_GEM[k]||{}).n||0),0);
-  document.getElementById('ms-kpi').innerHTML=
-    `<div class="kpi"><label>कुल सामग्री</label><div class="val">${MS_ITEMS.length}</div></div>`+
-    `<div class="kpi green"><label>क्रय हुआ</label><div class="val">${cnt.bought}</div></div>`+
-    `<div class="kpi purple"><label>क्रय + नई निविदा</label><div class="val">${cnt.both}</div></div>`+
-    `<div class="kpi purple"><label>निविदा जारी</label><div class="val">${cnt.tender}</div></div>`+
-    `<div class="kpi red"><label>कोई कार्यवाही नहीं</label><div class="val">${cnt.none}</div></div>`+
-    `<div class="kpi orange"><label>GeM क्रय मदें / राशि (₹)</label><div class="val">${gn} · ${fmtCurr(gt)}</div></div>`;
+  const N=MS_ITEMS.length, P=n=>(n/N*100).toFixed(0)+'% सामग्री';
+  const K=[
+    {l:'कुल सामग्री',v:N,s:'सभी खंडों में',c:''},
+    {l:'क्रय हुआ',v:cnt.bought,s:P(cnt.bought),c:'g'},
+    {l:'क्रय + नई निविदा',v:cnt.both,s:P(cnt.both),c:'p'},
+    {l:'निविदा जारी',v:cnt.tender,s:P(cnt.tender),c:'p'},
+    {l:'कोई कार्यवाही नहीं',v:cnt.none,s:P(cnt.none),c:'b'},
+    {l:'GeM क्रय राशि',v:'₹'+(gt/1e7).toFixed(2)+' Cr',s:gn+' क्रय मदें · '+fmtCurr(gt),c:'a'}];
+  document.getElementById('ms-kpi').innerHTML=K.map(k=>`<div class="k ${k.c}"><div class="lab">${k.l}</div><div class="val">${k.v}</div><div class="sm">${k.s}</div></div>`).join('');
 }
 function loadMaterialStatus(){
   renderMaterialStatus();
