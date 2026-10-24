@@ -48,6 +48,8 @@ body{font-family:Arial,'Nirmala UI','Noto Sans Devanagari','Kohinoor Devanagari'
 .kpi.green{border-top-color:#375623;}
 .kpi.orange{border-top-color:#C55A11;}
 .kpi.red{border-top-color:#C00000;}
+.kpi.purple{border-top-color:#6b3fa0;}.kpi.purple .val{color:#6b3fa0;}
+html:not(.show-kpi) .kpi-row.kpi-keep{display:flex!important}
 .kpi label{font-size:10px;color:var(--muted);display:block;margin-bottom:3px;}
 .kpi .val{font-size:16px;font-weight:bold;color:var(--navy);}
 .kpi.green .val{color:#375623;}
@@ -199,7 +201,7 @@ addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});<
       <h2>§1  Overview — All Categories</h2>
       <a class="btn-sheet" href="https://docs.google.com/spreadsheets/d/1UMBZVxUoVgGa5bHUj55OoIG_0RbBVNvIaSL60ttsF8w/edit" target="_blank">Open Sheet ↗</a>
     </div>
-    <div class="kpi-row">
+    <div class="kpi-row kpi-keep">
       <div class="kpi"><label>Total Budget Allocated (₹)</label><div class="val" id="ov-budget">—</div></div>
       <div class="kpi green"><label>Total Expenditure (₹)</label><div class="val" id="ov-expend">—</div></div>
       <div class="kpi orange"><label>Balance (₹)</label><div class="val" id="ov-balance">—</div></div>
@@ -209,7 +211,7 @@ addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});<
       <h2>सामग्री स्थिति — क्रय / निविदा / कोई कार्यवाही नहीं</h2>
     </div>
     <div class="ms-note">स्रोत: <b>GeM पंजी (23 Oct 2026)</b> — अनुबंध = क्रय, चालू बोली = निविदा। Google Sheet के <b>"Material Status"</b> टैब में स्थिति भरने पर वही मान्य होगी (स्रोत: शीट)।</div>
-    <div class="ms-chips" id="ms-chips"></div>
+    <div class="kpi-row kpi-keep" id="ms-kpi"></div>
     <div class="summary-tbl">
       <table>
         <thead><tr>
@@ -941,7 +943,14 @@ function renderMaterialStatus(){
       <td style="text-align:right">${g.n||'—'}</td><td style="text-align:right">${g.amt?fmtCurr(g.amt):'—'}</td><td>${g.last||'—'}</td>
       <td style="font-size:11px">${(g.bids||[]).join('<br>')||'—'}</td><td style="font-size:11px">${s.note||''}</td><td style="font-size:11px;color:#666">${msFromText(s.st)?'शीट':'GeM पंजी'}</td></tr>`;
   }).join('');
-  document.getElementById('ms-chips').innerHTML=Object.entries(MS_ST).map(([k,[l,c]])=>`<span class="ms-badge ${c}">${l}: ${cnt[k]}</span>`).join('');
+  const gt=MS_ITEMS.reduce((s,[k])=>s+((MS_GEM[k]||{}).amt||0),0), gn=MS_ITEMS.reduce((s,[k])=>s+((MS_GEM[k]||{}).n||0),0);
+  document.getElementById('ms-kpi').innerHTML=
+    `<div class="kpi"><label>कुल सामग्री</label><div class="val">${MS_ITEMS.length}</div></div>`+
+    `<div class="kpi green"><label>क्रय हुआ</label><div class="val">${cnt.bought}</div></div>`+
+    `<div class="kpi purple"><label>क्रय + नई निविदा</label><div class="val">${cnt.both}</div></div>`+
+    `<div class="kpi purple"><label>निविदा जारी</label><div class="val">${cnt.tender}</div></div>`+
+    `<div class="kpi red"><label>कोई कार्यवाही नहीं</label><div class="val">${cnt.none}</div></div>`+
+    `<div class="kpi orange"><label>GeM क्रय मदें / राशि (₹)</label><div class="val">${gn} · ${fmtCurr(gt)}</div></div>`;
 }
 function loadMaterialStatus(){
   renderMaterialStatus();
