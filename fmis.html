@@ -7,8 +7,10 @@
 <style>
 /* ============================================================
    FMIS / PCCF MONITORING SYSTEM — RAIGARH FOREST DIVISION
-   Redesign concept: one screen per month, every format due,
-   its status and its deadline. Self-contained, offline-capable.
+   Redesign: 109 formats reduced to ~60 headline indicators built
+   on 5 shared shapes. Enter only this month's figure; openings,
+   cumulative totals and targets carry forward automatically.
+   Self-contained, offline-capable.
    ============================================================ */
 :root{
   --bg:#f2eee1; --surface:#fffdf7; --surface-2:#f8f4e8;
@@ -22,19 +24,16 @@
   --gap:18px; --radius:4px;
 }
 *{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
+html{-webkit-text-size-adjust:100%; scroll-behavior:smooth}
 body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans); font-size:15px; line-height:1.5}
-.wrap{max-width:1180px; margin:0 auto; padding:22px 20px 60px}
+.wrap{max-width:1200px; margin:0 auto; padding:22px 20px 60px}
 a{color:var(--forest)}
 button{font:inherit; cursor:pointer}
 :focus-visible{outline:2px solid var(--gold); outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
 
 /* ---------- Masthead ---------- */
-.masthead{
-  background:linear-gradient(160deg,var(--forest-deep),var(--forest) 68%);
-  color:#f4f1e6; border-radius:var(--radius); padding:20px 24px;
-  border:1px solid var(--forest-deep); box-shadow:0 6px 22px rgba(16,36,27,.2);
-}
+.masthead{background:linear-gradient(160deg,var(--forest-deep),var(--forest) 68%); color:#f4f1e6; border-radius:var(--radius); padding:20px 24px; border:1px solid var(--forest-deep); box-shadow:0 6px 22px rgba(16,36,27,.2)}
 .mast-row{display:flex; flex-wrap:wrap; align-items:flex-end; gap:16px 24px; justify-content:space-between}
 .kick{font-size:11px; letter-spacing:2.5px; text-transform:uppercase; color:var(--gold-soft); margin:0 0 4px}
 .masthead h1{font-family:var(--serif); font-weight:600; margin:0; font-size:26px; line-height:1.15; color:#fbf8ee}
@@ -42,52 +41,88 @@ button{font:inherit; cursor:pointer}
 .office{margin:8px 0 0; font-size:13px; color:#cdd8cd}
 .period{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
 .period label{font-size:12px; color:#cdd8cd}
-.period select{
-  font:inherit; font-size:14px; padding:7px 10px; border-radius:var(--radius);
-  border:1px solid rgba(231,198,106,.5); background:rgba(255,255,255,.08); color:#fbf8ee;
-}
+.period select{font:inherit; font-size:14px; padding:7px 10px; border-radius:var(--radius); border:1px solid rgba(231,198,106,.5); background:rgba(255,255,255,.08); color:#fbf8ee}
 .period select option{color:var(--ink)}
+.mode{padding:7px 12px; border-radius:var(--radius); border:1px solid var(--gold-soft); background:transparent; color:var(--gold-soft); font-size:13px; font-weight:600}
+.mode[aria-pressed="true"]{background:var(--gold-soft); color:var(--forest-deep)}
 .mast-rule{height:3px; margin-top:16px; border-radius:2px; background:linear-gradient(90deg,var(--gold),var(--gold-soft) 40%,transparent)}
 
 /* ---------- Stats ---------- */
-.stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin:var(--gap) 0}
+.stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin:var(--gap) 0}
 .stat{background:var(--surface); border:1px solid var(--rule); border-top:3px solid var(--forest-mid); border-radius:var(--radius); padding:12px 16px}
 .stat .lbl{font-size:12px; color:var(--ink-soft)}
 .stat .val{font-family:var(--serif); font-size:28px; font-weight:600; line-height:1.1; margin-top:2px; font-variant-numeric:tabular-nums}
 .stat .sub{font-size:12px; color:var(--ink-faint)}
 .stat.s-ok{border-top-color:var(--ok)} .stat.s-nil{border-top-color:var(--nil)}
 .stat.s-wait{border-top-color:var(--warn)} .stat.s-due{border-top-color:var(--gold)}
-.ring{height:6px; background:var(--surface-2); border:1px solid var(--rule); border-radius:3px; margin-top:8px; overflow:hidden; display:flex}
+.ring{height:6px; background:var(--surface-2); border:1px solid var(--rule); border-radius:3px; margin-top:8px; overflow:hidden; display:flex; position:relative}
 .ring i{display:block; height:100%}
+.ring b{position:absolute; top:-2px; bottom:-2px; width:2px; background:var(--ink-soft)}
 
-/* ---------- Section heads ---------- */
+/* ---------- Tabs ---------- */
+.tabs{display:flex; gap:4px; border-bottom:2px solid var(--rule-strong); margin:6px 0 16px; overflow-x:auto}
+.tab{background:none; border:0; border-bottom:3px solid transparent; margin-bottom:-2px; padding:9px 14px; color:var(--ink-soft); font-weight:600; white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--forest-deep); border-bottom-color:var(--forest-mid)}
+[hidden]{display:none !important}
+
 h2{font-family:var(--serif); font-size:19px; font-weight:600; margin:26px 0 10px; color:var(--forest-deep); display:flex; align-items:baseline; gap:10px; flex-wrap:wrap}
 h2 small{font-family:var(--sans); font-size:12px; font-weight:400; color:var(--ink-soft)}
 
-/* ---------- Wing grid ---------- */
+/* ---------- Alerts ---------- */
+.alerts{background:var(--surface); border:1px solid var(--rule); border-left:4px solid var(--warn); border-radius:var(--radius); padding:10px 14px}
+.alerts ul{margin:0; padding:0; list-style:none; columns:2 320px; column-gap:28px}
+.alerts li{break-inside:avoid; padding:4px 0; font-size:14px; border-bottom:1px dotted var(--rule)}
+.alerts li a{text-decoration:none; color:var(--ink)}
+.alerts li .w{font-weight:700; color:var(--warn); font-size:11px; letter-spacing:.5px; margin-right:6px}
+.alerts.calm{border-left-color:var(--ok); color:var(--ink-soft); font-size:14px}
+
+/* ---------- Panel tiles ---------- */
+.tiles{display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:8px}
+.tile{text-align:left; background:var(--surface); border:1px solid var(--rule); border-radius:var(--radius); padding:9px 11px; color:var(--ink); text-decoration:none; display:flex; flex-direction:column; gap:4px}
+.tile:hover{border-color:var(--forest-mid)}
+.tile .top{display:flex; justify-content:space-between; align-items:center; gap:6px; font-size:12px; color:var(--ink-soft)}
+.tile .nm{font-size:14px; font-weight:600; line-height:1.25}
+.code{font-size:11px; font-weight:700; letter-spacing:1px; color:#fff; background:var(--forest); padding:1px 7px; border-radius:3px}
+.flag{color:var(--warn); font-weight:700}
+
+/* ---------- Panels & indicator cards ---------- */
+.panel{margin-top:22px; scroll-margin-top:12px}
+.panel-h{display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 12px; border-bottom:1px solid var(--rule-strong); padding-bottom:6px; margin-bottom:10px}
+.panel-h h3{font-family:var(--serif); font-size:18px; margin:0; color:var(--forest-deep)}
+.panel-h .meta{font-size:12px; color:var(--ink-soft)}
+.cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:10px}
+.card{background:var(--surface); border:1px solid var(--rule); border-radius:var(--radius); padding:11px 13px; display:flex; flex-direction:column; gap:5px}
+.card.alert{border-color:#e1b9ad; box-shadow:inset 3px 0 0 var(--warn)}
+.card.stale .big{color:var(--ink-faint)}
+.card .t{font-size:14px; font-weight:600; line-height:1.3}
+.card .kind{font-size:10px; letter-spacing:.6px; text-transform:uppercase; color:var(--ink-faint)}
+.card .big{font-family:var(--serif); font-size:26px; font-weight:600; line-height:1.1; font-variant-numeric:tabular-nums}
+.card .big small{font-family:var(--sans); font-size:12px; font-weight:400; color:var(--ink-soft); margin-left:4px}
+.card .sub{font-size:12px; color:var(--ink-soft); font-variant-numeric:tabular-nums}
+.card .src{display:flex; flex-wrap:wrap; gap:4px; margin-top:auto; padding-top:4px}
+.card .src span{font-size:10px; font-weight:600; color:var(--ink-soft); border:1px solid var(--rule-strong); border-radius:3px; padding:0 5px}
+.card .note{font-size:11px; color:var(--ink-faint)}
+.inputs{display:grid; grid-template-columns:repeat(auto-fit,minmax(90px,1fr)); gap:6px; margin-top:2px}
+.inputs label{display:flex; flex-direction:column; font-size:11px; color:var(--ink-soft); gap:2px}
+.inputs input{font:inherit; font-size:14px; padding:5px 7px; border:1px solid var(--rule-strong); border-radius:3px; background:#fff; width:100%; font-variant-numeric:tabular-nums}
+.inputs input:focus{border-color:var(--forest-mid); outline:none; box-shadow:0 0 0 2px rgba(46,125,91,.18)}
+
+/* ---------- Submission table ---------- */
 .wings{display:grid; grid-template-columns:repeat(auto-fill,minmax(205px,1fr)); gap:10px}
-.wing{
-  text-align:left; background:var(--surface); border:1px solid var(--rule); border-radius:var(--radius);
-  padding:11px 13px; color:var(--ink); display:flex; flex-direction:column; gap:6px;
-}
+.wing{text-align:left; background:var(--surface); border:1px solid var(--rule); border-radius:var(--radius); padding:11px 13px; color:var(--ink); display:flex; flex-direction:column; gap:6px}
 .wing:hover{border-color:var(--rule-strong); background:#fffef9}
 .wing[aria-pressed="true"]{border-color:var(--forest-mid); box-shadow:inset 0 0 0 1px var(--forest-mid); background:#f3f8f2}
 .wing .top{display:flex; justify-content:space-between; align-items:center; gap:6px}
-.code{font-size:11px; font-weight:700; letter-spacing:1px; color:#fff; background:var(--forest); padding:1px 7px; border-radius:3px}
 .wing .cnt{font-size:12px; color:var(--ink-soft); font-variant-numeric:tabular-nums}
 .wing .nm{font-size:14px; font-weight:600; line-height:1.3}
 .wing .en{font-size:12px; color:var(--ink-faint); line-height:1.2}
 .wing.done .code{background:var(--ok)}
 .wing.zero{opacity:.55}
-
-/* ---------- Toolbar ---------- */
 .toolbar{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:0 0 10px}
 .search{flex:1 1 240px; padding:8px 12px; border:1px solid var(--rule-strong); border-radius:var(--radius); background:var(--surface); font:inherit}
 .chips{display:flex; flex-wrap:wrap; gap:6px}
 .chip{padding:5px 11px; font-size:13px; border:1px solid var(--rule-strong); border-radius:999px; background:var(--surface); color:var(--ink-soft)}
 .chip[aria-pressed="true"]{background:var(--forest); border-color:var(--forest); color:#fff}
-
-/* ---------- Table ---------- */
 .tbl-wrap{background:var(--surface); border:1px solid var(--rule); border-radius:var(--radius); overflow-x:auto}
 table{width:100%; border-collapse:collapse; font-size:14px}
 th{position:sticky; top:0; background:var(--surface-2); text-align:left; font-size:12px; font-weight:600; color:var(--ink-soft); padding:9px 12px; border-bottom:1px solid var(--rule-strong); white-space:nowrap}
@@ -97,14 +132,21 @@ td.c{white-space:nowrap; font-variant-numeric:tabular-nums; font-weight:600; col
 td.f{white-space:nowrap}
 .fq{display:inline-block; min-width:22px; text-align:center; font-size:11px; font-weight:700; padding:1px 6px; border-radius:3px; background:var(--surface-2); border:1px solid var(--rule-strong); color:var(--ink-soft)}
 .link{font-size:12px; white-space:nowrap}
-.st{
-  border:1px solid; border-radius:999px; padding:3px 11px; font-size:12px; font-weight:600; white-space:nowrap; min-width:92px;
-}
+.st{border:1px solid; border-radius:999px; padding:3px 11px; font-size:12px; font-weight:600; white-space:nowrap; min-width:92px}
 .st.pending{color:var(--warn); border-color:#e1b9ad; background:#fbf0ec}
 .st.sent{color:var(--ok); border-color:#b5d6c4; background:#edf6f0}
 .st.nil{color:var(--nil); border-color:#bccbd9; background:#eef3f8}
 .st.na{display:inline-block; color:var(--ink-faint); border-style:dashed; border-color:var(--rule-strong); background:transparent; font-weight:500}
 .empty{padding:28px; text-align:center; color:var(--ink-soft)}
+
+/* ---------- Simplification tab ---------- */
+.shapes{display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:10px}
+.shape{background:var(--surface); border:1px solid var(--rule); border-top:3px solid var(--gold); border-radius:var(--radius); padding:12px 14px}
+.shape h4{margin:0 0 4px; font-size:15px}
+.shape .n{font-family:var(--serif); font-size:24px; font-weight:600}
+.shape p{margin:6px 0 0; font-size:13px; color:var(--ink-soft)}
+.shape code{font-family:inherit; font-size:12px; background:var(--surface-2); padding:1px 5px; border-radius:3px}
+ul.rules{margin:0; padding-left:20px; font-size:14px} ul.rules li{margin:4px 0}
 
 .note{font-size:12px; color:var(--ink-soft); margin:10px 0 0}
 footer{margin-top:28px; padding-top:14px; border-top:1px solid var(--rule-strong); font-size:12px; color:var(--ink-soft); display:flex; flex-wrap:wrap; gap:6px 18px; justify-content:space-between}
@@ -114,15 +156,17 @@ footer{margin-top:28px; padding-top:14px; border-top:1px solid var(--rule-strong
   .masthead{padding:16px}
   .masthead h1{font-size:21px}
   .stats{grid-template-columns:1fr 1fr}
-  .wings{grid-template-columns:1fr 1fr}
+  .wings,.tiles{grid-template-columns:1fr 1fr}
   .wing .en{display:none}
+  .cards{grid-template-columns:1fr}
   td.link-col,th.link-col{display:none}
 }
 @media print{
-  body{background:#fff} .toolbar,.period,.wings{display:none}
+  body{background:#fff} .tabs,.period,.wings,.tiles,.toolbar,.inputs{display:none}
   .masthead{background:none; color:var(--ink); box-shadow:none; border:0; padding:0}
   .masthead h1,.masthead h1 .en,.office{color:var(--ink)}
-  .st{border:0; background:none; padding:0}
+  [hidden]{display:block !important}
+  .card{break-inside:avoid}
 }
 </style>
 </head>
@@ -133,12 +177,13 @@ footer{margin-top:28px; padding-top:14px; border-top:1px solid var(--rule-strong
   <div class="mast-row">
     <div>
       <p class="kick">FMIS · PCCF Monitoring System</p>
-      <h1>मासिक प्रपत्र प्रेषण डैशबोर्ड<span class="en">Monthly Reporting Formats — Submission Status</span></h1>
-      <p class="office">वनमंडलाधिकारी, रायगढ़ वनमंडल · 16 शाखाएँ · 109 प्रपत्र</p>
+      <h1>वनमंडल मासिक प्रगति डैशबोर्ड<span class="en">Monthly Progress — 109 formats, ~60 headline figures</span></h1>
+      <p class="office">वनमंडलाधिकारी, रायगढ़ वनमंडल · 16 शाखाएँ · केवल इस माह का आँकड़ा भरें, शेष स्वतः</p>
     </div>
     <div class="period">
       <label for="mon">माह</label><select id="mon"></select>
       <label for="yr">वर्ष</label><select id="yr"></select>
+      <button class="mode" id="mode" aria-pressed="false">✎ प्रविष्टि</button>
     </div>
   </div>
   <div class="mast-rule"></div>
@@ -146,33 +191,65 @@ footer{margin-top:28px; padding-top:14px; border-top:1px solid var(--rule-strong
 
 <section class="stats" id="stats" aria-live="polite"></section>
 
-<h2>शाखावार स्थिति <small>Wing-wise — click a wing to filter</small></h2>
-<div class="wings" id="wings"></div>
+<nav class="tabs" role="tablist">
+  <button class="tab" role="tab" data-tab="ind" aria-selected="true">सूचक डैशबोर्ड</button>
+  <button class="tab" role="tab" data-tab="sub" aria-selected="false">प्रपत्र प्रेषण स्थिति</button>
+  <button class="tab" role="tab" data-tab="how" aria-selected="false">सरलीकरण कैसे</button>
+</nav>
 
-<h2>प्रपत्र सूची <small id="listSub"></small></h2>
-<div class="toolbar">
-  <input class="search" id="q" type="search" placeholder="कोड या प्रपत्र नाम खोजें… (e.g. PR-016, पेंशन)" aria-label="Search formats">
-  <div class="chips" id="stChips" role="group" aria-label="Status filter"></div>
-  <div class="chips" id="fqChips" role="group" aria-label="Frequency filter"></div>
-</div>
-<div class="tbl-wrap">
-  <table>
-    <thead><tr><th>कोड</th><th>प्रपत्र</th><th>आवृत्ति</th><th class="link-col">डैशबोर्ड</th><th>स्थिति</th></tr></thead>
-    <tbody id="rows"></tbody>
-  </table>
-</div>
-<p class="note">स्थिति बटन दबाकर बदलें: लंबित → प्रेषित → निरंक। स्थिति इसी ब्राउज़र में माहवार सहेजी जाती है। Q = Mar/Jun/Sep/Dec, H = Sep/Mar, Y = Mar में देय माने गए हैं; अंतिम तिथि अगले माह की <b id="dueDayTxt"></b> तारीख। VG-002/003/004, IT-002/003/004 व IT-008 की प्रविष्टि वनमंडल लॉगिन से नहीं खुलती — ये सूची में दिखते हैं पर गिनती में नहीं।</p>
+<!-- ============ TAB 1: indicators ============ -->
+<section id="tab-ind">
+  <div id="alerts"></div>
+  <h2>शाखाएँ <small>Click to jump · ⚠ = needs attention</small></h2>
+  <div class="tiles" id="tiles"></div>
+  <div id="panels"></div>
+  <p class="note">लक्ष्य / आबंटन व संचयी योग वित्तीय वर्ष (अप्रैल–मार्च) में आगे बढ़ते हैं और अप्रैल में शून्य होते हैं। शेष-पत्रक का प्रारंभिक शेष पिछले माह के अंतिम शेष से स्वतः आता है। राशि सर्वत्र ₹ लाख में।</p>
+</section>
+
+<!-- ============ TAB 2: submission ============ -->
+<section id="tab-sub" hidden>
+  <h2>शाखावार प्रेषण <small>Wing-wise — click a wing to filter</small></h2>
+  <div class="wings" id="wings"></div>
+  <h2>प्रपत्र सूची <small id="listSub"></small></h2>
+  <div class="toolbar">
+    <input class="search" id="q" type="search" placeholder="कोड या प्रपत्र नाम खोजें… (e.g. PR-016, पेंशन)" aria-label="Search formats">
+    <div class="chips" id="stChips" role="group" aria-label="Status filter"></div>
+    <div class="chips" id="fqChips" role="group" aria-label="Frequency filter"></div>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>कोड</th><th>प्रपत्र</th><th>आवृत्ति</th><th class="link-col">डैशबोर्ड</th><th>स्थिति</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+  <p class="note">स्थिति बटन दबाकर बदलें: लंबित → प्रेषित → निरंक। Q = Mar/Jun/Sep/Dec, H = Sep/Mar, Y = Mar में देय माने गए हैं; अंतिम तिथि अगले माह की <b class="dueDayTxt"></b> तारीख (पोर्टल सूचना अनुसार)। VG-002/003/004, IT-002/003/004 व IT-008 की प्रविष्टि वनमंडल लॉगिन से नहीं खुलती — ये सूची में दिखते हैं पर गिनती में नहीं।</p>
+</section>
+
+<!-- ============ TAB 3: how it was simplified ============ -->
+<section id="tab-how" hidden>
+  <h2>109 प्रपत्र → 5 आकार <small>Every format column collapses into one of five shapes</small></h2>
+  <div class="shapes" id="shapes"></div>
+  <h2>सरलीकरण के नियम</h2>
+  <ul class="rules">
+    <li><b>एक ही बार भरें:</b> “गत माह तक”, “प्रारंभिक शेष”, “कुल” और “प्रतिशत” कभी टाइप नहीं होते — पिछले माह से गणना होती है।</li>
+    <li><b>दोहराव हटाया:</b> AG-003 + AN-003 (पेंशन), AN-004/005 (न्यायालय), PR-016 + VG-001 (शिकायत), BD-003 + EX-005 + LS-004 (Form-7) — प्रत्येक एक सूचक।</li>
+    <li><b>एक इकाई:</b> सभी राशियाँ ₹ लाख में (पोर्टल में कहीं रु., कहीं लाख)।</li>
+    <li><b>पंजी प्रपत्र (व्यक्ति / प्रकरणवार)</b> पोर्टल पर ही रहें; डैशबोर्ड पर केवल उनकी गिनती / शेष।</li>
+    <li><b>स्वतः चेतावनी:</b> लंबित शेष बढ़ा, या लक्ष्य / व्यय वर्ष के अनुपात (pro-rata) से 15% से अधिक पीछे।</li>
+  </ul>
+</section>
 
 <footer>
-  <span>Data updated: 27 Oct 2026 · स्रोत: PCCFMS format inventory (forest.cg.gov.in/PCCFMS)</span>
-  <span><a href="https://forest.cg.gov.in/PCCFMS/fmrmenu.aspx" target="_blank" rel="noopener">PCCFMS पोर्टल खोलें ↗</a> · <a href="index.html">← Hub</a></span>
+  <span>Data updated: 29 Oct 2026 · स्रोत: PCCFMS wing formats (Latestwingformat.pdf) व पोर्टल प्रविष्टि पृष्ठ</span>
+  <span><a href="https://forest.cg.gov.in/PCCFMS/fmrmenu.aspx" target="_blank" rel="noopener">PCCFMS पोर्टल खोलें ↗</a> · <a href="pccfms-data-formats.md">फील्ड विवरण</a> · <a href="index.html">← Hub</a></span>
 </footer>
 </div>
 
 <script>
-// ponytail: deadline = DUE_DAY of following month for every format; per-format deadlines if PCCF circular differs
+// Portal alert: data entry closes on the 5th of the following month.
 const DUE_DAY = 5;
-const STORE = 'fmis-status-v1';
+const STORE = 'fmis-status-v1';      // format submission status, per month
+const DSTORE = 'fmis-data-v1';       // indicator figures, per month
 
 const WINGS = [
  ['AG','प्रशासन (राजपत्रित)','Admin — Gazetted',[
@@ -305,20 +382,118 @@ const WINGS = [
 // Entry does not open for a division login (circle / HQ / forest school / RGC level) — shown, never counted.
 const NA = new Set(['VG-002','VG-003','VG-004','IT-002','IT-003','IT-004','IT-008']);
 
-const MONTHS =['जनवरी','फरवरी','मार्च','अप्रैल','मई','जून','जुलाई','अगस्त','सितम्बर','अक्टूबर','नवम्बर','दिसम्बर'];
+/* ---------- The simplification: five shapes ----------
+   bal  शेष-पत्रक      opening (auto) + received − disposed = closing
+   tgt  लक्ष्य-उपलब्धि  target (carried in FY) vs cumulative achievement
+   bud  आबंटन-व्यय     allotment (carried in FY) vs cumulative spend, ₹ लाख
+   cnt  मासिक गणना     this month + financial-year total
+   snap स्थिति          a few standing numbers, carried until changed
+   opts: mt = target is per month (not cumulative); y = yearly format (no pro-rata check);
+         f = field labels for snap; gap = label for f0 − f1; pct = show f1 / f0 %            */
+const SHAPE = {
+  bal:['शेष-पत्रक','प्रारंभिक + प्राप्त − निराकृत = शेष'],
+  tgt:['लक्ष्य-उपलब्धि','लक्ष्य बनाम संचयी उपलब्धि'],
+  bud:['आबंटन-व्यय','आबंटन बनाम संचयी व्यय'],
+  cnt:['मासिक गणना','इस माह + वर्ष का योग'],
+  snap:['स्थिति','कुछ स्थायी संख्याएँ']
+};
+const PANELS = [
+ ['AD','प्रशासन','Administration',['AG','AN'],[
+  ['ad_posts','snap','पद स्थिति','पद',['AN-001','AG-001','AN-006','AN-007'],{f:['स्वीकृत','कार्यरत'],gap:'रिक्त'}],
+  ['ad_de','bal','विभागीय जाँच प्रकरण','प्रकरण',['AG-002','AN-002']],
+  ['ad_scn','bal','कारण दर्शाओ सूचना पत्र','प्रकरण',['AG-005']],
+  ['ad_pen','bal','लंबित पेंशन प्रकरण','प्रकरण',['AG-003','AN-003']],
+  ['ad_court','bal','न्यायालयीन प्रकरण (उच्च + अधीनस्थ)','प्रकरण',['AN-004','AN-005']],
+  ['ad_comp','bal','अनुकंपा नियुक्ति आवेदन','आवेदन',['AN-012','AN-013']]]],
+ ['WP','कार्य आयोजना','Working Plan',['WP'],[
+  ['wp_prog','tgt','कार्य आयोजना कार्य','इकाई',['WP-001']],
+  ['wp_map','tgt','मानचित्र Digitization हेतु प्रेषित','मानचित्र',['WP-003']],
+  ['wp_coupe','tgt','ड्यू कूपों में कार्य','कूप',['WP-002'],{y:1}]]],
+ ['DV','विकास / योजना','Development',['DV'],[
+  ['dv_plan','bud','योजना मद — आबंटन / व्यय','₹ लाख',['DV-003','DV-004']],
+  ['dv_nrega','bud','मनरेगा — स्वीकृत / व्यय','₹ लाख',['DV-001','DV-002']],
+  ['dv_pl','tgt','वृक्षारोपण — लक्ष्य / रोपित','पौधे',['DV-007'],{y:1}],
+  ['dv_nur','snap','नर्सरी बेड में उपलब्ध पौधे','पौधे',['DV-006'],{f:['पौधे']}]]],
+ ['PR','संरक्षण','Protection',['PR'],[
+  ['pr_cut','cnt','अवैध कटाई प्रकरण (POR)','प्रकरण',['PR-001','PR-002']],
+  ['pr_inv','bal','POR — जाँच हेतु लंबित','प्रकरण',['PR-003','PR-004']],
+  ['pr_court','bal','न्यायालय में लंबित वन अपराध','प्रकरण',['PR-014']],
+  ['pr_rec','bal','मावजा / महसूल — वसूली हेतु शेष','₹ लाख',['PR-005']],
+  ['pr_enc','bal','अतिक्रमण — बेदखली हेतु लंबित','प्रकरण',['PR-012']],
+  ['pr_veh','bal','जप्त वाहन — निराकरण हेतु शेष','वाहन',['PR-015']],
+  ['pr_trans','cnt','अवैध परिवहन / उत्खनन प्रकरण','प्रकरण',['PR-006','PR-007','PR-017']],
+  ['pr_beat','tgt','रोस्टर बीट जाँच','बीट',['PR-009'],{mt:1}],
+  ['pr_saw','tgt','आरामशीन निरीक्षण','आरामशीन',['PR-010','PR-011'],{mt:1}],
+  ['pr_fire','cnt','अग्नि घटनाएँ (पुष्ट)','घटना',['PR-018']]]],
+ ['BM','बांस मिशन','Bamboo Mission',['BM'],[
+  ['bm_sale','cnt','प्रसंस्करण केन्द्र — बिक्री','₹ लाख',['BM-001','BM-003']],
+  ['bm_pl','tgt','बांस रोपण — हितग्राही','हितग्राही',['BM-004','BM-005'],{y:1}]]],
+ ['PD','उत्पादन','Production',['PD'],[
+  ['pd_timber','tgt','इमारती काष्ठ — अनुमानित / उत्पादित','घ.मी.',['PD-001','PD-007']],
+  ['pd_bamboo','tgt','बांस — अनुमानित / विदोहित','नो.टन',['PD-002']],
+  ['pd_nistar','tgt','निस्तार / बसोड़ / उपभोक्ता प्रदाय','नग',['PD-003','PD-004','PD-005']],
+  ['pd_rev','cnt','नीलामी राजस्व (काष्ठ, जलाऊ, बांस)','₹ लाख',['PD-008','PD-009','PD-010']],
+  ['pd_mm','bal','मालिक मकबूजा — भुगतान हेतु लंबित','प्रकरण',['PD-006']],
+  ['pd_extra','cnt','काष्ठागार में अतिरिक्त वनोपज','घ.मी.',['PD-011']]]],
+ ['LM','भू-प्रबंध','Land / FRA',['LM'],[
+  ['ls_ifr','snap','व्यक्तिगत वन अधिकार दावे','दावे',['LS-001'],{f:['प्राप्त','स्वीकृत'],gap:'शेष / अस्वीकृत'}],
+  ['ls_cfr','snap','सामुदायिक वन अधिकार दावे','दावे',['LS-002'],{f:['प्राप्त','स्वीकृत'],gap:'शेष / अस्वीकृत'}],
+  ['ls_mut','bal','FRA नामांतरण / सीमांकन आवेदन','आवेदन',['LS-007']],
+  ['ls_janman','bal','PM-JANMAN सड़क — अनुमति हेतु लंबित','प्रकरण',['LS-008']],
+  ['ls_survey','tgt','नारंगी क्षेत्र सर्वेक्षण','हे.',['LS-003']],
+  ['ls_div','snap','धारा 3(2) विपथित भूमि','प्रकरण',['LS-005'],{f:['प्रकरण','रकबा (हे.)']}]]],
+ ['BD','वित्त / बजट','Finance',['BD'],[
+  ['bd_exp','bud','बजट — आबंटन / व्यय (Form-7 सहित)','₹ लाख',['BD-003','EX-005','LS-004']],
+  ['bd_rev','tgt','वन राजस्व (0406) — लक्ष्य / प्राप्ति','₹ लाख',['BD-002']],
+  ['bd_arr','bal','बकाया वन राजस्व','₹ लाख',['BD-001']],
+  ['bd_loss','bal','हानि प्रकरण (त्रैमासिक)','प्रकरण',['BD-004']]]],
+ ['EX','अनुसंधान विस्तार','Research & Extension',['EX'],[
+  ['ex_nur','bal','रोपणी पौधे — उत्पादन / निर्वर्तन','पौधे',['EX-001']],
+  ['ex_seed','bal','बीज — संग्रहण / निर्वर्तन','कि.ग्रा.',['EX-002']],
+  ['ex_hp','tgt','हरियाली प्रसार — लक्ष्य / रोपित','पौधे',['EX-003','EX-004','EX-006'],{y:1}]]],
+ ['MN','अनुश्रवण मूल्यांकन','Monitoring & Evaluation',['MN'],[
+  ['mn_eval','tgt','वृक्षारोपण मूल्यांकन','रोपण',['MN-005','MN-001','MN-002'],{y:1}],
+  ['mn_surv','snap','3 वर्ष उपरांत जीवितता','पौधे',['MN-008'],{f:['रोपित','जीवित'],pct:1}],
+  ['mn_fail','tgt','असफल रोपण — हानि वसूली','₹ लाख',['MN-009'],{y:1}]]],
+ ['VG','सतर्कता शिकायत','Vigilance',['VG'],[
+  ['vg_comp','bal','शिकायतें — जाँच हेतु शेष','शिकायत',['VG-001','PR-016']]]],
+ ['JM','संयुक्त वन प्रबंधन','Joint Forest Management',['JM'],[
+  ['jm_sam','snap','वन प्रबंधन समितियाँ','समिति',['JM-006'],{f:['गठित','उत्कृष्ट']}],
+  ['jm_bud','bud','JFM / केन्द्रीय योजनाएँ — आबंटन / व्यय','₹ लाख',['JM-001','JM-002','JM-005']],
+  ['jm_div','bud','लाभांश / FDA / GIM राशि — स्वीकृत / व्यय','₹ लाख',['JM-003','JM-004','JM-007','JM-008','JM-015']],
+  ['jm_rev','bal','चक्रीय निधि — बकाया ऋण','₹ लाख',['JM-010','JM-011']],
+  ['jm_audit','tgt','समिति अंकेक्षण','समिति',['JM-009'],{y:1}],
+  ['jm_cfr','cnt','CFRR / FRA क्लस्टर प्रदाय','प्रकरण',['JM-012','JM-013']],
+  ['jm_graze','cnt','आवर्ती चराई — गोबर क्रय','क्विंटल',['JM-014']]]],
+ ['IT','मा.सं.वि. / सू.प्रौ.','HRD / IT',['IT'],[
+  ['it_tr','cnt','प्रशिक्षण में भेजे अधिकारी','अधिकारी',['IT-001']],
+  ['it_need','cnt','प्रशिक्षण आवश्यकता दर्ज','कर्मचारी',['IT-005']]]],
+ ['CM','CAMPA','CAMPA',['CM'],[
+  ['cm_26','bud','APO 2026-27 — स्वीकृत / व्यय','₹ लाख',['CM-001']],
+  ['cm_25','bud','APO 2025-26 — स्वीकृत / व्यय','₹ लाख',['CM-002']]]],
+ ['WL','वन्यप्राणी','Wildlife',['WL'],[
+  ['wl_ele','bal','हाथी द्वारा हानि — लंबित प्रकरण','प्रकरण',['WL-001']],
+  ['wl_oth','bal','अन्य वन्यप्राणी हानि — लंबित','प्रकरण',['WL-003']],
+  ['wl_pay','cnt','हानि मुआवजा भुगतान','₹ लाख',['WL-001','WL-003']],
+  ['wl_death','cnt','वन्यप्राणी मृत्यु (हाथी + प्राकृतिक)','संख्या',['WL-002','WL-005']],
+  ['wl_crime','cnt','वन्यप्राणी अपराध प्रकरण','प्रकरण',['PR-008','PR-013','WL-004']]]]
+];
+const ALLIND = PANELS.flatMap(p=>p[4]);
+
+const MONTHS = ['जनवरी','फरवरी','मार्च','अप्रैल','मई','जून','जुलाई','अगस्त','सितम्बर','अक्टूबर','नवम्बर','दिसम्बर'];
 const FQ = {M:'मासिक',Q:'त्रैमासिक',H:'अर्धवार्षिक',Y:'वार्षिक'};
 const ST = {pending:'लंबित',sent:'प्रेषित',nil:'निरंक',na:'वनमंडल स्तर नहीं'};
 const NEXT = {pending:'sent',sent:'nil',nil:'pending'};
-
 const isDue = (fq, m) => fq==='M' || (fq==='Q' && m%3===2) || (fq==='H' && (m===2||m===8)) || (fq==='Y' && m===2);
 
-let store = {};
-try { store = JSON.parse(localStorage.getItem(STORE)) || {}; } catch(e) {}
-const save = () => { try { localStorage.setItem(STORE, JSON.stringify(store)); } catch(e) {} };
+const load = k => { try { return JSON.parse(localStorage.getItem(k)) || {}; } catch(e) { return {}; } };
+const persist = (k,v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} };
+let store = load(STORE), data = load(DSTORE);
 
 const $ = id => document.getElementById(id);
-const esc = s => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const state = {wing:null, st:'all', fq:'all', q:''};
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt = v => v==null || isNaN(v) ? '—' : (+v).toLocaleString('en-IN',{maximumFractionDigits:2});
+const state = {tab:'ind', edit:false, wing:null, st:'all', fq:'all', q:''};
 
 // Default to the month just closed — that is the one being reported.
 const today = new Date();
@@ -326,10 +501,89 @@ const def = new Date(today.getFullYear(), today.getMonth()-1, 1);
 $('mon').innerHTML = MONTHS.map((n,i)=>`<option value="${i}">${n}</option>`).join('');
 $('yr').innerHTML = [2025,2026,2027].map(y=>`<option>${y}</option>`).join('');
 $('mon').value = def.getMonth(); $('yr').value = def.getFullYear();
-$('dueDayTxt').textContent = DUE_DAY;
+document.querySelectorAll('.dueDayTxt').forEach(e=>e.textContent = DUE_DAY);
 
-const key = () => `${$('yr').value}-${String(+$('mon').value+1).padStart(2,'0')}`;
+const idx = () => +$('yr').value*12 + +$('mon').value;          // month as a single integer
+const keyOf = i => `${Math.floor(i/12)}-${String(i%12+1).padStart(2,'0')}`;
+const key = () => keyOf(idx());
 const statusOf = code => NA.has(code) ? 'na' : (store[key()]||{})[code] || 'pending';
+const fyMonth = i => (i%12 - 3 + 12) % 12 + 1;                  // April = 1 … March = 12
+
+/* ---------- Indicator arithmetic: everything except this month's figure is derived ---------- */
+let memo = new Map();
+function calc(ind, i, depth=0){
+  const [id,type,,,,o={}] = ind, mk = id+'|'+i;
+  if (memo.has(mk)) return memo.get(mk);
+  const e = (data[keyOf(i)]||{})[id];
+  // ponytail: looks back at most 36 months for carried values; older history is ignored
+  const p = depth < 36 ? calc(ind, i-1, depth+1) : null;
+  const fyStart = i%12 === 3;
+  let r;
+  if (type==='bal') { const op = e?.o ?? p?.c ?? 0; r = {o:op, r:e?.r||0, d:e?.d||0}; r.c = r.o + r.r - r.d; }
+  else if (type==='tgt' || type==='bud') {
+    const t = e?.t ?? (fyStart ? 0 : p?.t ?? 0), m = e?.m || 0;
+    const cum = o.mt ? m : (fyStart ? 0 : p?.cum || 0) + m;
+    r = {t, m, cum, pct: t ? cum*100/t : null};
+  }
+  else if (type==='cnt') { const m = e?.m || 0; r = {m, cum:(fyStart ? 0 : p?.cum || 0) + m}; }
+  else r = {v: e?.v ?? p?.v ?? []};
+  r.has = !!e; r.last = e ? i : p?.last;
+  memo.set(mk, r); return r;
+}
+
+function alertOf(ind, r, i){
+  const [,type,,,,o={}] = ind;
+  if (!r.has) return null;
+  if (type==='bal' && r.c > r.o && r.c > 0) return `लंबित ${fmt(r.o)} → ${fmt(r.c)}`;
+  if ((type==='tgt' || type==='bud') && r.pct!=null) {
+    if (o.mt) return r.pct < 100 ? `रोस्टर का ${Math.round(r.pct)}% ही` : null;
+    if (o.y) return null;
+    const exp = fyMonth(i)*100/12;
+    if (r.pct < exp - 15) return `${Math.round(r.pct)}% — अपेक्षित ~${Math.round(exp)}%`;
+  }
+  return null;
+}
+
+function inputsOf(ind, r){
+  const [id,type,,,,o={}] = ind, e = (data[key()]||{})[id] || {};
+  const inp = (k, label, val, ph) => `<label>${label}<input type="number" step="any" inputmode="decimal" data-id="${id}" data-k="${k}" value="${val ?? ''}" placeholder="${ph ?? ''}"></label>`;
+  if (type==='bal') return inp('o','प्रारंभिक',e.o,fmt(r.o)) + inp('r','माह में प्राप्त',e.r) + inp('d','माह में निराकृत',e.d);
+  if (type==='tgt' || type==='bud') return inp('t', type==='bud'?'आबंटन / स्वीकृत':(o.mt?'माह का लक्ष्य':'वार्षिक लक्ष्य'), e.t, fmt(r.t)) + inp('m', type==='bud'?'माह में व्यय':'माह में उपलब्धि', e.m);
+  if (type==='cnt') return inp('m','इस माह',e.m);
+  return (o.f||['मान']).map((l,j)=>inp('v'+j, l, e.v?.[j], fmt(r.v[j]))).join('');
+}
+
+function card(ind, i){
+  const [id,type,title,unit,codes,o={}] = ind, r = calc(ind, i), al = alertOf(ind, r, i);
+  let big, sub, bar = '';
+  if (type==='bal') {
+    big = `${fmt(r.c)}<small>${unit} शेष</small>`;
+    sub = `प्रारंभिक ${fmt(r.o)} · +${fmt(r.r)} प्राप्त · −${fmt(r.d)} निराकृत`;
+    const base = r.o + r.r;
+    if (base) bar = `<div class="ring"><i style="width:${Math.min(100,r.d*100/base)}%;background:var(--ok)"></i></div>`;
+  } else if (type==='tgt' || type==='bud') {
+    big = r.pct==null ? `—<small>${type==='bud'?'आबंटन':'लक्ष्य'} दर्ज नहीं</small>` : `${Math.round(r.pct)}%<small>${type==='bud'?'व्यय':'उपलब्धि'}</small>`;
+    sub = `${fmt(r.cum)} / ${fmt(r.t)} ${unit}` + (o.mt ? ' · इस माह' : ` · इस माह +${fmt(r.m)}`);
+    const exp = o.mt || o.y ? null : fyMonth(i)*100/12;
+    bar = `<div class="ring"><i style="width:${Math.min(100,r.pct||0)}%;background:${al?'var(--warn)':'var(--ok)'}"></i>${exp?`<b style="left:${exp}%" title="वर्ष के अनुपात में अपेक्षित"></b>`:''}</div>`;
+  } else if (type==='cnt') {
+    big = `${fmt(r.m)}<small>${unit} इस माह</small>`;
+    sub = `वित्तीय वर्ष में कुल ${fmt(r.cum)}`;
+  } else {
+    const v = r.v, f = o.f || [];
+    if (o.gap) { big = v.length ? `${fmt((v[0]||0)-(v[1]||0))}<small>${o.gap}</small>` : '—'; }
+    else if (o.pct) { big = v[0] ? `${Math.round((v[1]||0)*100/v[0])}%<small>${f[1]}</small>` : '—'; }
+    else big = v.length ? `${fmt(v[0])}<small>${f[0]==='पौधे'?'पौधे':unit}</small>` : '—';
+    sub = f.map((l,j)=>`${l} ${fmt(v[j])}`).join(' · ');
+  }
+  const stale = !r.has ? `<div class="note">${r.last!=null ? 'इस माह प्रविष्टि नहीं — '+MONTHS[r.last%12]+' '+Math.floor(r.last/12)+' से आगे' : 'अभी कोई प्रविष्टि नहीं'}</div>` : '';
+  return `<article class="card ${al?'alert':''} ${r.has?'':'stale'}" id="c-${id}">
+    <div class="kind">${SHAPE[type][0]}</div>
+    <div class="t">${esc(title)}</div>
+    ${state.edit ? `<div class="inputs">${inputsOf(ind, r)}</div>` : `<div class="big">${big}</div><div class="sub">${sub}</div>${bar}`}
+    ${al && !state.edit ? `<div class="note" style="color:var(--warn)">⚠ ${al}</div>` : ''}${state.edit ? '' : stale}
+    <div class="src">${codes.map(c=>`<span>${c}</span>`).join('')}</div></article>`;
+}
 
 function chips(el, prop, opts){
   el.innerHTML = opts.map(([v,l])=>`<button class="chip" data-v="${v}" aria-pressed="${state[prop]===v}">${l}</button>`).join('');
@@ -337,7 +591,8 @@ function chips(el, prop, opts){
 }
 
 function render(){
-  const m = +$('mon').value, y = +$('yr').value;
+  memo = new Map();
+  const m = +$('mon').value, y = +$('yr').value, i = idx();
   const due = WINGS.map(([c,h,e,f]) => ({c,h,e,f:f.filter(r=>isDue(r[2],m))}));
   const all = due.flatMap(w=>w.f).filter(r=>!NA.has(r[0]));
   const n = {sent:0,nil:0,pending:0};
@@ -347,16 +602,36 @@ function render(){
   const days = Math.ceil((deadline - new Date(today.getFullYear(),today.getMonth(),today.getDate()))/864e5);
   const dl = `${DUE_DAY} ${MONTHS[deadline.getMonth()]} ${deadline.getFullYear()}`;
 
+  const res = ALLIND.map(ind => ({ind, r:calc(ind,i)}));
+  const filled = res.filter(x=>x.r.has).length;
+  const alerts = res.map(x=>({ind:x.ind, a:alertOf(x.ind,x.r,i)})).filter(x=>x.a);
+
   $('stats').innerHTML = `
-    <div class="stat s-due"><div class="lbl">इस माह देय प्रपत्र</div><div class="val">${all.length}</div><div class="sub">${MONTHS[m]} ${y} · 109 में से</div></div>
-    <div class="stat s-ok"><div class="lbl">प्रेषित</div><div class="val">${n.sent}</div><div class="sub">Sent on portal</div></div>
-    <div class="stat s-nil"><div class="lbl">निरंक</div><div class="val">${n.nil}</div><div class="sub">Nil reported</div></div>
-    <div class="stat s-wait"><div class="lbl">लंबित</div><div class="val">${n.pending}</div><div class="sub">Pending</div></div>
-    <div class="stat"><div class="lbl">पूर्णता</div><div class="val">${pct}%</div>
+    <div class="stat s-due"><div class="lbl">इस माह देय प्रपत्र</div><div class="val">${all.length}</div><div class="sub">${MONTHS[m]} ${y}</div></div>
+    <div class="stat s-ok"><div class="lbl">प्रेषित + निरंक</div><div class="val">${done}</div>
       <div class="ring"><i style="width:${n.sent*100/(all.length||1)}%;background:var(--ok)"></i><i style="width:${n.nil*100/(all.length||1)}%;background:var(--nil)"></i></div></div>
-    <div class="stat ${days<0&&n.pending?'s-wait':''}"><div class="lbl">अंतिम तिथि</div><div class="val">${days<0?Math.abs(days):days}</div>
+    <div class="stat s-wait"><div class="lbl">लंबित प्रपत्र</div><div class="val">${n.pending}</div><div class="sub">पूर्णता ${pct}%</div></div>
+    <div class="stat"><div class="lbl">सूचक भरे</div><div class="val">${filled}<span style="font-size:16px;color:var(--ink-faint)"> / ${ALLIND.length}</span></div><div class="sub">इस माह के आँकड़े</div></div>
+    <div class="stat ${alerts.length?'s-wait':'s-ok'}"><div class="lbl">ध्यान दें</div><div class="val">${alerts.length}</div><div class="sub">लंबित बढ़े / लक्ष्य पीछे</div></div>
+    <div class="stat ${days<0&&n.pending?'s-wait':''}"><div class="lbl">अंतिम तिथि</div><div class="val">${Math.abs(days)}</div>
       <div class="sub">${n.pending===0?'सभी प्रेषित ✓':days<0?'दिन विलंब · '+dl:'दिन शेष · '+dl}</div></div>`;
 
+  // ---- tab 1
+  $('alerts').innerHTML = alerts.length
+    ? `<div class="alerts"><ul>${alerts.map(x=>`<li><a href="#c-${x.ind[0]}"><span class="w">⚠</span>${esc(x.ind[2])} — ${x.a}</a></li>`).join('')}</ul></div>`
+    : `<div class="alerts calm">${filled ? 'इस माह कोई चेतावनी नहीं ✓' : 'इस माह अभी आँकड़े नहीं भरे गए — ऊपर “✎ प्रविष्टि” दबाएँ।'}</div>`;
+  $('tiles').innerHTML = PANELS.map(([pid,nm,en,wings,inds])=>{
+    const f = inds.filter(ind=>calc(ind,i).has).length, a = inds.filter(ind=>alertOf(ind,calc(ind,i),i)).length;
+    return `<a class="tile" href="#p-${pid}"><span class="top"><span class="code">${pid}</span><span>${f}/${inds.length}${a?` <span class="flag">⚠${a}</span>`:''}</span></span><span class="nm">${nm}</span></a>`;
+  }).join('');
+  $('panels').innerHTML = PANELS.map(([pid,nm,en,wings,inds])=>{
+    const fm = due.filter(w=>wings.includes(w.c)).flatMap(w=>w.f).filter(r=>!NA.has(r[0]));
+    const s = fm.filter(r=>statusOf(r[0])!=='pending').length;
+    return `<section class="panel" id="p-${pid}"><div class="panel-h"><h3>${nm}</h3><span class="meta">${en} · ${inds.length} सूचक · प्रपत्र प्रेषित ${s}/${fm.length}</span></div>
+      <div class="cards">${inds.map(ind=>card(ind,i)).join('')}</div></section>`;
+  }).join('');
+
+  // ---- tab 2
   $('wings').innerHTML = due.map(w=>{
     const own = w.f.filter(r=>!NA.has(r[0]));
     const d = own.filter(r=>statusOf(r[0])!=='pending').length;
@@ -366,10 +641,8 @@ function render(){
       <span class="nm">${w.h}</span><span class="en">${w.e}</span>
       <span class="ring"><i style="width:${own.length?d*100/own.length:0}%;background:var(--ok)"></i></span></button>`;
   }).join('');
-
   chips($('stChips'),'st',[['all','सभी'],['pending',`लंबित (${n.pending})`],['sent','प्रेषित'],['nil','निरंक']]);
   chips($('fqChips'),'fq',[['all','सभी आवृत्ति'],['M','M'],['Q','Q'],['H','H'],['Y','Y']]);
-
   const q = state.q.trim().toLowerCase();
   let shown = 0;
   const html = due.filter(w=>!state.wing||w.c===state.wing).map(w=>{
@@ -391,12 +664,40 @@ function render(){
   $('listSub').textContent = `${shown} प्रपत्र · ${MONTHS[m]} ${y}` + (state.wing?` · ${state.wing} शाखा`:'');
 }
 
+// ---- tab 3 (static)
+const covered = new Set(ALLIND.flatMap(x=>x[4]));
+$('shapes').innerHTML = Object.entries(SHAPE).map(([k,[nm,desc]])=>{
+  const list = ALLIND.filter(x=>x[1]===k);
+  return `<div class="shape"><h4>${nm}</h4><div class="n">${list.length} <span style="font-size:13px;font-weight:400;color:var(--ink-soft)">सूचक</span></div>
+    <p>${desc}</p><p>उदा.: ${list.slice(0,3).map(x=>esc(x[2])).join(' · ')}</p></div>`;
+}).join('') + `<div class="shape" style="border-top-color:var(--forest-mid)"><h4>कवरेज</h4><div class="n">${covered.size}</div>
+  <p>प्रपत्र किसी न किसी सूचक में आते हैं; शेष ${WINGS.flatMap(w=>w[3]).length - covered.size} वनमंडल स्तर पर प्रविष्टि योग्य नहीं। व्यक्ति / प्रकरणवार पंजी का विवरण पोर्टल पर ही रहता है, यहाँ केवल गिनती।</p></div>`;
+
+/* ---------- Events ---------- */
+document.querySelector('.tabs').onclick = e => {
+  const b = e.target.closest('.tab'); if(!b) return;
+  state.tab = b.dataset.tab;
+  document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected', t===b));
+  ['ind','sub','how'].forEach(t=>$('tab-'+t).hidden = t!==state.tab);
+};
+$('mode').onclick = () => { state.edit = !state.edit; $('mode').setAttribute('aria-pressed', state.edit); $('mode').textContent = state.edit ? '✓ प्रविष्टि पूर्ण' : '✎ प्रविष्टि'; render(); };
+$('panels').addEventListener('change', e => {
+  const t = e.target; if(!t.dataset.k) return;
+  const k = key(), id = t.dataset.id, f = t.dataset.k, v = t.value.trim()==='' ? undefined : +t.value;
+  data[k] = data[k] || {}; const rec = data[k][id] = data[k][id] || {};
+  if (f[0]==='v') { rec.v = rec.v || []; rec.v[+f.slice(1)] = v ?? null; if (rec.v.every(x=>x==null)) delete rec.v; }
+  else if (v===undefined) delete rec[f]; else rec[f] = v;
+  if (!Object.keys(rec).length) delete data[k][id];
+  persist(DSTORE, data);
+  // re-render, then put focus back where the user tabbed to
+  setTimeout(()=>{ const a=document.activeElement, sel = a?.dataset?.k ? `[data-id="${a.dataset.id}"][data-k="${a.dataset.k}"]` : null; render(); if(sel) document.querySelector(sel)?.focus(); },0);
+});
 $('rows').onclick = e => {
   const b = e.target.closest('button.st'); if(!b) return;
   const k = key(); store[k] = store[k]||{};
   const s = NEXT[statusOf(b.dataset.c)];
   if(s==='pending') delete store[k][b.dataset.c]; else store[k][b.dataset.c] = s;
-  save(); render();
+  persist(STORE, store); render();
 };
 $('wings').onclick = e => { const b=e.target.closest('.wing'); if(!b) return; state.wing = state.wing===b.dataset.w?null:b.dataset.w; render(); };
 $('q').oninput = e => { state.q = e.target.value; render(); };
