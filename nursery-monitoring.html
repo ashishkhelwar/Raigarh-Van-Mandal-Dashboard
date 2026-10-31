@@ -105,7 +105,7 @@ table.gem{table-layout:fixed}table.gem th,table.gem td{vertical-align:top;word-w
 nav.subtabs{margin:18px 0 0}nav.subtabs button{font-size:14px;padding:4px 12px}
 table.recs input.txt{width:140px}table.recs input.short{width:80px}table.recs input.wide{width:210px}table.recs input[type=number]{width:96px}table.recs input[type=date]{width:140px}
 .btn.x{border-color:var(--line);color:var(--muted);padding:2px 9px;font-size:12.5px}
-table.gem tr.g-re>td{background:var(--re-tint)}.re{color:var(--re)}.pill.re{background:var(--re-tint);color:var(--re)}
+table.gem tr.g-re>td{background:var(--re-tint)}table.gem td.sup{font-size:12px;line-height:1.35}.re{color:var(--re)}.pill.re{background:var(--re-tint);color:var(--re)}
 .report h2{margin-top:4px}
 .report .meta{font-size:13.5px;color:var(--muted);margin:4px 0 14px}
 .sign{display:flex;justify-content:space-between;gap:24px;margin-top:48px;font-size:14px;text-align:center}
@@ -495,7 +495,7 @@ function gemInfo(){
   const dash=`<td class="r muted">—</td>`;
   let h=`<div class="section-head"><h2>क्रय सामग्री की जानकारी</h2>
   <div class="toolbar"><label><input type="checkbox" data-filt="range" ${R?"checked":""}> रोपणीवार विवरण दिखाएँ</label><span class="legend" style="margin:0"><span><i style="background:var(--ok)"></i>आदेश जारी (${G.filter(g=>g.ordered).length})</span><span><i style="background:var(--bad)"></i>आदेश शेष (${G.filter(g=>!g.ordered&&!g.reorder).length})</span><span><i style="background:var(--re)"></i>आपूर्ति नहीं — पुनः आदेश (${G.filter(g=>g.reorder).length})</span><span><i style="background:var(--accent)"></i>सामग्री प्राप्त (${G.filter(g=>g.rcvd).length})</span></span></div></div>
-  <div class="tablebox"><table class="gem"><colgroup><col style="width:17%"><col style="width:8%"><col style="width:${R?"17":"25"}%"><col style="width:${R?"11":"16"}%"><col style="width:6%">${R?P.map(()=>`<col style="width:5%"><col style="width:6%">`).join(""):""}<col style="width:7%"><col style="width:8%"><col style="width:8%"></colgroup>
+  <div class="tablebox"><table class="gem"><colgroup><col style="width:15%"><col style="width:8%"><col style="width:${R?"15":"22"}%"><col style="width:${R?"14":"21"}%"><col style="width:6%">${R?P.map(()=>`<col style="width:5%"><col style="width:6%">`).join(""):""}<col style="width:7%"><col style="width:8%"><col style="width:8%"></colgroup>
   <thead><tr><th rowspan="2">क्रय सूची की सामग्री</th><th rowspan="2" class="r">प्रावधान (₹)</th><th rowspan="2">GeM उत्पाद (क्रय किया जा रहा)</th><th rowspan="2">आपूर्तिकर्ता · स्थिति</th><th rowspan="2" class="r">दर (₹)</th>${R?P.map(p=>`<th colspan="2" class="c">${esc(p.short)}</th>`).join(""):""}<th colspan="2" class="c">कुल</th><th rowspan="2" class="r">उपलब्ध राशि (₹)</th></tr>
   <tr>${R?P.map(()=>`<th class="r">मात्रा</th><th class="r">राशि</th>`).join(""):""}<th class="r">मात्रा</th><th class="r">राशि</th></tr></thead><tbody>`;
   const colTot={},colEst={};let grand=0,grandEst=0,lastCat=-1;
@@ -512,7 +512,7 @@ function gemInfo(){
       for(const p of P){const q=g.by[p.id]||0,a=Math.round(q*g.rate);tq+=q;ta+=a;colTot[p.id]=(colTot[p.id]||0)+a;
         if(R)cells+=`<td class="r num">${q2(q)}</td><td class="r num">${inr(a)}</td>`}
       grand+=ta;
-      h+=`<tr class="${g.rcvd?"g-rcv":g.reorder?"g-re":g.ordered?"g-ok":"g-bad"}">${i===0?lead:""}<td>${esc(g.product)}<div class="hint">${esc(g.type)}</div></td><td class="hint">${esc(g.vendor)}<br><b class="${g.reorder?"re":g.ordered||g.rcvd?"ok":"bad"}">${esc(g.status)}</b>${g.order?`<br>${esc(g.order)}${g.orderDate?" · "+esc(dt(g.orderDate)):""}`:""}</td><td class="r num">${q2(g.rate)}</td>${cells}<td class="r num">${q2(tq)} ${esc(g.unit)}</td><td class="r num"><b>${inr(ta)}</b></td>${i===0?`<td rowspan="${n}" class="r num lead ${avail<0?"neg":""}"><b>${inr(avail)}</b></td>`:""}</tr>`});
+      h+=`<tr class="${g.rcvd?"g-rcv":g.reorder?"g-re":g.ordered?"g-ok":"g-bad"}">${i===0?lead:""}<td>${esc(g.product)}<div class="hint">${esc(g.type)}</div></td><td class="hint sup">${esc(g.vendor)}<br><b class="${g.reorder?"re":g.ordered||g.rcvd?"ok":"bad"}">${esc(g.status)}</b>${g.order?`<br>${esc(g.order)}${g.orderDate?" · "+esc(dt(g.orderDate)):""}`:""}</td><td class="r num">${q2(g.rate)}</td>${cells}<td class="r num">${q2(tq)} ${esc(g.unit)}</td><td class="r num"><b>${inr(ta)}</b></td>${i===0?`<td rowspan="${n}" class="r num lead ${avail<0?"neg":""}"><b>${inr(avail)}</b></td>`:""}</tr>`});
   }
   h+=`<tr class="sub"><td>कुल</td><td class="r num">${inr(grandEst)}</td><td colspan="3">GeM क्रय — कुल राशि</td>${R?P.map(p=>`<td class="r num hint">${inr(colEst[p.id]||0)}</td><td class="r num">${inr(colTot[p.id]||0)}</td>`).join(""):""}<td></td><td class="r num">${inr(grand)}</td><td class="r num ${grandEst-grand<0?"neg":""}">${inr(grandEst-grand)}</td></tr></tbody></table></div>
   <p class="hint">उपलब्ध राशि = क्रय सूची का प्रावधान − GeM उत्पादों की राशि। रोपणीवार मात्रा पौधा-लक्ष्य के अनुपात में पूर्णांक इकाइयों में; ${R?"कुल पंक्ति में रोपणी के अंतर्गत बायाँ अंक प्रावधान, दायाँ GeM राशि। ":""}क्रय आदेश, प्राप्ति एवं भुगतान की प्रविष्टि संबंधित रोपणी के पृष्ठ पर “सामग्री क्रय” में करें।</p>`;
