@@ -167,6 +167,9 @@ addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});<
 
 <div class="tabs">
   <button class="tab on" id="tList">&#9776; Activity-wise Detail <span class="n" id="nList"></span></button>
+  <button class="tab" data-b="1">&#8377; शेष &gt; 1 लाख <span class="n"></span></button>
+  <button class="tab" data-b="5">&#8377; शेष &gt; 5 लाख <span class="n"></span></button>
+  <button class="tab" data-b="10">&#8377; शेष &gt; 10 लाख <span class="n"></span></button>
   <button class="tab" id="tGraph">&#128202; Graph View</button>
 </div>
 
@@ -396,6 +399,7 @@ function filt(){
   const q = S.q.toLowerCase();
   return DATA.filter(d=>{
     if(S.r && d.r!==S.r) return false;
+    if(S.bmin && !(d.frm>S.bmin)) return false;
     if(S.t && d.t!==S.t) return false;
     if(S.h && d.h!==S.h) return false;
     if(S.w && d.w!==S.w) return false;
@@ -492,7 +496,7 @@ function table(){
   const all=[...filt()], k=S.sk, dir=S.sd;
   const cmp=(a,b)=>{ const x=a[k], y=b[k];
     if(typeof x==="string") return dir*String(x).localeCompare(String(y)); return dir*((x||0)-(y||0)); };
-  $("nList").textContent = "("+all.length+")";
+  $("nList").textContent = "("+NALL+")";
   $("cnt").textContent = `${all.length} line item${all.length!==1?"s":""} \u00b7 ${cr(sum(all,"fpr"))} estimated \u00b7 ${cr(sum(all,"fex"))} expenditure \u00b7 ${cr(sum(all,"frm"))} balance`;
   if(!all.length){ $("tbody").innerHTML=`<tr><td colspan="9" class="empty">No works match these filters.</td></tr>`;
     $("tfoot").innerHTML=""; $("pg").innerHTML=""; return; }
@@ -526,14 +530,15 @@ function goPg(n){ S.pg=n; table(); $("sc").scrollTop=0; }
 function render(){
   $("ttl").textContent = CFG.Dashboard_Title || "CAMPA APO \u2014 Activity-wise Progress";
   $("stl").innerHTML = `${esc(CFG.Division)} Forest Division, ${esc(CFG.Circle)} Circle &middot; ${esc(CFG.Form)}
-    &middot; Sanctioned plan for APO ${esc(CFG.APO_Year)} &middot; <b>Data updated: 10 Oct 2026</b>`;
+    &middot; Sanctioned plan for APO ${esc(CFG.APO_Year)} &middot; <b>Data updated: 03 Nov 2026</b>`;
   $("ftr").innerHTML = `Source: ${esc(CFG.Form)}, State CAMPA APO ${esc(CFG.APO_Year)}, ${esc(CFG.Division)} Division
     &mdash; Tables 1\u20134 (CA/PCA, CAT Plan, IWMP, Other Component)`;
+  { const m=S.bmin; document.querySelectorAll(".tab[data-b]").forEach(b=>{ S.bmin=+b.dataset.b; b.querySelector(".n").textContent="("+filt().length+")"; }); S.bmin=0; NALL=filt().length; S.bmin=m; }
   kpis();
   if(S.view==="graph"){ try{ charts(); }catch(e){ console.error("chart render failed:",e); } }
   table();
 }
-let fromGraph=false;   // set by a bar click; Reset then returns to Graph View
+let NALL=0, fromGraph=false;   // set by a bar click; Reset then returns to Graph View
 function drill(sel){
   fromGraph=true; setView("list");
   Object.entries(sel).forEach(([id,v])=>{ if(v!=null && $(id)){ $(id).value=v; $(id).dispatchEvent(new Event("change")); } });
@@ -545,9 +550,13 @@ function setView(v){
   $("vGraph").classList.toggle("hide", v!=="graph");
   $("tList").classList.toggle("on", v==="list");
   $("tGraph").classList.toggle("on", v==="graph");
+  $("tList").classList.toggle("on", v==="list" && !S.bmin);
+  document.querySelectorAll(".tab[data-b]").forEach(b=>b.classList.toggle("on", v==="list" && S.bmin===+b.dataset.b));
   if(v==="graph"){ try{ charts(); }catch(e){ console.error(e); } }
 }
-$("tList").onclick=()=>setView("list");
+$("tList").onclick=()=>{S.bmin=0;S.pg=0;setView("list");render()};
+// balance views: same work-wise list, only lines whose balance exceeds the tab's lakh threshold
+document.querySelectorAll(".tab[data-b]").forEach(b=>b.onclick=()=>{S.bmin=+b.dataset.b;S.pg=0;fromGraph=false;setView("list");render()});
 $("tGraph").onclick=()=>{fromGraph=false;setView("graph")};
 $("tList").addEventListener("click",()=>{fromGraph=false});
 
