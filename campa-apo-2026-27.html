@@ -167,8 +167,8 @@ addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});<
 
 <div class="tabs">
   <button class="tab on" id="tList">&#9776; Activity-wise Detail <span class="n" id="nList"></span></button>
-  <button class="tab" data-b="1">&#8377; शेष &gt; 1 लाख <span class="n"></span></button>
-  <button class="tab" data-b="5">&#8377; शेष &gt; 5 लाख <span class="n"></span></button>
+  <button class="tab" data-b="1">&#8377; शेष 1–5 लाख <span class="n"></span></button>
+  <button class="tab" data-b="5">&#8377; शेष 5–10 लाख <span class="n"></span></button>
   <button class="tab" data-b="10">&#8377; शेष &gt; 10 लाख <span class="n"></span></button>
   <button class="tab" id="tGraph">&#128202; Graph View</button>
 </div>
@@ -399,7 +399,7 @@ function filt(){
   const q = S.q.toLowerCase();
   return DATA.filter(d=>{
     if(S.r && d.r!==S.r) return false;
-    if(S.bmin && !(d.frm>S.bmin)) return false;
+    if(S.bmin && !(d.frm>S.bmin && d.frm<=({1:5,5:10}[S.bmin]||Infinity))) return false;
     if(S.t && d.t!==S.t) return false;
     if(S.h && d.h!==S.h) return false;
     if(S.w && d.w!==S.w) return false;
@@ -555,7 +555,7 @@ function setView(v){
   if(v==="graph"){ try{ charts(); }catch(e){ console.error(e); } }
 }
 $("tList").onclick=()=>{S.bmin=0;S.pg=0;setView("list");render()};
-// balance views: same work-wise list, only lines whose balance exceeds the tab's lakh threshold
+// balance views: same work-wise list, only lines whose balance falls in the tab's lakh slab (1–5, 5–10, >10)
 document.querySelectorAll(".tab[data-b]").forEach(b=>b.onclick=()=>{S.bmin=+b.dataset.b;S.pg=0;fromGraph=false;setView("list");render()});
 $("tGraph").onclick=()=>{fromGraph=false;setView("graph")};
 $("tList").addEventListener("click",()=>{fromGraph=false});
