@@ -151,8 +151,6 @@ addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});<
   <div class="tabs" id="tabs">
     <div class="tab on" data-p="sum">📊 सारांश</div>
     <div class="tab" data-p="sch">📋 योजनावार</div>
-    <div class="tab" data-p="obj">🧾 मदवार (उद्देश्य शीर्ष)</div>
-    <div class="tab" data-p="det">📄 विस्तृत विवरण</div>
     <div class="tab" data-p="rng">🗺 परिक्षेत्रवार</div>
     <div class="tab" data-p="site">📍 स्थल / व्हाउचरवार</div>
   </div>
@@ -179,31 +177,6 @@ addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});<
     <div class="tbox"><table>
       <thead><tr><th class="l">शीर्ष</th><th class="l">योजना</th><th>आवंटन</th><th>गत माह तक व्यय</th><th>चालू माह व्यय</th><th>कुल व्यय</th><th>शेष</th><th>% उपयोग</th></tr></thead>
       <tbody id="schBody"></tbody><tfoot id="schFoot"></tfoot>
-    </table></div>
-  </div>
-
-  <!-- मदवार -->
-  <div class="pane" id="p-obj">
-    <div class="note">सभी योजनाओं में उद्देश्य शीर्ष (#01 वेतन, #02 मजदूरी, #04 कार्यालय व्यय …) का योग। पंक्ति पर क्लिक करें — योजनावार बँटवारा खुलेगा।</div>
-    <div class="tbox"><table>
-      <thead><tr><th class="l">उद्देश्य शीर्ष</th><th>योजनाएँ</th><th>आवंटन</th><th>गत माह तक व्यय</th><th>चालू माह व्यय</th><th>कुल व्यय</th><th>शेष</th><th>% उपयोग</th></tr></thead>
-      <tbody id="objBody"></tbody><tfoot id="objFoot"></tfoot>
-    </table></div>
-  </div>
-
-  <!-- विस्तृत विवरण -->
-  <div class="pane" id="p-det">
-    <div class="filters">
-      <select id="dSec"></select>
-      <select id="dSch"></select>
-      <select id="dObj"></select>
-      <input type="search" id="dQ" placeholder="मद खोजें…">
-      <label><input type="checkbox" id="dSpent"> केवल व्यय वाली पंक्तियाँ</label>
-      <button class="btn" id="dReset">✕ फ़िल्टर हटाएं</button>
-    </div>
-    <div class="tbox"><table>
-      <thead><tr><th class="l">शीर्ष</th><th class="l">योजना</th><th class="l">उद्देश्य शीर्ष</th><th class="l">उप-मद</th><th>आवंटन</th><th>गत माह तक</th><th>चालू माह</th><th>कुल व्यय</th><th>% उपयोग</th></tr></thead>
-      <tbody id="detBody"></tbody><tfoot id="detFoot"></tfoot>
     </table></div>
   </div>
 
@@ -326,39 +299,8 @@ $('schBody').addEventListener('click',e=>{const tr=e.target.closest('tr.row'); i
 function openSchemes(sec, key){ $('fSec').value=sec||''; $('fQ').value=''; openSet=new Set(key?[key]:[]); show('sch'); renderSch();
   if(key){ const tr=document.querySelector(`#schBody tr.row[data-k="${CSS.escape(key)}"]`); tr&&tr.scrollIntoView({block:'center'}); } }
 
-/* मदवार */
-let openObj=new Set();
-function renderObj(){
-  const L=rows(); let html='';
-  const objs=[...groupBy(L,objLabel)].sort((a,b)=>sum(b[1])[0]-sum(a[1])[0]);
-  objs.forEach(([ob,g])=>{ const o=openObj.has(ob);
-    html+=`<tr class="row${o?' open':''}" data-k="${esc(ob)}"><td class="l"><span class="caret">▸</span><b>${esc(ob)}</b></td><td>${new Set(g.map(schKey)).size}</td>${nums(sum(g))}</tr>`;
-    if(o) [...groupBy(g,schKey)].sort((a,b)=>sum(b[1])[0]-sum(a[1])[0]).forEach(([k,sg])=>{
-      html+=`<tr class="sub"><td class="l">(${sg[0].code}) ${esc(sg[0].sch)} <span style="color:var(--muted)">· ${esc(sg[0].sec)}</span></td><td></td>${nums(sum(sg))}</tr>`; });
-  });
-  $('objBody').innerHTML=html; $('objFoot').innerHTML=`<tr><td class="l">महायोग</td><td></td>${nums(sum(L))}</tr>`;
-}
-$('objBody').addEventListener('click',e=>{const tr=e.target.closest('tr.row'); if(!tr) return; const k=tr.dataset.k; openObj.has(k)?openObj.delete(k):openObj.add(k); renderObj();});
-
-/* विस्तृत विवरण */
-function renderDet(){
-  const L=rows();
-  fillSel($('dSec'),[...new Set(L.map(r=>r.sec))].map(s=>[s,s]),'सभी शीर्ष');
-  const sec=$('dSec').value;
-  fillSel($('dSch'),[...groupBy(L.filter(r=>!sec||r.sec===sec),schKey)].map(([k,g])=>[k,`(${g[0].code}) ${g[0].sch}`]),'सभी योजनाएँ');
-  fillSel($('dObj'),[...new Set(L.map(objLabel))].sort().map(o=>[o,o]),'सभी उद्देश्य शीर्ष');
-  const sch=$('dSch').value, ob=$('dObj').value, q=$('dQ').value.trim().toLowerCase(), sp=$('dSpent').checked;
-  const F=L.filter(r=>(!sec||r.sec===sec)&&(!sch||schKey(r)===sch)&&(!ob||objLabel(r)===ob)&&(!sp||r.v[3])&&(!q||(r.det+' '+r.obn+' '+r.sch).toLowerCase().includes(q)));
-  $('detBody').innerHTML=F.map(r=>`<tr><td class="l tw">${esc(r.sec)}</td><td class="l">(${r.code}) ${esc(r.sch)}</td><td class="l">${esc(objLabel(r))}</td><td class="l">${esc(r.det||'—')}</td>
-    <td>${inr(r.v[0])}</td><td>${inr(r.v[1])}</td><td>${inr(r.v[2])}</td><td><b>${inr(r.v[3])}</b></td><td>${badge(pc(r.v[3],r.v[0]))}</td></tr>`).join('')
-    ||'<tr><td colspan="9" class="l" style="padding:24px;color:#999">कोई पंक्ति नहीं मिली</td></tr>';
-  const t=sum(F); $('detFoot').innerHTML=`<tr><td class="l" colspan="4">योग — ${F.length} पंक्तियाँ</td><td>${inr(t[0])}</td><td>${inr(t[1])}</td><td>${inr(t[2])}</td><td>${inr(t[3])}</td><td>${badge(pc(t[3],t[0]))}</td></tr>`;
-}
-['dSec','dSch','dObj','dQ','dSpent'].forEach(id=>$(id).addEventListener('input',renderDet));
-
-function resetFilters(){ ['fSec','fQ','dSec','dSch','dObj','dQ'].forEach(id=>$(id).value=''); $('fNz').checked=true; $('dSpent').checked=false; openSet.clear(); openObj.clear(); }
+function resetFilters(){ ['fSec','fQ'].forEach(id=>$(id).value=''); $('fNz').checked=true; openSet.clear(); }
 $('fReset').onclick=()=>{ resetFilters(); renderSch(); };
-$('dReset').onclick=()=>{ resetFilters(); renderDet(); };
 
 function show(p){ document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.p===p));
   document.querySelectorAll('.pane').forEach(x=>x.classList.toggle('on',x.id==='p-'+p)); }
@@ -407,7 +349,7 @@ function renderSite(){
 ['wRng','wSch','wObj','wQ'].forEach(id=>$(id).addEventListener('input',renderSite));
 $('wReset').onclick=()=>{ ['wRng','wSch','wObj','wQ'].forEach(id=>$(id).value=''); renderSite(); if(siteFrom){ show(siteFrom); siteFrom=null; } };
 
-function renderAll(){ kpis(); renderSum(); renderSch(); renderObj(); renderDet(); renderRng(); renderSite(); }
+function renderAll(){ kpis(); renderSum(); renderSch(); renderRng(); renderSite(); }
 renderAll();
 </script>
 </body>
