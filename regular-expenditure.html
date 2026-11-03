@@ -217,6 +217,13 @@ tfoot td.num{text-align:right;font-variant-numeric:tabular-nums}
   .card-grid{grid-template-columns:1fr}
   .kpi-val{font-size:24px}
 }
+.rc-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin:6px 0 12px}
+.rc-k{background:var(--card);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:12px;padding:11px 14px}
+.rc-k .l{font-size:11px;color:var(--ink-soft);font-weight:700;letter-spacing:.3px}
+.rc-k .v{font-size:21px;font-weight:800;margin-top:4px}
+.rc-k .s{font-size:11.5px;color:var(--ink-soft);margin-top:2px}
+.rc-k.g{border-left-color:var(--green)}.rc-k.b{border-left-color:var(--blue)}.rc-k.o{border-left-color:var(--orange)}.rc-k.r{border-left-color:var(--rose)}
+.rc-note{font-size:12.5px;color:var(--ink-soft);line-height:1.6;background:var(--cream-2);border:1px solid var(--border);border-radius:10px;padding:9px 12px;margin-bottom:12px}
 </style>
 <!-- KPI toggle: KPI cards hidden by default; button shows them (remembered per browser) -->
 <style>html:not(.show-kpi) .kpi-grid{display:none!important}
@@ -300,8 +307,21 @@ addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});<
   <!-- TAB: OVERVIEW -->
   <div id="tab-overview" class="content active">
     <div class="kpi-grid" id="kpi-area"></div>
+    <div class="chart-box" id="recon-box">
+      <div class="chart-title">⚖️ मिलान — फॉर्म-7 (बजट आवंटन व व्यय) बनाम कार्यवार पंजी (Google Sheet)</div>
+      <div class="rc-kpis" id="rc-kpi"></div>
+      <div class="rc-note">
+        <b>दोनों आँकड़े अलग चीज़ें मापते हैं:</b> फॉर्म-7 में वनमंडल को मिला <b>पूरा बजट आवंटन</b> है — वेतन-भत्ते, कार्यालय व्यय, पूंजीगत, सिविल डिपॉजिट (CSR/DMF) व वन्यप्राणी सहित।
+        कार्यवार पंजी में केवल वे <b>कार्य</b> हैं जिनकी स्वीकृति शीट में दर्ज की गई है। "अंतर" = आवंटन का वह भाग जिसके कार्य/मद पंजी में दर्ज नहीं हैं।
+        कार्यवार पंजी का व्यय भी अद्यतन नहीं है — फॉर्म-7 का व्यय ही आधिकारिक है।
+      </div>
+      <div class="table-scroll"><table id="rc-table">
+        <thead><tr><th class="l">बजट शीर्ष</th><th class="l">योजना</th><th>फॉर्म-7 आवंटन</th><th>फॉर्म-7 कुल व्यय</th><th>कार्यवार स्वीकृत</th><th>कार्यवार व्यय</th><th>अंतर (आवंटन − स्वीकृत)</th><th class="l">कारण</th></tr></thead>
+        <tbody id="rc-tbody"></tbody><tfoot id="rc-tfoot"></tfoot>
+      </table></div>
+    </div>
     <div class="chart-box">
-      <div class="chart-title">💰 योजनावार स्वीकृत बनाम व्यय (₹ लाख)</div>
+      <div class="chart-title">💰 योजनावार स्वीकृत बनाम व्यय — कार्यवार पंजी (₹ लाख)</div>
       <div id="scheme-chart"></div>
     </div>
   </div>
@@ -547,6 +567,39 @@ function loadForm7(){
     .then(txt=>renderForm7(parseCSV(txt)))
     .catch(()=>{ document.getElementById('f7-note').innerHTML='<b>Form7 टैब नहीं मिला।</b> Google Sheet में "Form7" नाम का टैब बनाकर उसमें Month, Section, Scheme_Code, Scheme_Name, Allocation, Upto_Last_Month, Current_Month, Total_Exp कॉलम रखें।'; });
 }
+let F7ROWS=null;
+// मिलान: Form-7 scheme totals vs work-wise register (ALL), keyed by head (10/64) + scheme code
+function renderRecon(){
+  if(!F7ROWS||!ALL.length) return;
+  const codeOf=s=>{const m=String(s).match(/\((\d+)\)/); return m?String(+m[1]):'';};
+  const W={}; ALL.forEach(w=>{ const c=codeOf(w.scheme); if(!c) return; const k=(String(w.budgetHead).startsWith('64')?'64':'10')+'|'+c;
+    (W[k]=W[k]||{s:0,x:0,n:0,name:w.scheme}); W[k].s+=w.sanctioned; W[k].x+=w.spent; W[k].n++; });
+  const used=new Set(), L=[];
+  F7ROWS.forEach(r=>{ const h=r.sec.startsWith('64')?'64':r.sec.startsWith('10-2406')&&!/वन्यप्राणी/.test(r.sec)?'10':null;
+    let k=h?h+'|'+String(+r.code):null; if(k&&!W[k]) k=null;
+    if(!k&&!h&&!/वन्यप्राणी|8443|4406/.test(r.sec)){ const alt=['10','64'].map(x=>x+'|'+String(+r.code)).find(x=>W[x]&&!used.has(x)); if(alt) k=alt; }
+    const w=k&&!used.has(k)?W[k]:null; if(w) used.add(k);
+    let why='';
+    if(/8443/.test(r.sec)) why='सिविल डिपॉजिट (CSR/DMF) — कार्य पंजी में नहीं';
+    else if(/वन्यप्राणी/.test(r.sec)) why='वन्यप्राणी मद — कार्य पंजी में नहीं';
+    else if(/4406/.test(r.sec)) why='पूंजीगत मद — कार्य पंजी में नहीं';
+    else if(['3877','3836','813','535','2901'].includes(String(+r.code))) why='वेतन-भत्ते/स्थापना व्यय आवंटन में शामिल'+(w?'':'; कार्य पंजी में नहीं');
+    else if(!w) why='योजना के कार्य पंजी में दर्ज नहीं';
+    else if(r.al-w.s>0.5*r.al) why='आधे से अधिक आवंटन के कार्य दर्ज नहीं';
+    else if(r.al>w.s) why='कुछ कार्य दर्ज नहीं';
+    L.push({sec:r.sec,name:`(${r.code}) ${r.name}`,al:r.al,to:r.to,ws:w?w.s:0,wx:w?w.x:0,why}); });
+  Object.keys(W).filter(k=>!used.has(k)).forEach(k=>L.push({sec:k.startsWith('64')?'64-2406':'10-2406',name:W[k].name,al:0,to:0,ws:W[k].s,wx:W[k].x,why:'फॉर्म-7 में आवंटन नहीं / अन्य शीर्ष में'}));
+  const S=f=>L.reduce((a,x)=>a+x[f],0), AL=S('al'),TO=S('to'),WS=S('ws'),WX=S('wx');
+  const card=(c,l,v,s)=>`<div class="rc-k ${c}"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`;
+  document.getElementById('rc-kpi').innerHTML=
+    card('a','फॉर्म-7 बजट आवंटन','₹'+(AL/1e7).toFixed(2)+' Cr',fmt(AL))+
+    card('g','फॉर्म-7 कुल व्यय','₹'+(TO/1e7).toFixed(2)+' Cr',pct(TO,AL)+'% आवंटन का')+
+    card('b','कार्यवार स्वीकृत राशि','₹'+lakh(WS)+' L',ALL.length+' कार्य · आवंटन का '+pct(WS,AL)+'%')+
+    card('o','कार्यवार पंजी में व्यय','₹'+lakh(WX)+' L','फॉर्म-7 व्यय का '+pct(WX,TO)+'%')+
+    card('r','अंतर (आवंटन − स्वीकृत)','₹'+((AL-WS)/1e7).toFixed(2)+' Cr','कार्य/मद पंजी में दर्ज नहीं');
+  document.getElementById('rc-tbody').innerHTML=L.map(x=>`<tr><td class="l">${esc(x.sec)}</td><td class="l">${esc(x.name)}</td><td>${fmtN(x.al)}</td><td>${fmtN(x.to)}</td><td>${x.ws?fmtN(x.ws):'—'}</td><td>${x.wx?fmtN(x.wx):'—'}</td><td style="font-weight:700;color:${x.al-x.ws>0?'var(--orange-d)':'var(--green-d)'}">${fmtN(x.al-x.ws)}</td><td class="l" style="font-size:12px">${x.why}</td></tr>`).join('');
+  document.getElementById('rc-tfoot').innerHTML=`<tr style="font-weight:800"><td class="l">महायोग</td><td></td><td>${fmtN(AL)}</td><td>${fmtN(TO)}</td><td>${fmtN(WS)}</td><td>${fmtN(WX)}</td><td>${fmtN(AL-WS)}</td><td></td></tr>`;
+}
 function renderForm7(rows){
   const num=v=>{ const n=Number(String(v).replace(/,/g,'').trim()); return isNaN(n)?0:n; };
   const hdr=rows[0].map(c=>String(c).trim()); const ix=n=>hdr.indexOf(n);
@@ -554,6 +607,7 @@ function renderForm7(rows){
     month:r[ix('Month')], sec:r[ix('Section')], code:r[ix('Scheme_Code')], name:r[ix('Scheme_Name')],
     al:num(r[ix('Allocation')]), up:num(r[ix('Upto_Last_Month')]), cu:num(r[ix('Current_Month')]), to:num(r[ix('Total_Exp')]) }));
   if(!R.length) return;
+  F7ROWS=R; renderRecon();
   const month=R[0].month||''; document.getElementById('f7-month').textContent=month;
   const S=k=>R.reduce((a,x)=>a+x[k],0); const AL=S('al'),UP=S('up'),CU=S('cu'),TO=S('to');
   document.getElementById('f7-kpi').innerHTML=[
@@ -579,6 +633,7 @@ function finishLoad(){
   buildFilters();
   applyFilters();
   document.getElementById('badge-works').textContent=`कार्य: ${ALL.length}`;
+  renderRecon();
   document.getElementById('badge-schemes').textContent=
     `योजनाएं: ${new Set(ALL.map(w=>w.scheme).filter(Boolean)).size}`;
   const now=new Date();
@@ -655,7 +710,7 @@ function renderOverview(){
 
   document.getElementById('kpi-area').innerHTML=`
     <div class="kpi accent-cyan"><div class="kpi-icon">💰</div>
-      <div class="kpi-lbl">स्वीकृत राशि</div>
+      <div class="kpi-lbl">कार्यवार स्वीकृत राशि</div>
       <div class="kpi-val">₹${lakh(sanc)}L</div>
       <div class="kpi-sub">${FILTERED.length} कार्य</div></div>
     <div class="kpi accent-green"><div class="kpi-icon">✅</div>
