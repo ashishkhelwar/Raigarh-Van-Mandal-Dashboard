@@ -126,6 +126,7 @@ footer{text-align:center;font-size:10.5px;color:var(--mut);padding:14px 0 6px}
 .card,.k{box-shadow:none;border:1px solid var(--line)}#vGraph,#vList{display:block!important}}
 #tb.hide-u .col-u{display:none}
 #tb.hide-c .col-c{display:none}
+tr.cx td{color:#C0392B!important;text-decoration:line-through;text-decoration-color:#C0392B}tr.cx td .cxb{display:inline-block;text-decoration:none;background:#C0392B;color:#fff;font-size:10.5px;font-weight:700;padding:0 6px;border-radius:8px;margin-left:4px}
 </style>
 <!-- Scrolling: full-page tables, back-to-top, progress bar -->
 <style>.scroll{max-height:none!important}@media(min-width:900px){.scroll{overflow:visible!important}}
@@ -433,12 +434,15 @@ function charts(){
   on("c6",i=>({fr:top[i].r,fwk:top[i].w,fsi:top[i].s}));
 }
 
+/* works cancelled by the division - kept in the Form-VII totals, shown struck through in red */
+const CANCELLED=["Plantation on Fagurram dam/Pond","Plantation on Porda Dam/Pond"];
+const isCx=r=>CANCELLED.includes(String(r.w).trim());
 function rowHTML(r){
   const p=r.pc, cls=p>=70?"p-hi":p>=30?"p-md":"p-lo";
-  return `<tr class="${r.x===0&&r.f>0?"nil":""}">
+  return `<tr class="${isCx(r)?"cx":r.x===0&&r.f>0?"nil":""}" ${isCx(r)?'title="परियोजना रद्द"':""}>
     <td><span class="rg" style="background:${RC[r.r]||"#666"}">${esc(r.r)}</span></td>
     <td style="font-size:11px;color:var(--mut)">${esc(r.t).replace(/^Table (\d+) - /,"T$1 \u00b7 ")}</td>
-    <td>${esc(r.h)}</td><td>${esc(r.w)}</td><td style="color:var(--mut)">${esc(r.s)}</td>
+    <td>${esc(r.h)}</td><td>${esc(r.w)}${isCx(r)?' <span class="cxb">रद्द</span>':""}</td><td style="color:var(--mut)">${esc(r.s)}</td>
     <td class="num">${r.p?(+r.p).toFixed(3).replace(/\.?0+$/,""):"\u2013"}</td>
     <td class="num">${r.f.toFixed(2)}</td>
     <td class="num col-u">${inr(r.u)}</td>
