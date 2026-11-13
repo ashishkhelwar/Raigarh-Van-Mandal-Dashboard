@@ -1015,11 +1015,11 @@ refreshChips(); renderReg(); srcKpis(); gaps();
 /* — कूप उत्पादन: live from the "Coupe Parivahan" Google Sheet (one tab per working circle) — */
 const CP_ID="1CMa9OH207cD40uyBw1fFE4gGCoWAiLnyb_WYUp5BGDk";
 const CP_TABS=[["SCI","2026-27 SCI","SCI फ़ेलिंग"],["IWC","2026-27 IWC","IWC फ़ेलिंग"],["RDBF","2026-27 RDBF","RDBF (बांस वन सुधार)"],["FCA","2026-27 FCA","FCA (वन व्यपवर्तन)"]];
-const CP_RANGES=["रायगढ़","घरघोड़ा","तमनार","खरसिया"];
+const CP_RANGES=["रायगढ़","घरघोड़ा","तमनार","खरसिया"].map(x=>x.normalize("NFC"));
 function cpCSV(t){const R=[];let r=[],f="",q=false;for(let i=0;i<t.length;i++){const c=t[i];
   if(q){if(c=='"'){if(t[i+1]=='"'){f+='"';i++}else q=false}else f+=c}
   else if(c=='"')q=true;else if(c==','){r.push(f);f=""}else if(c=='\n'){r.push(f);R.push(r);r=[];f=""}else if(c!='\r')f+=c}
-  if(f!==""||r.length){r.push(f);R.push(r)}return R}
+  if(f!==""||r.length){r.push(f);R.push(r)}return R.map(x=>x.map(c=>c.normalize("NFC")))}
 const cpGet=sh=>fetch("https://docs.google.com/spreadsheets/d/"+CP_ID+"/gviz/tq?tqx=out:csv&headers=0&sheet="+encodeURIComponent(sh)+"&_="+Date.now()).then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.text()}).then(cpCSV);
 const cpN=v=>{const x=parseFloat(String(v||"").replace(/,/g,""));return isNaN(x)?0:x};
 const cpF=(v,d)=>v?v.toLocaleString("en-IN",{minimumFractionDigits:d,maximumFractionDigits:d}):"–";
@@ -1031,7 +1031,7 @@ function cpParse(R){
   const out=[];let rg="",pt="";
   R.forEach(r=>{
     if(!r[st+1]&&!r[5]&&!r[6])return; if(!r[5]&&!r[6]&&!r[1])return;   /* header / total rows */
-    if(isNaN(cpN(r[st+1]))||!(r[5]||r[6]))return;
+    if(!/^\s*\d/.test(r[st+1]||"")||!(r[5]||r[6]))return;
     rg=(r[1]||"").trim()||rg; pt=(r[4]||"").trim()||pt;
     const g=k=>cpN(r[st+k]);
     out.push({rg,pt,cp:(r[5]||"").trim(),ck:(r[6]||"").trim(),area:st>8?cpN(r[8]):null,tr:st>8?(r[7]||"").trim():"",
