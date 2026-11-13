@@ -97,6 +97,7 @@ body{
 .kpi-u{font-size:12px;color:var(--mute);font-weight:600;margin-left:3px;font-family:var(--dev)}
 .kpi-s{font-size:12.5px;color:var(--dim);margin-top:4px}
 
+.cpk{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:11px}
 /* ══ TABLE ══ */
 .tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
 table{border-collapse:collapse;width:100%;font-size:14px}
@@ -237,7 +238,7 @@ addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});<
   <div>
     <div class="hdr-eyebrow">उत्पादन प्रभाग · मासिक निगरानी</div>
     <div class="hdr-t">रायगढ़ वनमंडल — उत्पादन डैशबोर्ड</div>
-    <div class="hdr-s">बिलासपुर वृत्त · वनमंडल स्तरीय प्रतिवेदन · प्रपत्र 18–27 एवं BD-001/002/004 · <b>Data updated: 17 Sep 2026</b></div>
+    <div class="hdr-s">बिलासपुर वृत्त · वनमंडल स्तरीय प्रतिवेदन · प्रपत्र 18–27 एवं BD-001/002/004 · <b>Data updated: 13 Nov 2026</b></div>
   </div>
   <div class="hdr-r">
     <b>जून 2026</b>
@@ -254,6 +255,7 @@ addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});<
   <button class="tab" onclick="go(4,this)">डिपो व नीलामी</button>
   <button class="tab" onclick="go(5,this)">निस्तार प्रदाय</button>
   <button class="tab" onclick="go(6,this)">राजस्व व बकाया</button>
+  <button class="tab" onclick="go(7,this)">कूप उत्पादन 2026-27 <span style="font-size:11px;opacity:.75">· लाइव</span></button>
 </div>
 
 <!-- ═══════════ 0 · सारांश ═══════════ -->
@@ -516,6 +518,25 @@ addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});<
 </div>
 
 </div>
+
+<!-- ═══════════ 7 · कूप उत्पादन (Google Sheet, live) ═══════════ -->
+<div class="pane" id="p7">
+  <div class="panel">
+    <div class="ph"><h2>कूप उत्पादन — SCI · IWC · RDBF · FCA</h2><span class="src">Google Sheet “Coupe Parivahan” · लाइव</span>
+      <span class="note" id="cpNote">शीट से पढ़ रहे हैं…</span>
+      <a class="btn" style="margin-left:auto;text-decoration:none" target="_blank" rel="noopener" href="https://docs.google.com/spreadsheets/d/1CMa9OH207cD40uyBw1fFE4gGCoWAiLnyb_WYUp5BGDk/edit">शीट खोलें ↗</a></div>
+    <div class="cpk" id="cpKpi"></div>
+  </div>
+  <div class="panel">
+    <div class="ph"><h2>सार — वर्ष एवं कार्य-वृत्तवार</h2><span class="src">Abstract टैब</span></div>
+    <div class="tw"><table>
+      <thead><tr><th class="l">वर्ष</th><th class="l">कार्य-वृत्त</th><th>मार्क वृक्ष</th><th>विदोहित</th><th>शेष</th><th>लक्ष्य इमारती (घ.मी.)</th><th>लक्ष्य जलाऊ (चट्टा)</th><th>उत्पादन इमारती</th><th>उत्पादन जलाऊ</th><th>परिवहित इमारती</th><th>परिवहित जलाऊ</th><th>कूप में शेष इमारती</th><th>कूप में शेष जलाऊ</th></tr></thead>
+      <tbody id="cpAbs"></tbody>
+    </table></div>
+  </div>
+  <div id="cpWC"></div>
+</div>
+
 
 <script>
 /* ══════════════ DATA — हर माह केवल यही खंड बदलें ══════════════ */
@@ -990,6 +1011,69 @@ function refreshChips(){
     v=>{fView=v==="पूर्ण रजिस्टर"?"full":"brief";refreshChips();renderReg();});
 }
 refreshChips(); renderReg(); srcKpis(); gaps();
+
+/* — कूप उत्पादन: live from the "Coupe Parivahan" Google Sheet (one tab per working circle) — */
+const CP_ID="1CMa9OH207cD40uyBw1fFE4gGCoWAiLnyb_WYUp5BGDk";
+const CP_TABS=[["SCI","2026-27 SCI","SCI फ़ेलिंग"],["IWC","2026-27 IWC","IWC फ़ेलिंग"],["RDBF","2026-27 RDBF","RDBF (बांस वन सुधार)"],["FCA","2026-27 FCA","FCA (वन व्यपवर्तन)"]];
+const CP_RANGES=["रायगढ़","घरघोड़ा","तमनार","खरसिया"];
+function cpCSV(t){const R=[];let r=[],f="",q=false;for(let i=0;i<t.length;i++){const c=t[i];
+  if(q){if(c=='"'){if(t[i+1]=='"'){f+='"';i++}else q=false}else f+=c}
+  else if(c=='"')q=true;else if(c==','){r.push(f);f=""}else if(c=='\n'){r.push(f);R.push(r);r=[];f=""}else if(c!='\r')f+=c}
+  if(f!==""||r.length){r.push(f);R.push(r)}return R}
+const cpGet=sh=>fetch("https://docs.google.com/spreadsheets/d/"+CP_ID+"/gviz/tq?tqx=out:csv&headers=0&sheet="+encodeURIComponent(sh)+"&_="+Date.now()).then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.text()}).then(cpCSV);
+const cpN=v=>{const x=parseFloat(String(v||"").replace(/,/g,""));return isNaN(x)?0:x};
+const cpF=(v,d)=>v?v.toLocaleString("en-IN",{minimumFractionDigits:d,maximumFractionDigits:d}):"–";
+const cpE=s=>String(s==null?"":s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"})[c]);
+/* rows: the status column ("प्रारंभ/अप्रारंभ") anchors the numeric block; SCI has extra transporter + area columns before it */
+function cpParse(R){
+  let st=-1;R.slice(0,4).forEach(r=>r.forEach((c,i)=>{if(st<0&&/प्रारंभ\/अप्रारंभ/.test(c))st=i}));
+  if(st<0)return [];
+  const out=[];let rg="",pt="";
+  R.forEach(r=>{
+    if(!r[st+1]&&!r[5]&&!r[6])return; if(!r[5]&&!r[6]&&!r[1])return;   /* header / total rows */
+    if(isNaN(cpN(r[st+1]))||!(r[5]||r[6]))return;
+    rg=(r[1]||"").trim()||rg; pt=(r[4]||"").trim()||pt;
+    const g=k=>cpN(r[st+k]);
+    out.push({rg,pt,cp:(r[5]||"").trim(),ck:(r[6]||"").trim(),area:st>8?cpN(r[8]):null,tr:st>8?(r[7]||"").trim():"",
+      st:(r[st]||"").trim(),mk:g(1),fl:g(2),rm:g(3),tT:g(4),tF:g(5),aT:g(6),aF:g(7),pT:g(8),pF:g(9),bT:g(10),bF:g(11),
+      rem:(r[st+13]||r[st+12]||"").trim()});
+  });
+  return out;
+}
+const cpSum=(a,k)=>a.reduce((s,x)=>s+(x[k]||0),0);
+function cpTable(key,label,rows){
+  const foreign=rows.length&&rows.every(x=>!CP_RANGES.some(n=>x.rg.indexOf(n)>=0));
+  if(!rows.length||foreign) return '<div class="panel"><div class="ph"><h2>'+label+'</h2><span class="src">टैब “2026-27 '+key+'”</span></div>'+
+    '<div class="foot" style="color:var(--peachtx)"><b>प्रविष्टि शेष।</b> '+(foreign?'शीट के इस टैब में अभी रायगढ़ वनमंडल के कूप नहीं हैं (नमूना पंक्तियाँ: '+cpE([...new Set(rows.map(x=>x.rg))].join(", "))+')। ':'')+'रायगढ़ के कूप भरते ही यहाँ स्वतः दिखेंगे।</div></div>';
+  const area=rows.some(x=>x.area!=null);
+  const b=rows.map(x=>'<tr><td class="l">'+cpE(x.rg)+'</td><td class="l">'+cpE(x.pt)+'</td><td>'+cpE(x.cp)+'</td><td>'+cpE(x.ck)+'</td>'+(area?'<td class="n">'+cpF(x.area,2)+'</td>':'')+
+    '<td class="l"><span class="pill '+(/^अप्रारंभ/.test(x.st)?'p-low':'p-ok')+'">'+cpE(x.st||'—')+'</span></td><td class="n">'+cpF(x.mk,0)+'</td><td class="n">'+cpF(x.fl,0)+'</td><td class="n">'+cpF(x.rm,0)+'</td>'+
+    '<td class="n">'+cpF(x.tT,3)+'</td><td class="n">'+cpF(x.tF,0)+'</td><td class="n">'+cpF(x.aT,3)+'</td><td class="n">'+cpF(x.aF,0)+'</td><td class="n">'+cpF(x.pT,3)+'</td><td class="n">'+cpF(x.pF,0)+'</td><td class="l">'+cpE(x.rem)+'</td></tr>').join('');
+  const t='<tr class="tot"><td class="l" colspan="'+(area?5:4)+'">योग — '+rows.length+' कक्ष</td><td></td><td class="n">'+cpF(cpSum(rows,"mk"),0)+'</td><td class="n">'+cpF(cpSum(rows,"fl"),0)+'</td><td class="n">'+cpF(cpSum(rows,"rm"),0)+'</td><td class="n">'+cpF(cpSum(rows,"tT"),3)+'</td><td class="n">'+cpF(cpSum(rows,"tF"),0)+'</td><td class="n">'+cpF(cpSum(rows,"aT"),3)+'</td><td class="n">'+cpF(cpSum(rows,"aF"),0)+'</td><td class="n">'+cpF(cpSum(rows,"pT"),3)+'</td><td class="n">'+cpF(cpSum(rows,"pF"),0)+'</td><td></td></tr>';
+  return '<div class="panel"><div class="ph"><h2>'+label+'</h2><span class="src">टैब “2026-27 '+key+'”</span><span class="note">इमारती घ.मी. · जलाऊ चट्टा</span></div><div class="tw"><table>'+
+    '<thead><tr><th class="l">परिक्षेत्र</th><th class="l">पातन श्रेणी</th><th>कूप</th><th>कक्ष</th>'+(area?'<th>रकबा (हे.)</th>':'')+'<th class="l">स्थिति</th><th>मार्क वृक्ष</th><th>विदोहित</th><th>शेष वृक्ष</th><th>लक्ष्य इमारती</th><th>लक्ष्य जलाऊ</th><th>उत्पादन इमारती</th><th>उत्पादन जलाऊ</th><th>परिवहित इमारती</th><th>परिवहित जलाऊ</th><th class="l">रिमार्क</th></tr></thead>'+
+    '<tbody>'+b+t+'</tbody></table></div></div>';
+}
+function cpLoad(){
+  Promise.all([cpGet("Abstract")].concat(CP_TABS.map(t=>cpGet(t[1]).catch(()=>[])))).then(([abs,...tabs])=>{
+    $id("cpAbs").innerHTML=abs.filter(r=>r[1]&&r[1]!=="Year").map(r=>{const tot=/total/i.test(r[1]);
+      return '<tr'+(tot?' class="tot"':'')+'><td class="l">'+cpE(r[1])+'</td><td class="l">'+cpE(r[2])+'</td>'+[3,4,5].map(i=>'<td class="n">'+cpF(cpN(r[i]),0)+'</td>').join('')+
+      '<td class="n">'+cpF(cpN(r[6]),3)+'</td><td class="n">'+cpF(cpN(r[7]),0)+'</td><td class="n">'+cpF(cpN(r[8]),3)+'</td><td class="n">'+cpF(cpN(r[9]),0)+'</td><td class="n">'+cpF(cpN(r[10]),3)+'</td><td class="n">'+cpF(cpN(r[11]),0)+'</td><td class="n">'+cpF(cpN(r[12]),3)+'</td><td class="n">'+cpF(cpN(r[13]),0)+'</td></tr>'}).join('');
+    const P=tabs.map(cpParse), own=P.map(rs=>rs.length&&rs.some(x=>CP_RANGES.some(n=>x.rg.indexOf(n)>=0))?rs:[]), all=[].concat(...own);
+    $id("cpWC").innerHTML=CP_TABS.map((t,i)=>cpTable(t[0],t[2],P[i])).join('');
+    const started=all.filter(x=>!/^अप्रारंभ/.test(x.st)).length, tT=cpSum(all,"tT"), aT=cpSum(all,"aT");
+    const K=[["t","कूप (कक्ष) 2026-27",all.length,"","SCI "+own[0].length+" · IWC "+own[1].length+" · RDBF "+own[2].length+" · FCA "+own[3].length],
+      ["c","कूप प्रारंभ",started,"",(all.length-started)+" अप्रारंभ"],
+      ["q","मार्क वृक्ष",cpSum(all,"mk"),"नग",cpF(cpSum(all,"fl"),0)+" विदोहित · "+cpF(cpSum(all,"rm"),0)+" शेष"],
+      ["p","लक्ष्य इमारती",tT,"घ.मी.","जलाऊ "+cpF(cpSum(all,"tF"),0)+" चट्टा"],
+      ["t","वास्तविक उत्पादन इमारती",aT,"घ.मी.",(tT?(aT/tT*100).toFixed(1):"0")+"% लक्ष्य का · जलाऊ "+cpF(cpSum(all,"aF"),0)+" चट्टा"],
+      ["q","परिवहित इमारती",cpSum(all,"pT"),"घ.मी.","कूप में शेष "+cpF(cpSum(all,"bT"),3)+" घ.मी."]];
+    $id("cpKpi").innerHTML=K.map(k=>'<div class="kpi '+k[0]+'"><div class="kpi-l">'+k[1]+'</div><div class="kpi-v">'+(k[3]==="घ.मी."?cpF(k[2],3):cpF(k[2],0))+'<span class="kpi-u">'+k[3]+'</span></div><div class="kpi-s">'+k[4]+'</div></div>').join('');
+    $id("cpNote").textContent="लाइव · शीट से "+new Date().toLocaleString("hi-IN",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"})+" पर पढ़ा";
+  }).catch(e=>{$id("cpNote").innerHTML='<b style="color:var(--coral)">शीट नहीं पढ़ी जा सकी ('+cpE(e.message)+')</b> — शीट की शेयरिंग “Anyone with the link → Viewer” रखें।'});
+}
+const $id=x=>document.getElementById(x);
+cpLoad();
 
 /* — tabs — */
 function go(i,el){
