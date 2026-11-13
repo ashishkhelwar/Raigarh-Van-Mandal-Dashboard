@@ -562,6 +562,8 @@ $("tGraph").onclick=()=>{fromGraph=false;setView("graph")};
 $("tList").addEventListener("click",()=>{fromGraph=false});
 
 /* table numbers in order: T1, T3, T4 ... T14 (not T1, T10, T12 ...) */
+/* heads / works / sites follow the table order (T1 onwards), then their order in the sheet */
+const tord=k=>[...new Set(DATA.slice().sort((a,b)=>tsort(a.t,b.t)).map(d=>d[k]))];
 const tsort=(a,b)=>(+((/\d+/.exec(a)||[0])[0]))-(+((/\d+/.exec(b)||[0])[0]))||String(a).localeCompare(String(b));
 function initFilters(){
   $("fr").innerHTML='<option value="">All ranges</option>';
@@ -569,9 +571,9 @@ function initFilters(){
   $("ft").innerHTML='<option value="">All tables</option>';
   [...new Set(DATA.map(d=>d.t))].sort(tsort).forEach(t=>$("ft").add(new Option(t.replace(/^Table (\d+) - /,"T$1 \u00b7 "),t)));
   $("fh").innerHTML='<option value="">All activity heads</option>';
-  [...new Set(DATA.map(d=>d.h))].sort().forEach(h=>$("fh").add(new Option(h,h)));
+  tord("h").forEach(h=>$("fh").add(new Option(h,h)));
   $("fwk").innerHTML='<option value="">All works</option>';
-  [...new Set(DATA.map(d=>d.w))].sort().forEach(w=>$("fwk").add(new Option(w.length>60?w.slice(0,58)+"\u2026":w,w)));
+  tord("w").forEach(w=>$("fwk").add(new Option(w.length>60?w.slice(0,58)+"\u2026":w,w)));
 }
 $("fr").onchange=e=>{S.r=e.target.value;S.pg=0;render()};
 $("ft").onchange=e=>{S.t=e.target.value;S.pg=0;render()};
