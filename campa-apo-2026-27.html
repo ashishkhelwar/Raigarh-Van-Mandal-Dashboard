@@ -458,7 +458,7 @@ function charts(){
      plugins:{legend:LEG,tooltip:{callbacks:{label:c=>c.dataset.label+": "+
        (c.datasetIndex===3?c.parsed.y.toFixed(1)+"%":"\u20B9"+c.parsed.y.toFixed(2)+" L")}}}});
 
-  const ts=[...new Set(d.map(x=>x.t))].sort();
+  const ts=[...new Set(d.map(x=>x.t))].sort(tsort);
   mk("c3","bar",{labels:ts.map(t=>t.replace(/^Table (\d+) - /,"T$1: ").slice(0,26)),
     datasets:rs.map(r=>({label:r,data:ts.map(t=>sum(d.filter(x=>x.t===t&&x.r===r),"fpr")),
       backgroundColor:RC[r]||"#999",borderRadius:3}))},
@@ -504,7 +504,7 @@ function table(){
   let html="";
   if(S.grp){
     $("pg").innerHTML="";
-    [...new Set(all.map(x=>x.t))].sort().forEach(t=>{
+    [...new Set(all.map(x=>x.t))].sort(tsort).forEach(t=>{
       const g=all.filter(x=>x.t===t).sort(cmp);
       html += `<tr class="grp"><td colspan="6">${esc(t)} &nbsp;&mdash;&nbsp; ${g.length} items</td>
         <td class="num ctr">${inr(sum(g,"fpr"))}</td>
@@ -561,11 +561,13 @@ document.querySelectorAll(".tab[data-b]").forEach(b=>b.onclick=()=>{S.bmin=+b.da
 $("tGraph").onclick=()=>{fromGraph=false;setView("graph")};
 $("tList").addEventListener("click",()=>{fromGraph=false});
 
+/* table numbers in order: T1, T3, T4 ... T14 (not T1, T10, T12 ...) */
+const tsort=(a,b)=>(+((/\d+/.exec(a)||[0])[0]))-(+((/\d+/.exec(b)||[0])[0]))||String(a).localeCompare(String(b));
 function initFilters(){
   $("fr").innerHTML='<option value="">All ranges</option>';
   RANGES.filter(r=>DATA.some(d=>d.r===r)).forEach(r=>$("fr").add(new Option(r,r)));
   $("ft").innerHTML='<option value="">All tables</option>';
-  [...new Set(DATA.map(d=>d.t))].sort().forEach(t=>$("ft").add(new Option(t.replace(/^Table (\d+) - /,"T$1 \u00b7 "),t)));
+  [...new Set(DATA.map(d=>d.t))].sort(tsort).forEach(t=>$("ft").add(new Option(t.replace(/^Table (\d+) - /,"T$1 \u00b7 "),t)));
   $("fh").innerHTML='<option value="">All activity heads</option>';
   [...new Set(DATA.map(d=>d.h))].sort().forEach(h=>$("fh").add(new Option(h,h)));
   $("fwk").innerHTML='<option value="">All works</option>';
