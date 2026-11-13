@@ -189,7 +189,7 @@ addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});<
       <option value="prog">Has 2026-27 proposal</option>
     </select></div>
   <div class="fg"><input type="search" id="fq" placeholder="Search activity / site / head&hellip;"></div>
-  <label class="chip" title="शेष (Balance) ₹20,000 से कम वाले कार्य सूची से छिपाएँ; KPI व ग्राफ़ में सब शामिल"><input type="checkbox" id="fhb" checked> शेष ₹20,000 से कम छिपाएँ</label>
+  <label class="chip" title="इस राशि से कम शेष (Balance) वाले कार्य सूची से छिपाएँ; राशि बदल सकते हैं। KPI व ग्राफ़ में सब शामिल"><input type="checkbox" id="fhb" checked> शेष ₹<input type="number" id="fha" value="20000" min="0" step="5000" inputmode="numeric" aria-label="छिपाने की सीमा (₹)" style="width:86px;font:inherit;padding:1px 4px;margin:0 3px;border:1px solid #c9d3d8;border-radius:4px"> से कम छिपाएँ</label>
   <button class="reset" id="rs">Reset</button>
 </div>
 
@@ -496,11 +496,11 @@ function rowHTML(r){
 }
 function table(){
   const full=[...filt()], hideLow=$("fhb").checked && !S.bmin;
-  const all=hideLow?full.filter(d=>!(d.frm<0.2)):full, k=S.sk, dir=S.sd, nHid=full.length-all.length;
+  const all=hideLow?full.filter(d=>!(d.frm*1e5<HB())):full, k=S.sk, dir=S.sd, nHid=full.length-all.length;
   const cmp=(a,b)=>{ const x=a[k], y=b[k];
     if(typeof x==="string") return dir*String(x).localeCompare(String(y)); return dir*((x||0)-(y||0)); };
   $("nList").textContent = "("+NALL+")";
-  $("cnt").textContent = `${all.length} line item${all.length!==1?"s":""} \u00b7 ${cr(sum(all,"fpr"))} estimated \u00b7 ${cr(sum(all,"fex"))} expenditure \u00b7 ${cr(sum(all,"frm"))} balance` + (nHid?` \u00b7 ${nHid} छिपे (शेष < \u20B920,000)`:"");
+  $("cnt").textContent = `${all.length} line item${all.length!==1?"s":""} \u00b7 ${cr(sum(all,"fpr"))} estimated \u00b7 ${cr(sum(all,"fex"))} expenditure \u00b7 ${cr(sum(all,"frm"))} balance` + (nHid?` \u00b7 ${nHid} छिपे (शेष < \u20B9${HB().toLocaleString("en-IN")})`:"");
   if(!all.length){ $("tbody").innerHTML=`<tr><td colspan="9" class="empty">No works match these filters.</td></tr>`;
     $("tfoot").innerHTML=""; $("pg").innerHTML=""; return; }
   let html="";
@@ -582,13 +582,16 @@ $("ft").onchange=e=>{S.t=e.target.value;S.pg=0;render()};
 $("fh").onchange=e=>{S.h=e.target.value;S.pg=0;render()};
 $("fwk").onchange=e=>{S.w=e.target.value;S.pg=0;render()};
 $("fhb").onchange=()=>{S.pg=0;render()};
+$("fha").oninput=()=>{S.pg=0;render()};
+/* hide-below amount, typed by the user (default ₹20,000) */
+function HB(){ const v=parseFloat($("fha").value); return isNaN(v)||v<0?0:v; }
 $("fs2").onchange=e=>{S.st=e.target.value;S.pg=0;render()};
 $("gp").onchange=e=>{S.grp=e.target.checked;S.pg=0;table()};
 let tm; $("fq").oninput=e=>{clearTimeout(tm);tm=setTimeout(()=>{S.q=e.target.value;S.pg=0;render()},180)};
 $("rs").onclick=()=>{ const v=S.view;
   S={r:"",t:"",h:"",w:"",st:"",q:"",sk:"fpr",sd:-1,grp:true,pg:0,view:v};
   $("fr").value="";$("ft").value="";$("fh").value="";$("fwk").value="";$("fs2").value="";$("fq").value="";
-  $("gp").checked=true;$("fhb").checked=true;render(); if(fromGraph){fromGraph=false;setView("graph");} };
+  $("gp").checked=true;$("fhb").checked=true;$("fha").value=20000;render(); if(fromGraph){fromGraph=false;setView("graph");} };
 
 document.querySelectorAll("#tb thead th").forEach(th=>{
   th.onclick=()=>{ const k=th.dataset.k; S.sd=(S.sk===k)?-S.sd:-1; S.sk=k; S.pg=0;
