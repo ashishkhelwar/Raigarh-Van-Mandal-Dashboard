@@ -20,7 +20,7 @@ body{font-family:Arial,'Nirmala UI','Noto Sans Devanagari','Kohinoor Devanagari'
 #sidebar .logo span{display:block;font-size:10px;opacity:.7;margin-top:3px;}
 #sidebar .nav-group{padding:8px 0;}
 #sidebar .nav-label{font-size:10px;text-transform:uppercase;opacity:.5;padding:6px 12px 3px;}
-#sidebar a{display:block;padding:7px 12px 7px 16px;color:rgba(255,255,255,.8);text-decoration:none;font-size:12px;border-left:3px solid transparent;transition:all .15s;}
+#sidebar a{display:block;padding:7px 12px 7px 16px;color:rgba(255,255,255,.8);text-decoration:none;font-size:12px;border-left:3px solid transparent;transition:background-color 150ms var(--ease-out),color 150ms var(--ease-out),border-color 150ms var(--ease-out);}
 #sidebar a:hover,#sidebar a.active{background:rgba(255,255,255,.12);color:#fff;border-left-color:#70AD47;}
 #sidebar .open-sheet{margin:10px;padding:7px;background:#70AD47;color:#fff;text-align:center;border-radius:4px;font-size:11px;font-weight:bold;text-decoration:none;display:block;}
 #sidebar .open-sheet:hover{background:#548235;}
@@ -164,6 +164,7 @@ addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});<
  background:#1c4335;color:#fff;font:600 13px system-ui,'Nirmala UI',sans-serif;text-decoration:none;box-shadow:0 4px 12px rgba(0,0,0,.28);opacity:.92}
 #homeBtn:hover{opacity:1}#kpiToggle{left:118px!important;bottom:17px!important}@media print{#homeBtn{display:none}}</style>
 <script>document.addEventListener("DOMContentLoaded",function(){var a=document.createElement("a");a.id="homeBtn";a.href="./index.html";a.title="होम — रायगढ़ वनमंडल हब";a.innerHTML="\uD83C\uDFE0 होम";document.body.appendChild(a)});</script>
+<link rel="stylesheet" href="./ui-polish.css">
 </head>
 <body>
 

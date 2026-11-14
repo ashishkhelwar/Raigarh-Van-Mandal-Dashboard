@@ -90,7 +90,7 @@ td.mcell.muted, td.pcell.muted { color:#bbb; }
   .s-done { background:#e8f5e9; color:#2e7d32; } .s-prog { background:#fff8e1; color:#f57f17; } .s-pend { background:#fce4ec; color:#c62828; }
   @media (max-width:768px) {
     .topbar { display:flex; }
-    .sidebar { position:fixed; top:0; left:0; height:100%; transform:translateX(-100%); transition:transform .25s ease; z-index:20; width:250px; overflow-y:auto; }
+    .sidebar { position:fixed; top:0; left:0; height:100%; transform:translateX(-100%); transition:transform 320ms var(--ease-drawer); z-index:20; width:250px; overflow-y:auto; }
     .sidebar.open { transform:translateX(0); }
     .main { padding:16px 14px; } .main h1 { font-size:16px; }
     .tree-toggle.level1 { flex-wrap:wrap; }
@@ -124,6 +124,7 @@ addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});<
  background:#1c4335;color:#fff;font:600 13px system-ui,'Nirmala UI',sans-serif;text-decoration:none;box-shadow:0 4px 12px rgba(0,0,0,.28);opacity:.92}
 #homeBtn:hover{opacity:1}#kpiToggle{left:118px!important;bottom:17px!important}@media print{#homeBtn{display:none}}</style>
 <script>document.addEventListener("DOMContentLoaded",function(){var a=document.createElement("a");a.id="homeBtn";a.href="./index.html";a.title="होम — रायगढ़ वनमंडल हब";a.innerHTML="\uD83C\uDFE0 होम";document.body.appendChild(a)});</script>
+<link rel="stylesheet" href="./ui-polish.css">
 </head>
 <body>
 <div class="topbar">

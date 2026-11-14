@@ -64,25 +64,25 @@ body{
 .tab{
   background:var(--card);border:1px solid var(--border);border-radius:14px;
   padding:12px 22px;cursor:pointer;font-size:15px;font-weight:600;
-  color:var(--ink-soft);transition:all .22s;box-shadow:var(--shadow);
+  color:var(--ink-soft);transition:background-color 160ms var(--ease-out),color 160ms var(--ease-out),box-shadow 160ms var(--ease-out),transform 160ms var(--ease-out);box-shadow:var(--shadow);
 }
-.tab:hover{color:var(--ink);background:var(--card-hover);transform:translateY(-2px)}
+.tab:hover{color:var(--ink);background:var(--card-hover)}
 .tab.active{color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent-d));
   border-color:var(--accent-d);box-shadow:0 6px 20px rgba(201,152,90,0.35)}
 
 /* ── Content ── */
-.content{display:none;animation:fadeIn .4s}
+.content{display:none;animation:fadeIn 180ms var(--ease-out)}
 .content.active{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 
 /* ── KPI cards ── */
 .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px;margin-bottom:22px}
 .kpi{
   background:var(--card);border:1px solid var(--border);border-radius:18px;
   padding:20px 22px;box-shadow:var(--shadow);position:relative;overflow:hidden;
-  transition:transform .22s,box-shadow .22s;
+  transition:transform 200ms var(--ease-out),box-shadow 200ms var(--ease-out);
 }
-.kpi:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+.kpi:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
 .kpi-icon{font-size:24px;margin-bottom:9px}
 .kpi-lbl{font-size:12.5px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.6px}
 .kpi-val{font-size:28px;font-weight:800;margin-top:7px;color:var(--ink)}
@@ -104,14 +104,14 @@ body{
   background:var(--cream);color:var(--ink);
   border:1px solid var(--border);border-radius:11px;
   padding:11px 14px;font-size:15px;font-family:inherit;font-weight:500;
-  cursor:pointer;transition:all .2s;
+  cursor:pointer;transition:background-color 160ms var(--ease-out),border-color 160ms var(--ease-out),color 160ms var(--ease-out),transform 160ms var(--ease-out);
 }
 .filter-group select:focus{outline:none;box-shadow:0 0 0 3px rgba(201,152,90,0.28);
   background:#fff;border-color:var(--accent)}
 .filter-reset{
   background:var(--cream-2);border:1px solid var(--border);
   color:var(--ink);border-radius:11px;padding:11px 20px;font-size:14px;font-weight:600;
-  cursor:pointer;transition:all .2s;white-space:nowrap;
+  cursor:pointer;transition:background-color 160ms var(--ease-out),border-color 160ms var(--ease-out),color 160ms var(--ease-out),transform 160ms var(--ease-out);white-space:nowrap;
 }
 .filter-reset:hover{background:rgba(199,123,107,0.15);border-color:var(--rose);color:var(--rose)}
 
@@ -128,11 +128,11 @@ body{
 .gcard{
   background:var(--card);border:1px solid var(--border);border-radius:18px;
   padding:20px 22px;box-shadow:var(--shadow);position:relative;overflow:hidden;
-  transition:transform .22s,box-shadow .22s;
+  transition:transform 200ms var(--ease-out),box-shadow 200ms var(--ease-out);
 }
 .gcard{cursor:pointer}
 tr.go-row{cursor:pointer}
-.gcard:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);background:var(--card-hover)}
+.gcard:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg);background:var(--card-hover)}
 .gcard-title{font-size:15.5px;font-weight:700;line-height:1.45;margin-bottom:14px;
   color:var(--ink);word-wrap:break-word;overflow-wrap:break-word}
 .gcard-nums{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:14px}
@@ -143,7 +143,7 @@ tr.go-row{cursor:pointer}
 .gnum-val.s{color:var(--accent-d)}.gnum-val.v{color:var(--green-d)}.gnum-val.b{color:var(--orange-d)}
 .gbar-track{background:var(--cream-2);border-radius:10px;height:11px;overflow:hidden;
   border:1px solid var(--border-soft)}
-.gbar-fill{height:100%;border-radius:10px;transition:width .6s cubic-bezier(.4,0,.2,1);
+.gbar-fill{height:100%;border-radius:10px;transition:width 450ms var(--ease-out);
   background:linear-gradient(90deg,var(--accent),var(--green))}
 .gbar-foot{display:flex;justify-content:space-between;font-size:13px;color:var(--ink-soft);margin-top:8px;font-weight:500}
 .gcard-meta{display:inline-block;margin-bottom:10px;font-size:12px;color:var(--ink-soft);
@@ -190,7 +190,7 @@ tfoot td.num{text-align:right;font-variant-numeric:tabular-nums}
 .hbar-label{flex:0 0 60px;font-size:12.5px;font-weight:600;text-align:right;color:var(--ink-soft)}
 .hbar-track{flex:1;background:var(--cream-2);border-radius:8px;height:26px;position:relative;
   border:1px solid var(--border-soft);overflow:hidden}
-.hbar-fill{height:100%;border-radius:8px;transition:width .8s cubic-bezier(.4,0,.2,1);
+.hbar-fill{height:100%;border-radius:8px;transition:width 450ms var(--ease-out);
   display:flex;align-items:center;justify-content:center;
   font-size:12px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden}
 .hbar-sanc{background:linear-gradient(90deg,var(--blue),#9BBEC6)}
@@ -208,7 +208,7 @@ tfoot td.num{text-align:right;font-variant-numeric:tabular-nums}
 .refresh-btn{
   background:var(--cream-2);border:1px solid var(--border);color:var(--ink);
   border-radius:11px;padding:9px 18px;font-size:14px;font-weight:600;cursor:pointer;
-  transition:all .2s;
+  transition:background-color 160ms var(--ease-out),border-color 160ms var(--ease-out),color 160ms var(--ease-out),transform 160ms var(--ease-out);
 }
 .refresh-btn:hover{background:var(--accent);color:#fff;border-color:var(--accent-d)}
 
@@ -252,6 +252,7 @@ addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});<
  background:#1c4335;color:#fff;font:600 13px system-ui,'Nirmala UI',sans-serif;text-decoration:none;box-shadow:0 4px 12px rgba(0,0,0,.28);opacity:.92}
 #homeBtn:hover{opacity:1}#kpiToggle{left:118px!important;bottom:17px!important}@media print{#homeBtn{display:none}}</style>
 <script>document.addEventListener("DOMContentLoaded",function(){var a=document.createElement("a");a.id="homeBtn";a.href="./index.html";a.title="होम — रायगढ़ वनमंडल हब";a.innerHTML="\uD83C\uDFE0 होम";document.body.appendChild(a)});</script>
+<link rel="stylesheet" href="./ui-polish.css">
 </head>
 <body>
 <div class="wrap">

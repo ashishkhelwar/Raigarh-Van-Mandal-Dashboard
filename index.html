@@ -193,7 +193,7 @@ a:hover{text-decoration:underline}
   user-select:none;
 }
 .disc summary::-webkit-details-marker{display:none}
-.disc summary .tri{transition:transform .15s ease; font-size:10px; color:var(--gold)}
+.disc summary .tri{transition:transform 160ms var(--ease-out); font-size:10px; color:var(--gold)}
 .disc[open] summary .tri{transform:rotate(90deg)}
 .disc .note-body{padding:2px 0 10px; font-size:12.5px; color:var(--ink-soft)}
 .disc .note-body dl{margin:0}
@@ -211,7 +211,7 @@ a:hover{text-decoration:underline}
   font-size:13.5px; font-weight:600; cursor:pointer; text-decoration:none;
 }
 .open:hover{background:var(--forest-mid); text-decoration:none}
-.open svg{transition:transform .15s ease}
+.open svg{transition:transform 160ms var(--ease-out)}
 .open:hover svg{transform:translateX(3px)}
 .open.disabled{
   background:var(--surface); color:var(--ink-faint); border:1px dashed var(--rule-strong);
@@ -343,6 +343,7 @@ p.id="sProg";b.id="sTop";b.textContent="\u2191";b.title="ऊपर जाएँ"
 b.onclick=function(){scrollTo({top:0,behavior:"smooth"})};
 function u(){var y=scrollY,m=d.scrollHeight-innerHeight;b.classList.toggle("on",y>400);p.style.width=(m>0?y/m*100:0)+"%"}
 addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});</script>
+<link rel="stylesheet" href="./ui-polish.css">
 </head>
 <body>
 <div class="wrap">

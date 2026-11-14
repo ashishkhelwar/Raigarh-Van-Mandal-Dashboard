@@ -41,7 +41,7 @@
   .filters { background: var(--surface2); border-bottom: 1px solid var(--border); padding: 10px 24px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
   .filters input[type=text] { border: 1px solid var(--border); border-radius: var(--radius); padding: 5px 10px; font-size: 12.6px; width: 200px; background: #fff; }
   .filter-chips { display: flex; gap: 6px; flex-wrap: wrap; }
-  .chip { padding: 4px 10px; border-radius: 20px; font-size: 12.6px; font-weight: 600; cursor: pointer; border: 1.5px solid transparent; transition: all 0.15s; user-select: none; }
+  .chip { padding: 4px 10px; border-radius: 20px; font-size: 12.6px; font-weight: 600; cursor: pointer; border: 1.5px solid transparent; transition: border-color 150ms var(--ease-out), background-color 150ms var(--ease-out), color 150ms var(--ease-out), transform 160ms var(--ease-out); user-select: none; }
   .chip.active { border-color: var(--forest); background: var(--forest); color: #fff; }
   .chip:not(.active) { border-color: #cbd5c8; background: #fff; color: #374151; }
   .chip:not(.active):hover { border-color: var(--forest-light); }
@@ -208,6 +208,7 @@ addEventListener("scroll",u,{passive:true});addEventListener("resize",u);u()});<
  background:#1c4335;color:#fff;font:600 11.7px system-ui,'Nirmala UI',sans-serif;text-decoration:none;box-shadow:0 4px 12px rgba(0,0,0,.28);opacity:.92}
 #homeBtn:hover{opacity:1}#kpiToggle{left:118px!important;bottom:17px!important}@media print{#homeBtn{display:none}}</style>
 <script>document.addEventListener("DOMContentLoaded",function(){var a=document.createElement("a");a.id="homeBtn";a.href="./index.html";a.title="होम — रायगढ़ वनमंडल हब";a.innerHTML="\uD83C\uDFE0 होम";document.body.appendChild(a)});</script>
+<link rel="stylesheet" href="./ui-polish.css">
 </head>
 <body>
 
