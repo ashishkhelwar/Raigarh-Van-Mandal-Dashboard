@@ -436,8 +436,9 @@ function charts(){
 }
 
 /* works cancelled by the division - kept in the Form-VII totals, shown struck through in red */
-const CANCELLED=["Plantation on Fagurram dam/Pond","Plantation on Porda Dam/Pond"];
-const isCx=r=>CANCELLED.includes(String(r.w).trim());
+const CANCELLED=["Plantation on Fagurram dam/Pond","Plantation on Porda Dam/Pond",
+  "Rehabilitation existing ecosystem improvement|1280 PF","Development of grassland|Porda Dam"];
+const isCx=r=>{const w=String(r.w).trim(),s=String(r.s||"").trim();return CANCELLED.includes(w)||CANCELLED.includes(w+"|"+s);};
 function rowHTML(r){
   const p=r.pc, cls=p>=70?"p-hi":p>=30?"p-md":"p-lo";
   return `<tr class="${isCx(r)?"cx":r.x===0&&r.f>0?"nil":""}" ${isCx(r)?'title="परियोजना रद्द"':""}>
@@ -495,7 +496,7 @@ function goPg(n){ S.pg=n; table(); $("sc").scrollTop=0; }
 function render(){
   $("ttl").textContent = CFG.Dashboard_Title || "CAMPA APO \u2014 Range-wise Progress";
   $("stl").innerHTML = `${esc(CFG.Division)} Forest Division, ${esc(CFG.Circle)} Circle &middot; ${esc(CFG.Form)}
-    &middot; Expenditure position as on ${esc(CFG.Reporting_Month)} &middot; <b>Data updated: 13 Nov 2026</b>`;
+    &middot; Expenditure position as on ${esc(CFG.Reporting_Month)} &middot; <b>Data updated: 20 Nov 2026</b>`;
   $("ftr").innerHTML = `Source: ${esc(CFG.Form)}, State CAMPA APO ${esc(CFG.APO_Year)}, ${esc(CFG.Division)} Division
     &mdash; ${esc(CFG.Reporting_Month)} &middot; APO 2024-25 excluded`;
   $("hlName").textContent = String(CFG.Highlight_Work||"").replace(/^Construction of /,"");
