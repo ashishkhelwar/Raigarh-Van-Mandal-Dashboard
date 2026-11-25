@@ -490,12 +490,15 @@ function charts(){
 const CANCELLED=["Plantation on Fagurram dam/Pond","Plantation on Porda Dam/Pond",
   "Rehabilitation existing ecosystem improvement|1280 PF","Development of grassland|Porda Dam"];
 const isCx=r=>{const w=String(r.w).trim(),s=String(r.s||"").trim();return CANCELLED.includes(w)||CANCELLED.includes(w+"|"+s);};
+/* project estimate PDFs (campa-projects/2025-26) – key = site, or "head|site" */
+const PDF={"Sonbarsa (Adajhar) 1194 PF": "campa-projects/2025-26/1194PF-Sonbarsa-SafetyZone.pdf", "Village - Gudgahan": "campa-projects/2025-26/CA-Gudgahan.pdf", "Gudgahan": "campa-projects/2025-26/CA-Gudgahan.pdf", "Dumarmuda 1017 RF": "campa-projects/2025-26/1017-Dumarmuda-SafetyZone.pdf", "1163 PF Banjarbhatha": "campa-projects/2025-26/PCA-1163PF-Banjarbhatha.pdf", "Khadhar 865 PF": "campa-projects/2025-26/TxLine-865-Khaddhar.pdf", "1177, 1179, 1181, 1182 RF & Revenue land": "campa-projects/2025-26/TxLine-1177-1182RF.pdf", "Village - Bangursiya": "campa-projects/2025-26/CA-Bangursiya.pdf", "Bangursiya": "campa-projects/2025-26/CA-Bangursiya.pdf", "Avi-fauna|977 PF, Sapnai": "campa-projects/2025-26/Avifauna-977PF-Sapnai.pdf", "Village - Chakradharpur": "campa-projects/2025-26/CA-Chakradharpur.pdf", "Chakradharpur": "campa-projects/2025-26/CA-Chakradharpur.pdf", "Village - Natwarpur": "campa-projects/2025-26/CA-Natwarpur.pdf", "Natwarpur": "campa-projects/2025-26/CA-Natwarpur.pdf", "1010 RF & Revenue Forest land": "campa-projects/2025-26/TxLine-1010RF.pdf", "Avi-fauna|1028 OA, Rengalpali": "campa-projects/2025-26/Avifauna-1028OA-Kathani.pdf", "Darama 1183 RF": "campa-projects/2025-26/TxLine-1183RF-Darama.pdf"};
+const pdfOf=r=>PDF[r.h+"|"+r.s]||PDF[r.s];
 function rowHTML(r){
   const p=r.pc, cls=p>=70?"p-hi":p>=30?"p-md":"p-lo";
   return `<tr class="${isCx(r)?"cx":r.x===0&&r.f>0?"nil":""}" ${isCx(r)?'title="परियोजना रद्द"':""}>
     <td><span class="rg" style="background:${RC[r.r]||"#666"}">${esc(r.r)}</span></td>
     <td style="font-size:11px;color:var(--mut)">${esc(r.t).replace(/^Table (\d+) - /,"T$1 \u00b7 ")}</td>
-    <td>${esc(r.h)}</td><td>${esc(r.w)}${isCx(r)?' <span class="cxb">रद्द</span>':""}</td><td style="color:var(--mut)">${esc(r.s)}</td>
+    <td>${esc(r.h)}</td><td>${esc(r.w)}${isCx(r)?' <span class="cxb">रद्द</span>':""}</td><td style="color:var(--mut)">${pdfOf(r)?`<a href="${pdfOf(r)}" target="_blank" rel="noopener" title="परियोजना PDF खोलें">${esc(r.s)} 📄</a>`:esc(r.s)}</td>
     <td class="num">${r.p?(+r.p).toFixed(3).replace(/\.?0+$/,""):"\u2013"}</td>
     <td class="num">${r.f.toFixed(2)}</td>
     <td class="num col-u">${inr(r.u)}</td>
