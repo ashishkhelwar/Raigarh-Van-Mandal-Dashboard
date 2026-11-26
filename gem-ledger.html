@@ -315,6 +315,10 @@
   /* the parent contract number gets its own unbroken line — a hyphen must not
      become a line break inside an identifier */
   .addendum-note{ color:var(--margin-red); }
+  /* notes under a contract number wrap at the number's width — they must not widen the column */
+  @media (min-width: 821px){
+    .col-contract .contract-ref{ white-space:normal; width:0; min-width:100%; }
+  }
   .contract-ref .ref-no{
     display:block; font-family:"IBM Plex Mono",monospace; white-space:nowrap;
   }
