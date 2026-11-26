@@ -485,11 +485,14 @@ function charts(){
   on("c6",i=>({fh:top[i].h}));
 }
 
+/* project PDFs – key = site, or "head|site"; 2026-27 approval letters + 2025-26 estimates for continuing projects */
+const PDF={"1163 PF": "campa-projects/CAMPA-2026-27-Letter-3360.pdf", "OA Baigabahri (west)": "campa-projects/CAMPA-2026-27-Letter-3353.pdf", "Kh. No. 244/1, 244/2": "campa-projects/CAMPA-2026-27-Letter-3355.pdf", "SECL Jampali|1161 PF": "campa-projects/CAMPA-2026-27-Letter-3362.pdf", "SECL Jampali|1235 PF": "campa-projects/CAMPA-2026-27-Letter-3362.pdf", "251.646 ha SECL Jampali Projects|Road side Plantation and Nearly lease area Plantation": "campa-projects/CAMPA-2026-27-Letter-3963.pdf", "224.220 ha Ambuja Cement Limited|Road side Plantation and Nearly lease area Plantation": "campa-projects/CAMPA-2026-27-Letter-3963.pdf", "ROW Plantation": "campa-projects/CAMPA-2026-27-Letter-3963.pdf", "Patch Plantation": "campa-projects/CAMPA-2026-27-Letter-3963.pdf", "Village - Natwarpur": "campa-projects/2025-26/CA-Natwarpur.pdf", "Village - Chakradharpur": "campa-projects/2025-26/CA-Chakradharpur.pdf", "Village - Bangursiya": "campa-projects/2025-26/CA-Bangursiya.pdf", "Village - Gudgahan": "campa-projects/2025-26/CA-Gudgahan.pdf", "सोनबरसा (आड़ाझर) 1194 पी.एफ.": "campa-projects/2025-26/1194PF-Sonbarsa-SafetyZone.pdf", "डुमरमुड़ा 1017 आर.एफ.": "campa-projects/2025-26/1017-Dumarmuda-SafetyZone.pdf", "1010 RF and Revenue Forest land": "campa-projects/2025-26/TxLine-1010RF.pdf", "खड़धार 865 PF": "campa-projects/2025-26/TxLine-865-Khaddhar.pdf", "1177, 1179, 1181, 1182 RF and Revenue forest Land": "campa-projects/2025-26/TxLine-1177-1182RF.pdf", "डारआमा 1183 RF": "campa-projects/2025-26/TxLine-1183RF-Darama.pdf"};
+const pdfOf=r=>PDF[r.h+"|"+r.s]||PDF[r.s];
 function rowHTML(r){
   return `<tr class="${r.fpr===0?"nil":""}">
     <td><span class="rg" style="background:${RC[r.r]||"#666"}">${esc(r.r)}</span></td>
     <td style="font-size:12.5px;color:var(--mut)">${esc(r.t).replace(/^Table (\d+) - /,"T$1 \u00b7 ")}</td>
-    <td class="col-h">${esc(r.h)}</td><td class="col-w">${esc(r.w)}</td><td style="color:var(--mut)">${esc(r.s)}</td>
+    <td class="col-h">${esc(r.h)}</td><td class="col-w">${esc(r.w)}</td><td style="color:var(--mut)">${pdfOf(r)?`<a href="${pdfOf(r)}" target="_blank" rel="noopener" title="परियोजना PDF खोलें">${esc(r.s)} 📄</a>`:esc(r.s)}</td>
     <td class="num">${r.p?(+r.p).toFixed(3).replace(/\.?0+$/,""):"\u2013"}</td>
     <td class="num ctr" style="font-weight:700">${r.fpr?inr(r.fpr):"\u2013"}</td>
     <td class="num ctr">${r.fex?inr(r.fex):"\u2013"}</td>
@@ -534,7 +537,7 @@ function goPg(n){ S.pg=n; table(); $("sc").scrollTop=0; }
 function render(){
   $("ttl").textContent = CFG.Dashboard_Title || "CAMPA APO \u2014 Activity-wise Progress";
   $("stl").innerHTML = `${esc(CFG.Division)} Forest Division, ${esc(CFG.Circle)} Circle &middot; ${esc(CFG.Form)}
-    &middot; Sanctioned plan for APO ${esc(CFG.APO_Year)} &middot; <b>Data updated: 13 Nov 2026</b>`;
+    &middot; Sanctioned plan for APO ${esc(CFG.APO_Year)} &middot; <b>Data updated: 26 Nov 2026</b>`;
   $("ftr").innerHTML = `Source: ${esc(CFG.Form)}, State CAMPA APO ${esc(CFG.APO_Year)}, ${esc(CFG.Division)} Division
     &mdash; Tables 1\u20134 (CA/PCA, CAT Plan, IWMP, Other Component)`;
   { const m=S.bmin; document.querySelectorAll(".tab[data-b]").forEach(b=>{ S.bmin=+b.dataset.b; b.querySelector(".n").textContent="("+filt().length+")"; }); S.bmin=0; NALL=filt().length; S.bmin=m; }
