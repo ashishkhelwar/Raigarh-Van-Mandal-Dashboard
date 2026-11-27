@@ -596,9 +596,10 @@ function render(){
   const row=(l,b,c)=>'<tr'+(c?' class="tot"':'')+'><td class="l">'+E(l)+'</td><td class="n">'+b.n+'</td><td class="n">'+F(b.aff)+'</td><td class="n">'+F(b.fel)+'</td><td class="n">'+F(b.rem)+'</td><td class="n">'+F(b.aT,3)+'</td><td class="n">'+F(b.aF)+'</td></tr>';
   document.getElementById('faBy').innerHTML=Object.entries(by).sort((a,b)=>b[1].aff-a[1].aff).map(([k,b])=>row(k,b)).join('')+row('योग',{n:R.length,...T},1);
   const pill=r=>r.st==='अप्रारंभ'?'<span class="pill p-low">विदोहन अप्रारंभ</span>':r.rem?'<span class="pill p-low">शेष '+F(r.rem)+'</span>':'<span class="pill p-ok">पूर्ण</span>';
+  const RED=(r,k)=>(k==='aT'||k==='tT')?(r.aT||0)>(r.tT||0)+1e-9:(k==='aF'||k==='tF')?(r.aF||0)>(r.tF||0)+1e-9:false;
   const N=[['eT',3],['eF',2],['aT',3],['aF',2],['tT',3],['tF',2],['pT',3],['pF',2]];
   document.getElementById('faBody').innerHTML=(R.map(r=>'<tr><td class="n">'+r.n+'</td><td class="n">'+r.y+'</td><td class="l" style="min-width:260px;white-space:normal">'+E(r.sub)+'<div style="font-size:11.5px;color:var(--dim)">'+E(r.ua)+'</div></td><td class="l">'+E(r.typ)+'</td><td class="n">'+F(r.area,3)+'</td><td class="l" style="white-space:nowrap">'+E(r.perm)+'</td><td class="n">'+F(r.aff)+'</td><td class="n">'+F(r.fel)+'</td><td class="l">'+pill(r)+'</td>'+
-    N.map(([k,d])=>'<td class="n">'+F(r[k],d)+'</td>').join('')+'<td class="l" style="min-width:220px;white-space:normal;font-size:12px">'+E(r.note)+'</td></tr>').join('')||'<tr><td colspan="18" class="l">चुने गए फ़िल्टर में कोई प्रकरण नहीं।</td></tr>')+
+    N.map(([k,d])=>'<td class="n"'+(RED(r,k)?' style="color:#c62828;background:#fdecea;font-weight:700" title="वास्तविक उत्पादन > परिवहित"':'')+'>'+F(r[k],d)+'</td>').join('')+'<td class="l" style="min-width:220px;white-space:normal;font-size:12px">'+E(r.note)+'</td></tr>').join('')||'<tr><td colspan="18" class="l">चुने गए फ़िल्टर में कोई प्रकरण नहीं।</td></tr>')+
     '<tr class="tot"><td class="l" colspan="4">योग — '+R.length+' प्रकरण</td><td class="n">'+F(T.area,3)+'</td><td></td><td class="n">'+F(T.aff)+'</td><td class="n">'+F(T.fel)+'</td><td class="n">'+F(T.rem)+'</td>'+N.map(([k,d])=>'<td class="n">'+F(T[k],d)+'</td>').join('')+'<td></td></tr>';
 }
 window.faGrp=(id,on)=>{document.querySelectorAll('#'+id+' input').forEach(i=>i.checked=!!on);render()};
